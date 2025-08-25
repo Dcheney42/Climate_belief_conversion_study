@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Messenger Style Chat Demo</title>
+    <link rel="stylesheet" href="messenger-styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-title">
+                <h1>Climate Change Conversation</h1>
+                <p>You are now connected with another participant</p>
+            </div>
+            
+            <div class="timer-display">
+                <div class="timer-circle">
+                    <span>4:23</span>
+                </div>
+                <p>Time Remaining</p>
+            </div>
+            
+            <div class="chat-controls">
+                <button class="btn-leave">Leave Chat</button>
+            </div>
+        </div>
+        
+        <div class="chat-instructions">
+            <div class="instruction-banner">
+                <p><strong>Instructions:</strong> You are chatting with someone who has different views on climate change. Please be respectful and try to understand their perspective. The conversation will last 5 minutes.</p>
+                <button class="close-btn">×</button>
+            </div>
+        </div>
+        
+        <div class="chat-main">
+            <div class="chat-messages">
+                <div class="system-message">
+                    <div class="message-content">Conversation started. You have 5 minutes to chat. Remember to be respectful and open-minded!</div>
+                </div>
+                
+                <div class="introduction-section">
+                    <div class="intro-header">
+                        <h3>Participant Introductions</h3>
+                        <p>Here are brief summaries of each participant's views on climate change:</p>
+                    </div>
+                    
+                    <div class="participant-intros">
+                        <div class="participant-intro">
+                            <div class="intro-header">
+                                <h4>Your Views</h4>
+                                <span class="classification-badge pro-climate">pro-climate</span>
+                            </div>
+                            <div class="intro-content">
+                                <p><strong>Personal Views:</strong> Climate change is the most pressing issue of our time and requires immediate action...</p>
+                                <p><strong>Key Influences:</strong> Scientific evidence and personal observation of changing weather patterns...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="participant-intro">
+                            <div class="intro-header">
+                                <h4>Other Participant's Views</h4>
+                                <span class="classification-badge anti-climate">anti-climate</span>
+                            </div>
+                            <div class="intro-content">
+                                <p><strong>Personal Views:</strong> I believe climate change is natural and not primarily caused by human activities...</p>
+                                <p><strong>Key Influences:</strong> Economic concerns and skepticism about climate models and predictions...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message other-message">
+                    <div class="message-header">
+                        <span class="sender-name">Participant B</span>
+                        <span class="message-time">12:01</span>
+                    </div>
+                    <div class="message-content">Hi there! I see we have different views on climate change. What do you think about renewable energy costs?</div>
+                </div>
+                
+                <div class="message own-message">
+                    <div class="message-header">
+                        <span class="sender-name">You</span>
+                        <span class="message-time">12:02</span>
+                    </div>
+                    <div class="message-content">Hello! I think renewable energy costs have decreased significantly over the past decade. Solar and wind are now competitive with fossil fuels in many markets.</div>
+                </div>
+                
+                <div class="message other-message">
+                    <div class="message-header">
+                        <span class="sender-name">Participant B</span>
+                        <span class="message-time">12:02</span>
+                    </div>
+                    <div class="message-content">That's interesting. But what about the reliability issues? Don't we need backup power when the sun isn't shining or wind isn't blowing?</div>
+                </div>
+                
+                <div class="message own-message">
+                    <div class="message-header">
+                        <span class="sender-name">You</span>
+                        <span class="message-time">12:03</span>
+                    </div>
+                    <div class="message-content">Great question! Battery storage technology has improved dramatically. Plus, we can use a diverse mix of renewable sources and smart grids to manage supply and demand.</div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" style="display: none;">
+                Participant B is typing...
+            </div>
+            
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <textarea placeholder="Type your message here... (max 500 characters)" rows="1"></textarea>
+                    <div class="input-controls">
+                        <div class="char-counter">0/500</div>
+                        <button class="btn-primary">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-status">
+            <span class="status-connected">Connected</span>
+            <span class="participant-online">Other participant online</span>
+        </div>
+    </div>
+</body>
+</html>

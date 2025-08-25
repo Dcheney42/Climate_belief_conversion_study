@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting for Match - Climate Study</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Finding Your Conversation Partner</h1>
+            <p class="subtitle">Please wait while we pair you with another participant</p>
+        </div>
+        
+        <div class="content">
+            <div class="waiting-room">
+                <div class="status-display">
+                    <div class="loading-spinner"></div>
+                    <h2 id="statusMessage">Searching for a conversation partner...</h2>
+                    <p id="statusDetails">We're looking for someone with different views on climate change to pair you with.</p>
+                </div>
+                
+                <div class="queue-info">
+                    <div class="info-card">
+                        <h3>Your Position</h3>
+                        <p class="queue-position" id="queuePosition">-</p>
+                        <small>in the waiting queue</small>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h3>Estimated Wait</h3>
+                        <p class="wait-time" id="waitTime">Calculating...</p>
+                        <small>maximum wait time: 10 minutes</small>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h3>Looking For</h3>
+                        <p class="looking-for" id="lookingFor">-</p>
+                        <small>participant type needed</small>
+                    </div>
+                </div>
+                
+                <div class="waiting-instructions">
+                    <h3>While You Wait</h3>
+                    <div class="instruction-box">
+                        <h4>What to Expect:</h4>
+                        <ul>
+                            <li>You'll be paired with someone who holds different views on climate change</li>
+                            <li>The conversation will last exactly 10 minutes</li>
+                            <li>You'll communicate through text messages, similar to a chat app</li>
+                            <li>Please be respectful and open-minded during the conversation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="instruction-box">
+                        <h4>Conversation Tips:</h4>
+                        <ul>
+                            <li>Ask questions to understand the other person's perspective</li>
+                            <li>Share your own views clearly and respectfully</li>
+                            <li>Focus on understanding rather than convincing</li>
+                            <li>Keep the conversation civil and constructive</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="waiting-actions">
+                    <button id="leaveStudyBtn" class="btn-secondary">Leave Study</button>
+                    <p class="leave-note">You can withdraw from the study at any time without penalty</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="connection-status">
+            <span id="connectionStatus" class="status-connected">Connected</span>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let startTime = Date.now();
+        let waitTimer;
+        
+        // Get participant info from session storage
+        const participantId = sessionStorage.getItem('participant_id');
+        const classification = sessionStorage.getItem('classification');
+        
+        if (!participantId || !classification) {
+            alert('Session expired. Please start the study again.');
+            window.location.href = '/';
+        }
+        
+        // Update wait time display
+        function updateWaitTime() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            
+            document.getElementById('waitTime').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Start wait timer
+        waitTimer = setInterval(updateWaitTime, 1000);
+        
+        // Socket event handlers
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            document.getElementById('connectionStatus').textContent = 'Connected';
+            document.getElementById('connectionStatus').className = 'status-connected';
+            
+            // Join the waiting queue
+            socket.emit('join_queue', { participant_id: participantId });
+        });
+        
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+            document.getElementById('connectionStatus').textContent = 'Disconnected';
+            document.getElementById('connectionStatus').className = 'status-disconnected';
+            document.getElementById('statusMessage').textContent = 'Connection lost. Trying to reconnect...';
+        });
+        
+        socket.on('queue_status', (data) => {
+            document.getElementById('queuePosition').textContent = data.position;
+            
+            const lookingForText = data.waiting_for === 'pro_climate' ? 
+                'Pro-climate participant' : 'Anti-climate participant';
+            document.getElementById('lookingFor').textContent = lookingForText;
+            
+            if (data.position === 1) {
+                document.getElementById('statusMessage').textContent = 'You\'re next in line!';
+                document.getElementById('statusDetails').textContent = 
+                    'We\'ll pair you as soon as a suitable participant joins.';
+            } else {
+                document.getElementById('statusMessage').textContent = 
+                    `Position ${data.position} in queue`;
+                document.getElementById('statusDetails').textContent = 
+                    `${data.position - 1} participant(s) ahead of you.`;
+            }
+        });
+        
+        socket.on('match_found', (data) => {
+            clearInterval(waitTimer);
+            
+            document.getElementById('statusMessage').textContent = 'Match found!';
+            document.getElementById('statusDetails').textContent = 
+                'Redirecting you to the conversation...';
+            
+            // Store session ID and redirect
+            sessionStorage.setItem('session_id', data.session_id);
+            
+            setTimeout(() => {
+                window.location.href = `/chat/${data.session_id}`;
+            }, 2000);
+        });
+        
+        socket.on('match_failed', (data) => {
+            clearInterval(waitTimer);
+            
+            document.getElementById('statusMessage').textContent = 'No match found';
+            document.getElementById('statusDetails').textContent = 
+                'We couldn\'t find a suitable conversation partner within the time limit.';
+            
+            // Show option to try again or exit
+            const actionsDiv = document.querySelector('.waiting-actions');
+            actionsDiv.innerHTML = `
+                <button onclick="location.reload()" class="btn-primary">Try Again</button>
+                <button onclick="window.location.href='/exit-survey'" class="btn-secondary">Exit Study</button>
+            `;
+        });
+        
+        socket.on('error', (data) => {
+            console.error('Socket error:', data);
+            alert('An error occurred: ' + data.message);
+        });
+        
+        // Leave study button
+        document.getElementById('leaveStudyBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to leave the study? You will not be able to return.')) {
+                socket.disconnect();
+                window.location.href = '/exit-survey';
+            }
+        });
+        
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            socket.disconnect();
+        });
+        
+        // Timeout after 10 minutes
+        setTimeout(() => {
+            if (socket.connected) {
+                clearInterval(waitTimer);
+                document.getElementById('statusMessage').textContent = 'Wait time exceeded';
+                document.getElementById('statusDetails').textContent = 
+                    'We couldn\'t find a match within 10 minutes. Thank you for your patience.';
+                
+                const actionsDiv = document.querySelector('.waiting-actions');
+                actionsDiv.innerHTML = `
+                    <button onclick="window.location.href='/exit-survey'" class="btn-primary">Continue to Exit Survey</button>
+                `;
+            }
+        }, 600000); // 10 minutes
+    </script>
+</body>
+</html>

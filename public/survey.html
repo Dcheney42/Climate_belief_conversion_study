@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Change Survey</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Climate Change Views Survey</h1>
+            <p class="subtitle">Please answer the following questions about your views on climate change</p>
+        </div>
+        
+        <div class="content">
+            <form id="surveyForm" class="survey-form">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p class="progress-text">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">4</span></p>
+                
+                <!-- Page 1: Age Question -->
+                <div class="question-section" id="section1">
+                    <h2>Question 1 of 4</h2>
+                    <div class="question">
+                        <label class="question-text">What is your age?</label>
+                        <div class="form-group">
+                            <input type="number" name="age" min="18" max="100" required 
+                                   placeholder="Enter your age" class="age-input">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page 2: Climate Change Likert Scale -->
+                <div class="question-section" id="section2" style="display: none;">
+                    <h2>Question 2 of 4</h2>
+                    <div class="question">
+                        <label class="question-text">Climate change is happening and is caused mostly by human activity</label>
+                        <div class="likert-scale">
+                            <div class="scale-labels">
+                                <span>Strongly Disagree</span>
+                                <span>Strongly Agree</span>
+                            </div>
+                            <div class="scale-options">
+                                <label><input type="radio" name="climate_human_causation" value="1" required> 1</label>
+                                <label><input type="radio" name="climate_human_causation" value="2"> 2</label>
+                                <label><input type="radio" name="climate_human_causation" value="3"> 3</label>
+                                <label><input type="radio" name="climate_human_causation" value="4"> 4</label>
+                                <label><input type="radio" name="climate_human_causation" value="5"> 5</label>
+                                <label><input type="radio" name="climate_human_causation" value="6"> 6</label>
+                                <label><input type="radio" name="climate_human_causation" value="7"> 7</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page 3: Overall Perspective -->
+                <div class="question-section" id="section3" style="display: none;">
+                    <h2>Question 3 of 4</h2>
+                    <div class="question">
+                        <label class="question-text">We'd like you to share your overall perspective on climate change in a few sentences. Consider the following points in your response: how do you generally view climate change? Do you believe humans have a significant impact on the environment? There are no right or wrong answers – we're interested in your honest thoughts and opinions.</label>
+                        <textarea name="overall_perspective" rows="6" required
+                                  placeholder="Share your overall perspective on climate change..."
+                                  class="word-limited-textarea" data-min-words="15" data-max-words="50"></textarea>
+                        <div class="word-counter">
+                            <span id="overallPerspectiveCount">0 words entered (minimum 15 required)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Page 4: What Led to Opinion -->
+                <div class="question-section" id="section4" style="display: none;">
+                    <h2>Question 4 of 4</h2>
+                    <div class="question">
+                        <div class="previous-response">
+                            <strong>On the previous question, you wrote:</strong>
+                            <div class="quoted-response" id="previousResponse"></div>
+                        </div>
+                        <label class="question-text">Could you share more about what led you to this opinion? For instance, are there specific pieces of evidence, events, sources of information, or personal experiences that have particularly influenced your perspective? Please describe these in as much detail as you feel comfortable.</label>
+                        <textarea name="opinion_influences" rows="6" required
+                                  placeholder="Describe what has influenced your perspective..."
+                                  class="word-limited-textarea" data-min-words="15" data-max-words="50"></textarea>
+                        <div class="word-counter">
+                            <span id="opinionInfluencesCount">0 words entered (minimum 15 required)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="navigation-buttons">
+                    <button type="button" id="prevBtn" class="btn-secondary" style="display: none;">Previous</button>
+                    <button type="button" id="nextBtn" class="btn-primary">Next</button>
+                    <button type="submit" id="submitBtn" class="btn-primary" style="display: none;">Submit Survey</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentSection = 1;
+        const totalSections = 4;
+        let surveyResponses = {};
+        
+        // Word counting functionality
+        function countWords(text) {
+            if (!text.trim()) return 0;
+            return text.trim().split(/\s+/).length;
+        }
+        
+        function setupWordCounter(textareaSelector, counterId, minWords, maxWords) {
+            const textarea = document.querySelector(textareaSelector);
+            const counter = document.getElementById(counterId);
+            
+            textarea.addEventListener('input', function() {
+                const wordCount = countWords(this.value);
+                const remaining = maxWords - wordCount;
+                
+                console.log(`Word counter for ${this.name}: ${wordCount} words (min: ${minWords}, max: ${maxWords}, remaining: ${remaining})`);
+                
+                // Update display text based on word count
+                if (wordCount < minWords) {
+                    counter.textContent = `${wordCount} words entered (minimum ${minWords} required)`;
+                    counter.style.color = '#dc3545'; // Red for under minimum
+                } else if (wordCount >= minWords && wordCount < maxWords) {
+                    const wordsRemaining = maxWords - wordCount;
+                    counter.textContent = `${wordCount} words entered (${wordsRemaining} words remaining)`;
+                    counter.style.color = '#28a745'; // Green when in valid range
+                } else if (wordCount === maxWords) {
+                    counter.textContent = `${wordCount} words entered (maximum reached)`;
+                    counter.style.color = '#ffc107'; // Yellow at maximum
+                }
+                
+                // Prevent further typing if at word limit
+                if (wordCount > maxWords) {
+                    const words = this.value.trim().split(/\s+/);
+                    this.value = words.slice(0, maxWords).join(' ');
+                    counter.textContent = `${maxWords} words entered (maximum reached)`;
+                    counter.style.color = '#ffc107'; // Yellow at maximum
+                }
+            });
+        }
+        
+        // Navigation
+        function showSection(sectionNum) {
+            // Hide all sections
+            for (let i = 1; i <= totalSections; i++) {
+                document.getElementById(`section${i}`).style.display = 'none';
+            }
+            
+            // Show current section
+            document.getElementById(`section${sectionNum}`).style.display = 'block';
+            
+            // Update progress
+            document.getElementById('currentQuestion').textContent = sectionNum;
+            document.getElementById('totalQuestions').textContent = totalSections;
+            
+            const progressPercent = (sectionNum / totalSections) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            
+            // Update buttons
+            document.getElementById('prevBtn').style.display = sectionNum > 1 ? 'inline-block' : 'none';
+            document.getElementById('nextBtn').style.display = sectionNum < totalSections ? 'inline-block' : 'none';
+            document.getElementById('submitBtn').style.display = sectionNum === totalSections ? 'inline-block' : 'none';
+            
+            // Special handling for section 4 - show previous response
+            if (sectionNum === 4) {
+                const previousResponse = surveyResponses.overall_perspective || '';
+                document.getElementById('previousResponse').textContent = previousResponse;
+            }
+        }
+        
+        function validateCurrentSection() {
+            const currentSectionElement = document.getElementById(`section${currentSection}`);
+            const requiredInputs = currentSectionElement.querySelectorAll('input[required], textarea[required]');
+            
+            for (let input of requiredInputs) {
+                if (input.type === 'radio') {
+                    const radioGroup = currentSectionElement.querySelectorAll(`input[name="${input.name}"]`);
+                    const isChecked = Array.from(radioGroup).some(radio => radio.checked);
+                    if (!isChecked) return false;
+                } else if (input.type === 'number') {
+                    const value = parseInt(input.value);
+                    const min = parseInt(input.min);
+                    const max = parseInt(input.max);
+                    if (!input.value || isNaN(value) || value < min || value > max) return false;
+                } else {
+                    if (!input.value.trim()) return false;
+                    // Check word limits for text areas
+                    if (input.classList.contains('word-limited-textarea')) {
+                        const maxWords = parseInt(input.getAttribute('data-max-words'));
+                        const minWords = parseInt(input.getAttribute('data-min-words') || '0');
+                        const wordCount = countWords(input.value);
+                        console.log(`Validation check for ${input.name}: ${wordCount} words (min: ${minWords}, max: ${maxWords})`);
+                        if (wordCount === 0 || wordCount < minWords || wordCount > maxWords) {
+                            console.log(`Validation failed for ${input.name}: wordCount=${wordCount}, minWords=${minWords}, maxWords=${maxWords}`);
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function saveCurrentSectionData() {
+            const currentSectionElement = document.getElementById(`section${currentSection}`);
+            const inputs = currentSectionElement.querySelectorAll('input, textarea');
+            
+            inputs.forEach(input => {
+                if (input.type === 'radio') {
+                    if (input.checked) {
+                        surveyResponses[input.name] = input.value;
+                    }
+                } else {
+                    surveyResponses[input.name] = input.value;
+                }
+            });
+            
+            // Save to sessionStorage
+            sessionStorage.setItem('survey_responses', JSON.stringify(surveyResponses));
+        }
+        
+        function loadSavedData() {
+            const saved = sessionStorage.getItem('survey_responses');
+            if (saved) {
+                surveyResponses = JSON.parse(saved);
+                
+                // Restore form values
+                Object.keys(surveyResponses).forEach(name => {
+                    const input = document.querySelector(`[name="${name}"]`);
+                    if (input) {
+                        if (input.type === 'radio') {
+                            const radioToCheck = document.querySelector(`[name="${name}"][value="${surveyResponses[name]}"]`);
+                            if (radioToCheck) radioToCheck.checked = true;
+                        } else {
+                            input.value = surveyResponses[name];
+                            // Trigger input event to update word counters
+                            if (input.classList.contains('word-limited-textarea')) {
+                                input.dispatchEvent(new Event('input'));
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (validateCurrentSection()) {
+                saveCurrentSectionData();
+                currentSection++;
+                showSection(currentSection);
+            } else {
+                // Check for specific word minimum validation error
+                const currentSectionElement = document.getElementById(`section${currentSection}`);
+                const textareas = currentSectionElement.querySelectorAll('textarea.word-limited-textarea');
+                let hasWordMinimumError = false;
+                
+                for (let textarea of textareas) {
+                    const minWords = parseInt(textarea.getAttribute('data-min-words') || '0');
+                    const wordCount = countWords(textarea.value);
+                    if (wordCount > 0 && wordCount < minWords) {
+                        hasWordMinimumError = true;
+                        break;
+                    }
+                }
+                
+                if (hasWordMinimumError) {
+                    alert('Please enter at least 15 words before continuing.');
+                } else {
+                    alert('Please complete all required fields before continuing.');
+                }
+            }
+        });
+        
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            saveCurrentSectionData();
+            currentSection--;
+            showSection(currentSection);
+        });
+        
+        document.getElementById('surveyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateCurrentSection()) {
+                // Check for specific word minimum validation error
+                const currentSectionElement = document.getElementById(`section${currentSection}`);
+                const textareas = currentSectionElement.querySelectorAll('textarea.word-limited-textarea');
+                let hasWordMinimumError = false;
+                
+                for (let textarea of textareas) {
+                    const minWords = parseInt(textarea.getAttribute('data-min-words') || '0');
+                    const wordCount = countWords(textarea.value);
+                    if (wordCount > 0 && wordCount < minWords) {
+                        hasWordMinimumError = true;
+                        break;
+                    }
+                }
+                
+                if (hasWordMinimumError) {
+                    alert('Please enter at least 15 words before continuing.');
+                } else {
+                    alert('Please complete all required fields.');
+                }
+                return;
+            }
+            
+            saveCurrentSectionData();
+            
+            // Submit to server
+            const submitData = {
+                prolific_id: sessionStorage.getItem('prolific_id'),
+                survey_responses: {
+                    age: parseInt(surveyResponses.age),
+                    climate_human_causation: parseInt(surveyResponses.climate_human_causation),
+                    overall_perspective: surveyResponses.overall_perspective,
+                    opinion_influences: surveyResponses.opinion_influences
+                }
+            };
+            
+            console.log('Submitting survey data:', submitData);
+            
+            fetch('/survey/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(submitData)
+            })
+            .then(response => {
+                console.log('Received response:', response);
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    sessionStorage.setItem('participant_id', data.participant_id);
+                    sessionStorage.setItem('classification', data.classification);
+                    // Clear survey responses
+                    sessionStorage.removeItem('survey_responses');
+                    window.location.href = data.redirect;
+                } else {
+                    console.error('Server error:', data);
+                    alert(`Error submitting survey: ${data.error || 'Unknown error'}. Please try again.`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(`Error submitting survey: ${error.message}. Please try again.`);
+            });
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup word counters with minimum and maximum word requirements
+            setupWordCounter('textarea[name="overall_perspective"]', 'overallPerspectiveCount', 15, 50);
+            setupWordCounter('textarea[name="opinion_influences"]', 'opinionInfluencesCount', 15, 50);
+            
+            // Load any saved data
+            loadSavedData();
+            
+            // Show first section
+            showSection(1);
+            
+            // Check if user came from consent
+            if (!sessionStorage.getItem('consent_data')) {
+                alert('Please complete the consent form first.');
+                window.location.href = '/consent';
+            }
+        });
+    </script>
+</body>
+</html>

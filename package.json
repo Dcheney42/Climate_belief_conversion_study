@@ -1,0 +1,27 @@
+{
+  "name": "climate-conversation-platform",
+  "version": "1.0.0",
+  "description": "An experimental platform for climate change conversations between participants with opposing views",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "climate-change",
+    "conversation",
+    "research",
+    "experimental-platform",
+    "prolific"
+  ],
+  "author": "Research Team",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "moment": "^2.30.1",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  }
+}

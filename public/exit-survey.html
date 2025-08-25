@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exit Survey - Climate Study</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Thank You for Participating!</h1>
+        </div>
+        
+        <div class="content">
+            <form id="exitSurveyForm" class="survey-form">
+                <div class="question-section">
+                    <h2>Your Experience</h2>
+                    
+                    <div class="question">
+                        <label class="question-text">How would you rate the overall quality of your conversation?</label>
+                        <div class="rating-scale">
+                            <label><input type="radio" name="conversation_quality" value="1" required> 1 - Very Poor</label>
+                            <label><input type="radio" name="conversation_quality" value="2"> 2 - Poor</label>
+                            <label><input type="radio" name="conversation_quality" value="3"> 3 - Average</label>
+                            <label><input type="radio" name="conversation_quality" value="4"> 4 - Good</label>
+                            <label><input type="radio" name="conversation_quality" value="5"> 5 - Excellent</label>
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <label class="question-text">Did the conversation change your views on climate change in any way?</label>
+                        <div class="multiple-choice">
+                            <label><input type="radio" name="attitude_change" value="strengthened" required> It strengthened my existing views</label>
+                            <label><input type="radio" name="attitude_change" value="weakened"> It weakened my existing views</label>
+                            <label><input type="radio" name="attitude_change" value="shifted"> It shifted my views in a new direction</label>
+                            <label><input type="radio" name="attitude_change" value="no_change"> It didn't change my views at all</label>
+                            <label><input type="radio" name="attitude_change" value="unsure"> I'm not sure</label>
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <label class="question-text">How respectful was the other participant during the conversation?</label>
+                        <div class="rating-scale">
+                            <label><input type="radio" name="other_respectfulness" value="1" required> 1 - Very Disrespectful</label>
+                            <label><input type="radio" name="other_respectfulness" value="2"> 2 - Disrespectful</label>
+                            <label><input type="radio" name="other_respectfulness" value="3"> 3 - Neutral</label>
+                            <label><input type="radio" name="other_respectfulness" value="4"> 4 - Respectful</label>
+                            <label><input type="radio" name="other_respectfulness" value="5"> 5 - Very Respectful</label>
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <label class="question-text">Climate change is happening and is caused mostly by human activity</label>
+                        <div class="likert-scale">
+                            <div class="scale-labels">
+                                <span>Strongly Disagree</span>
+                                <span>Strongly Agree</span>
+                            </div>
+                            <div class="scale-options">
+                                <label><input type="radio" name="climate_change_post" value="1" required> 1</label>
+                                <label><input type="radio" name="climate_change_post" value="2"> 2</label>
+                                <label><input type="radio" name="climate_change_post" value="3"> 3</label>
+                                <label><input type="radio" name="climate_change_post" value="4"> 4</label>
+                                <label><input type="radio" name="climate_change_post" value="5"> 5</label>
+                                <label><input type="radio" name="climate_change_post" value="6"> 6</label>
+                                <label><input type="radio" name="climate_change_post" value="7"> 7</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <div class="question-section">
+                    <h2>Additional Feedback</h2>
+                    
+                    <div class="question">
+                        <label class="question-text">What did you like most about this experience? (Optional)</label>
+                        <textarea name="liked_most" rows="3" maxlength="500" 
+                                  placeholder="Share what you found valuable or interesting..."></textarea>
+                        <div class="char-counter">
+                            <span id="likedMostCount">0</span>/500 characters
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <label class="question-text">What could be improved about this study? (Optional)</label>
+                        <textarea name="improvements" rows="3" maxlength="500" 
+                                  placeholder="Share any suggestions for improvement..."></textarea>
+                        <div class="char-counter">
+                            <span id="improvementsCount">0</span>/500 characters
+                        </div>
+                    </div>
+                    
+                    <div class="question">
+                        <label class="question-text">Any other comments or feedback? (Optional)</label>
+                        <textarea name="other_feedback" rows="3" maxlength="500" 
+                                  placeholder="Share any other thoughts about your experience..."></textarea>
+                        <div class="char-counter">
+                            <span id="otherFeedbackCount">0</span>/500 characters
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Submit Feedback</button>
+                </div>
+            </form>
+            
+            <div id="completionMessage" class="completion-message" style="display: none;">
+                <h2>Study Complete!</h2>
+                <p>Thank you for your participation in this climate change conversation study. Your responses have been recorded and will contribute to important research on cross-ideological communication.</p>
+                
+                <div class="completion-details">
+                    <h3>What happens next?</h3>
+                    <ul>
+                        <li>Your data will be analyzed along with other participants</li>
+                        <li>All responses remain completely anonymous</li>
+                        <li>Results may be published in academic journals</li>
+                        <li>You may be contacted for follow-up studies (optional)</li>
+                    </ul>
+                </div>
+                
+                <div class="completion-contact">
+                    <h3>Questions or Concerns?</h3>
+                    <p>If you have any questions about this study or your participation, please contact:</p>
+                    <p><strong>Research Team:</strong> samuel.pearson@uq.edu.au</p>
+                </div>
+                
+                <div class="completion-message">
+                    <p>You may now close this browser tab.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Character counters
+        function setupCharCounter(textareaName, counterId) {
+            const textarea = document.querySelector(`textarea[name="${textareaName}"]`);
+            const counter = document.getElementById(counterId);
+            
+            if (textarea && counter) {
+                textarea.addEventListener('input', function() {
+                    counter.textContent = this.value.length;
+                });
+            }
+        }
+        
+        setupCharCounter('liked_most', 'likedMostCount');
+        setupCharCounter('improvements', 'improvementsCount');
+        setupCharCounter('other_feedback', 'otherFeedbackCount');
+        
+        // Form submission
+        document.getElementById('exitSurveyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitSurvey();
+        });
+        
+        
+        function submitSurvey() {
+            const formData = new FormData(document.getElementById('exitSurveyForm'));
+            
+            const surveyData = {
+                participant_id: sessionStorage.getItem('participant_id'),
+                prolific_id: sessionStorage.getItem('prolific_id'),
+                session_id: sessionStorage.getItem('session_id'),
+                timestamp: new Date().toISOString(),
+                responses: {
+                    conversation_quality: parseInt(formData.get('conversation_quality')),
+                    attitude_change: formData.get('attitude_change'),
+                    other_respectfulness: parseInt(formData.get('other_respectfulness')),
+                    climate_change_post: parseInt(formData.get('climate_change_post')),
+                    liked_most: formData.get('liked_most') || '',
+                    improvements: formData.get('improvements') || '',
+                    other_feedback: formData.get('other_feedback') || ''
+                }
+            };
+            
+            // Submit to server
+            fetch('/exit-survey', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(surveyData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showCompletion();
+                } else {
+                    alert('Error submitting survey. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting survey. Please try again.');
+            });
+        }
+        
+        function showCompletion() {
+            document.getElementById('exitSurveyForm').style.display = 'none';
+            document.getElementById('completionMessage').style.display = 'block';
+            
+            // Clear session storage
+            sessionStorage.clear();
+        }
+        
+        // Check if user completed the study
+        const participantId = sessionStorage.getItem('participant_id');
+        if (!participantId) {
+            // Show completion message for users who didn't complete the full study
+            document.querySelector('.header h1').textContent = 'Thank You';
+            document.querySelector('.header .subtitle').textContent = 'Thank you for your interest in participating';
+            document.getElementById('exitSurveyForm').style.display = 'none';
+            document.getElementById('completionMessage').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

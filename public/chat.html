@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Change Conversation</title>
+    <link rel="stylesheet" href="/messenger-styles.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="chat-title">
+                <h1>Climate Change Conversation</h1>
+                <p>You are now connected with another participant</p>
+            </div>
+            
+            <div class="timer-display">
+                <div class="timer-circle">
+                    <span id="timeRemaining">5:00</span>
+                </div>
+                <p>Time Remaining</p>
+            </div>
+            
+            <div class="chat-controls">
+                <button id="leaveChatBtn" class="btn-leave">Leave Chat</button>
+            </div>
+        </div>
+        
+        <div class="chat-instructions">
+            <div class="instruction-banner" id="instructionBanner" style="display: none;">
+                <p><strong>Instructions:</strong> You are chatting with someone who has different views on climate change. Please be respectful and try to understand their perspective. The conversation will last 5 minutes.</p>
+                <button id="closeInstructions" class="close-btn">×</button>
+            </div>
+        </div>
+        
+        <div class="chat-main">
+            <div class="chat-messages" id="chatMessages">
+                <div class="system-message">
+                    <div class="message-content">Conversation started. You have 5 minutes to chat. Remember to be respectful and open-minded!</div>
+                </div>
+                
+                <div class="introduction-section" id="introductionSection">
+                    <div class="intro-header">
+                        <h3>Participant Introductions</h3>
+                        <p>Here are brief summaries of each participant's views on climate change:</p>
+                    </div>
+                    
+                    <div class="participant-intros" id="participantIntros">
+                        <!-- Introductions will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                Other participant is typing...
+            </div>
+            
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <textarea id="messageInput" placeholder="Type your message here... (max 500 characters)" maxlength="500" rows="1"></textarea>
+                    <div class="input-controls">
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/500
+                        </div>
+                        <button id="sendButton" class="btn-primary" disabled>Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-status">
+            <span id="connectionStatus" class="status-connected">Connected</span>
+            <span id="participantStatus" class="participant-online">Other participant online</span>
+        </div>
+    </div>
+    
+    <!-- Conversation End Modal -->
+    <div id="endModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Conversation Ended</h2>
+            <p id="endReason">Your 5-minute conversation has ended.</p>
+            <p>Thank you for participating! You will now be redirected to a brief exit survey.</p>
+            <button id="continueBtn" class="btn-primary">Continue to Exit Survey</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let conversationActive = true;
+        let timeRemaining = 300; // 5 minutes in seconds
+        let participantNames = {};
+        let timerInterval;
+        let typingTimeout;
+        let isTyping = false;
+        
+        // Get session info
+        const sessionId = window.location.pathname.split('/').pop();
+        const participantId = sessionStorage.getItem('participant_id');
+        
+        if (!participantId || !sessionId) {
+            alert('Invalid session. Please start the study again.');
+            window.location.href = '/';
+        }
+        
+        // DOM elements
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const charCount = document.getElementById('charCount');
+        const timeDisplay = document.getElementById('timeRemaining');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const endModal = document.getElementById('endModal');
+        
+        // Timer functions
+        function updateTimer() {
+            if (timeRemaining <= 0) {
+                endConversation('time_limit');
+                return;
+            }
+            
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Warning colors
+            if (timeRemaining <= 30) {
+                timeDisplay.style.color = '#ff4444';
+            } else if (timeRemaining <= 120) {
+                timeDisplay.style.color = '#ff8800';
+            }
+            
+            timeRemaining--;
+        }
+        
+        function startTimer() {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        }
+        
+        // Message functions
+        function addMessage(message, isOwn = false, isSystem = false) {
+            if (isSystem) {
+                const systemDiv = document.createElement('div');
+                systemDiv.className = 'system-message';
+                systemDiv.innerHTML = `<div class="message-content">${message}</div>`;
+                chatMessages.appendChild(systemDiv);
+            } else {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isOwn ? 'own-message' : 'other-message'}`;
+                
+                const timestamp = new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const senderName = participantNames[message.sender] || (isOwn ? 'You' : 'Other Participant');
+                
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <span class="sender-name">${senderName}</span>
+                        <span class="message-time">${timestamp}</span>
+                    </div>
+                    <div class="message-content">${escapeHtml(message.message)}</div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+            }
+            
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message || !conversationActive) return;
+            
+            socket.emit('send_message', {
+                session_id: sessionId,
+                message: message
+            });
+            
+            messageInput.value = '';
+            updateCharCount();
+            sendButton.disabled = true;
+            autoResizeTextarea();
+        }
+        
+        function updateCharCount() {
+            const count = messageInput.value.length;
+            charCount.textContent = count;
+            sendButton.disabled = count === 0 || !conversationActive;
+        }
+        
+        function autoResizeTextarea() {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 100) + 'px';
+        }
+        
+        function showTyping() {
+            if (!isTyping) {
+                isTyping = true;
+                socket.emit('typing_start', { session_id: sessionId });
+            }
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isTyping = false;
+                socket.emit('typing_stop', { session_id: sessionId });
+            }, 2000);
+        }
+        
+        function endConversation(reason) {
+            conversationActive = false;
+            stopTimer();
+            
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+            
+            let reasonText;
+            switch(reason) {
+                case 'time_limit':
+                    reasonText = 'Your 5-minute conversation has ended.';
+                    break;
+                case 'participant_disconnect':
+                    reasonText = 'The other participant has disconnected.';
+                    break;
+                case 'participant_left_early':
+                case 'left_early':
+                    reasonText = 'The conversation ended early.';
+                    break;
+                default:
+                    reasonText = 'The conversation has ended.';
+            }
+            
+            document.getElementById('endReason').textContent = reasonText;
+            endModal.style.display = 'flex';
+        }
+        
+        // Event listeners
+        messageInput.addEventListener('input', () => {
+            updateCharCount();
+            autoResizeTextarea();
+            if (conversationActive) {
+                showTyping();
+            }
+        });
+        
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        sendButton.addEventListener('click', sendMessage);
+        
+        document.getElementById('closeInstructions').addEventListener('click', () => {
+            document.getElementById('instructionBanner').style.display = 'none';
+        });
+        
+        document.getElementById('continueBtn').addEventListener('click', () => {
+            window.location.href = '/exit-survey';
+        });
+        
+        document.getElementById('leaveChatBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to leave the chat early? This will end the conversation for both participants.')) {
+                socket.emit('leave_chat_early', { session_id: sessionId });
+                endConversation('left_early');
+            }
+        });
+        
+        // Socket event handlers
+        socket.on('connect', () => {
+            console.log('Connected to chat');
+            document.getElementById('connectionStatus').textContent = 'Connected';
+            document.getElementById('connectionStatus').className = 'status-connected';
+            
+            // Join the session room
+            socket.emit('join_session', { session_id: sessionId, participant_id: participantId });
+            startTimer();
+        });
+        
+        // Handle session joined successfully with participant data
+        socket.on('session_joined', (data) => {
+            if (data.participant_introductions) {
+                displayParticipantIntroductions(data.participant_introductions);
+            }
+            if (data.participant_names) {
+                participantNames = data.participant_names;
+            }
+        });
+        
+        // Function to display participant introductions
+        function displayParticipantIntroductions(introductions) {
+            const introsContainer = document.getElementById('participantIntros');
+            introsContainer.innerHTML = '';
+            
+            introductions.forEach((intro, index) => {
+                const isOwn = intro.participant_id === participantId;
+                const introDiv = document.createElement('div');
+                introDiv.className = `participant-intro ${isOwn ? 'own-intro' : 'other-intro'}`;
+                
+                introDiv.innerHTML = `
+                    <div class="intro-header">
+                        <h4>${isOwn ? 'Your Views' : 'Other Participant\'s Views'}</h4>
+                        <span class="classification-badge ${intro.classification.replace('_', '-')}">${intro.classification.replace('_', '-')}</span>
+                    </div>
+                    <div class="intro-content">
+                        <p><strong>Personal Views:</strong> ${intro.personal_views}</p>
+                        <p><strong>Key Influences:</strong> ${intro.influencing_factors}</p>
+                    </div>
+                `;
+                
+                introsContainer.appendChild(introDiv);
+            });
+        }
+        
+        socket.on('disconnect', () => {
+            console.log('Disconnected from chat');
+            document.getElementById('connectionStatus').textContent = 'Disconnected';
+            document.getElementById('connectionStatus').className = 'status-disconnected';
+            
+            if (conversationActive) {
+                addMessage('Connection lost. Trying to reconnect...', false, true);
+            }
+        });
+        
+        socket.on('receive_message', (message) => {
+            const isOwn = message.sender === participantId;
+            addMessage(message, isOwn);
+        });
+        
+        socket.on('participant_disconnected', () => {
+            document.getElementById('participantStatus').textContent = 'Other participant disconnected';
+            document.getElementById('participantStatus').className = 'participant-offline';
+            addMessage('The other participant has left the conversation.', false, true);
+            
+            setTimeout(() => {
+                endConversation('participant_disconnect');
+            }, 3000);
+        });
+        
+        socket.on('participant_left_early', () => {
+            document.getElementById('participantStatus').textContent = 'Other participant left';
+            document.getElementById('participantStatus').className = 'participant-offline';
+            addMessage('The other participant has left the chat early.', false, true);
+            
+            setTimeout(() => {
+                endConversation('participant_left_early');
+            }, 2000);
+        });
+        
+        socket.on('conversation_ended', (data) => {
+            addMessage('Conversation has ended. Thank you for participating!', false, true);
+            setTimeout(() => {
+                endConversation(data.reason);
+            }, 2000);
+        });
+        
+        socket.on('typing_start', () => {
+            typingIndicator.style.display = 'block';
+        });
+        
+        socket.on('typing_stop', () => {
+            typingIndicator.style.display = 'none';
+        });
+        
+        socket.on('error', (data) => {
+            console.error('Chat error:', data);
+            addMessage('An error occurred: ' + data.message, false, true);
+        });
+        
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            if (conversationActive) {
+                socket.emit('leave_session', { session_id: sessionId });
+            }
+        });
+        
+        // Initialize
+        updateCharCount();
+        autoResizeTextarea();
+        
+        // Auto-hide instructions after 10 seconds
+        setTimeout(() => {
+            const banner = document.getElementById('instructionBanner');
+            if (banner.style.display !== 'none') {
+                banner.style.display = 'none';
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
