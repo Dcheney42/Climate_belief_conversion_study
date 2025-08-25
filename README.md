@@ -29,8 +29,8 @@ This platform facilitates research on how people discuss and reflect on their cl
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/sammmy-p/debate_paradigm.git
-cd debate_paradigm
+git clone https://github.com/sammmy-p/Climate_belief_conversion_study.git
+cd Climate_belief_conversion_study
 ```
 
 2. Install dependencies:
