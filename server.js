@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
+const OpenAI = require('openai');
 require('dotenv').config();
 
 const app = express();
@@ -454,19 +455,154 @@ function escapeCsv(str) {
     return str;
 }
 
-// Mock AI response function (replace with actual OpenAI implementation)
+// Initialize OpenAI client (works with OpenRouter too)
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    baseURL: process.env.OPENAI_API_KEY?.startsWith('sk-or-')
+        ? 'https://openrouter.ai/api/v1'
+        : 'https://api.openai.com/v1'
+});
+
+// Real OpenAI API integration
 async function generateAIResponse(messages, systemPrompt) {
-    // This is a placeholder - you should implement actual OpenAI API call here
-    const responses = [
-        "That's an interesting perspective. What specific experiences or information helped shape that view?",
-        "I can see you feel strongly about this. Could you tell me more about what led you to that conclusion?",
-        "Thank you for sharing that. Are there particular aspects of this topic that you find most compelling?",
-        "That's a thoughtful point. How do you think others who disagree might respond to that argument?",
-        "I appreciate you explaining your viewpoint. What questions do you think are most important to consider about this issue?"
+    try {
+        // Check if OpenAI API key is configured
+        if (!process.env.OPENAI_API_KEY) {
+            console.error('OpenAI API key not configured. Using fallback response.');
+            return "I'm here to help you explore your thoughts about climate change. Could you tell me more about your perspective?";
+        }
+
+        // Convert conversation messages to OpenAI format
+        const openaiMessages = [
+            {
+                role: "system",
+                content: systemPrompt
+            }
+        ];
+
+        // Add conversation history
+        for (const msg of messages) {
+            if (msg.role === 'user' || msg.role === 'assistant') {
+                openaiMessages.push({
+                    role: msg.role,
+                    content: msg.content
+                });
+            }
+        }
+
+        console.log('Sending request to OpenAI with', openaiMessages.length, 'messages');
+
+        // Call OpenAI API
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: openaiMessages,
+            max_tokens: 150,
+            temperature: 0.7,
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0
+        });
+
+        const response = completion.choices[0]?.message?.content?.trim();
+        
+        if (!response) {
+            throw new Error('No response received from OpenAI');
+        }
+
+        console.log('OpenAI response received:', response.substring(0, 100) + '...');
+        return response;
+
+    } catch (error) {
+        console.error('Error calling OpenAI API:', error.message);
+        
+        // Intelligent fallback response system
+        console.log('Using fallback response due to OpenAI error');
+        return generateIntelligentFallback(messages);
+    }
+}
+
+// Intelligent fallback response generator
+function generateIntelligentFallback(messages) {
+    // Get the last user message
+    const lastUserMessage = messages.filter(msg => msg.role === 'user').pop();
+    const userInput = lastUserMessage ? lastUserMessage.content.toLowerCase().trim() : '';
+    
+    // Check for gibberish/nonsensical input
+    if (isGibberish(userInput)) {
+        return "I'd like to understand your perspective better. Could you share your thoughts about climate change in a way that helps me follow along?";
+    }
+    
+    // Check for conversation control words
+    if (isConversationControl(userInput)) {
+        return "No problem at all. Is there anything else about climate change you'd like to explore or discuss?";
+    }
+    
+    // Check for very short responses
+    if (userInput.length < 10) {
+        return "I'd love to hear more about your thoughts. Could you elaborate on your perspective about climate change?";
+    }
+    
+    // Check conversation length to vary responses
+    const conversationLength = messages.filter(msg => msg.role === 'user').length;
+    
+    if (conversationLength === 1) {
+        // First response - welcoming
+        return "To start: could you describe what led you to change your mind about climate change?";
+    } else if (conversationLength <= 3) {
+        // Early conversation - exploring
+        const earlyResponses = [
+            "That's helpful context. What specific experiences or information were most influential in shaping that view?",
+            "I can see this is something you've thought about. Could you tell me more about what factors were most important to you?",
+            "Thank you for sharing that perspective. Are there particular aspects of this issue that you find most compelling?"
+        ];
+        return earlyResponses[Math.floor(Math.random() * earlyResponses.length)];
+    } else {
+        // Later conversation - deeper exploration
+        const laterResponses = [
+            "That's a thoughtful point. How do you think others who disagree might respond to that argument?",
+            "I appreciate you explaining your viewpoint. What questions do you think are most important to consider about this issue?",
+            "That's interesting. How has your thinking evolved as you've learned more about this topic?",
+            "Thank you for that insight. What would you say to someone who holds the opposite view?"
+        ];
+        return laterResponses[Math.floor(Math.random() * laterResponses.length)];
+    }
+}
+
+// Helper function to detect gibberish input
+function isGibberish(input) {
+    // Check for very short random strings
+    if (input.length < 5 && !/\b(yes|no|maybe|ok|sure)\b/.test(input)) {
+        return true;
+    }
+    
+    // Check for repeated characters (like "aaaaa" or "ededed")
+    if (/(.)\1{3,}/.test(input) || /(.{1,3})\1{2,}/.test(input)) {
+        return true;
+    }
+    
+    // Check for lack of vowels (excluding common abbreviations)
+    const consonantOnly = /^[bcdfghjklmnpqrstvwxyz\s]+$/i.test(input) && input.length > 3;
+    if (consonantOnly) {
+        return true;
+    }
+    
+    // Check for random keysmashing patterns
+    const keysmash = /^[qwertyuiopasdfghjklzxcvbnm]{4,}$/i.test(input.replace(/\s/g, ''));
+    if (keysmash && !/\b(real|word|here|there|when|what|where|why|how)\b/i.test(input)) {
+        return true;
+    }
+    
+    return false;
+}
+
+// Helper function to detect conversation control messages
+function isConversationControl(input) {
+    const controlWords = [
+        'nevermind', 'never mind', 'forget it', 'skip', 'next', 'move on',
+        'stop', 'quit', 'end', 'done', 'finished', 'exit', 'bye', 'goodbye'
     ];
     
-    // Simple mock response selection
-    return responses[Math.floor(Math.random() * responses.length)];
+    return controlWords.some(word => input.includes(word));
 }
 
 // Start server
