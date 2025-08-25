@@ -1,20 +1,11 @@
 const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const moment = require('moment');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
 
 // Middleware
 app.use(cors());
@@ -25,56 +16,41 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Data storage directories
 const dataDir = path.join(__dirname, 'data');
 const participantsDir = path.join(dataDir, 'participants');
-const sessionsDir = path.join(dataDir, 'sessions');
 const conversationsDir = path.join(dataDir, 'conversations');
 const exportsDir = path.join(dataDir, 'exports');
 
 // Create data directories if they don't exist
-[dataDir, participantsDir, sessionsDir, conversationsDir, exportsDir].forEach(dir => {
+[dataDir, participantsDir, conversationsDir, exportsDir].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
 });
 
-// In-memory storage for active sessions
-const activeParticipants = new Map();
-const waitingQueues = {
-    pro_climate: [],
-    anti_climate: []
-};
-const activeSessions = new Map();
+// In-memory storage for active conversations
+const activeConversations = new Map();
 
-// Classification algorithm
-function classifyParticipant(surveyResponses) {
-    // Use the single Likert scale question from the new survey structure
-    const climateScore = surveyResponses.climate_human_causation;
-    
-    // Classify based on the 7-point scale
-    if (climateScore >= 5) {
-        return { classification: 'pro_climate', score: climateScore };
-    } else if (climateScore <= 3) {
-        return { classification: 'anti_climate', score: climateScore };
-    } else {
-        return { classification: 'neutral', score: climateScore };
+// Utility functions
+function writeJson(filePath, obj) {
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(obj, null, 2));
+        return true;
+    } catch (error) {
+        console.error('Error writing JSON file:', error);
+        return false;
     }
 }
 
-// Save participant data
-function saveParticipant(participantData) {
-    const filename = path.join(participantsDir, `participant_${participantData.participant_id}.json`);
-    fs.writeFileSync(filename, JSON.stringify(participantData, null, 2));
-}
-
-// Save session data
-function saveSession(sessionData) {
-    const filename = path.join(sessionsDir, `session_${sessionData.session_id}.json`);
-    fs.writeFileSync(filename, JSON.stringify(sessionData, null, 2));
-}
-
-// Save conversation data
-function saveConversation(conversationData) {
-    const filename = path.join(conversationsDir, `conversation_${conversationData.session_id}.json`);
-    fs.writeFileSync(filename, JSON.stringify(conversationData, null, 2));
+function readJson(filePath) {
+    try {
+        if (!fs.existsSync(filePath)) {
+            return null;
+        }
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading JSON file:', error);
+        return null;
+    }
 }
 
 // Routes
@@ -90,11 +66,7 @@ app.get('/survey', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'survey.html'));
 });
 
-app.get('/waiting', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'waiting.html'));
-});
-
-app.get('/chat/:sessionId', (req, res) => {
+app.get('/chat/:id', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'chat.html'));
 });
 
@@ -104,470 +76,401 @@ app.get('/exit-survey', (req, res) => {
 
 // Debug endpoint to check data files
 app.get('/debug/data', (req, res) => {
-  try {
-    const participants = fs.existsSync(participantsDir) ? fs.readdirSync(participantsDir) : [];
-    const conversations = fs.existsSync(conversationsDir) ? fs.readdirSync(conversationsDir) : [];
-    const sessions = fs.existsSync(sessionsDir) ? fs.readdirSync(sessionsDir) : [];
-    const exports = fs.existsSync(exportsDir) ? fs.readdirSync(exportsDir) : [];
-    
-    res.json({
-      dataFolderExists: fs.existsSync(dataDir),
-      participantFiles: participants,
-      conversationFiles: conversations,
-      sessionFiles: sessions,
-      exportFiles: exports,
-      totalFiles: participants.length + conversations.length + sessions.length + exports.length,
-      directories: {
-        dataDir,
-        participantsDir,
-        conversationsDir,
-        sessionsDir,
-        exportsDir
-      },
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    res.json({ error: error.message });
-  }
+    try {
+        const participants = fs.existsSync(participantsDir) ? fs.readdirSync(participantsDir) : [];
+        const conversations = fs.existsSync(conversationsDir) ? fs.readdirSync(conversationsDir) : [];
+        const exports = fs.existsSync(exportsDir) ? fs.readdirSync(exportsDir) : [];
+        
+        res.json({
+            dataFolderExists: fs.existsSync(dataDir),
+            participantFiles: participants,
+            conversationFiles: conversations,
+            exportFiles: exports,
+            totalFiles: participants.length + conversations.length + exports.length,
+            directories: {
+                dataDir,
+                participantsDir,
+                conversationsDir,
+                exportsDir
+            },
+            activeConversations: Array.from(activeConversations.keys()),
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.json({ error: error.message });
+    }
 });
 
-// API endpoint to submit survey
+// Survey submission endpoint
 app.post('/survey/submit', (req, res) => {
     try {
-        const { prolific_id, survey_responses } = req.body;
+        const { 
+            prolific_id, 
+            age, 
+            gender, 
+            country, 
+            education, 
+            political_orientation, 
+            prior_belief, 
+            current_belief 
+        } = req.body;
         
-        console.log('Received survey submission:');
-        console.log('Prolific ID:', prolific_id);
-        console.log('Survey responses:', JSON.stringify(survey_responses, null, 2));
-        
-        // Validate survey responses
-        if (!survey_responses || typeof survey_responses !== 'object') {
-            throw new Error('Invalid survey responses format');
-        }
-        
-        if (!survey_responses.climate_human_causation) {
-            throw new Error('Missing climate_human_causation response');
-        }
-        
-        console.log('Validation passed, generating participant ID...');
+        console.log('Received survey submission:', req.body);
         
         // Generate participant ID
-        const participant_id = `p_${uuidv4().substring(0, 8)}`;
-        console.log('Generated participant ID:', participant_id);
-        
-        // Classify participant
-        console.log('Classifying participant...');
-        const { classification, score } = classifyParticipant(survey_responses);
-        console.log('Classification result:', { classification, score });
+        const participantId = uuidv4();
+        const now = new Date().toISOString();
         
         // Create participant data
-        console.log('Creating participant data...');
         const participantData = {
-            participant_id,
-            prolific_id,
-            timestamp_joined: moment().toISOString(),
-            classification,
-            classification_score: score,
-            survey_responses
+            id: participantId,
+            createdAt: now,
+            consentGiven: true,
+            prolificId: prolific_id || null,
+            age: age ? parseInt(age) : null,
+            gender: gender || null,
+            country: country || null,
+            education: education || null,
+            politicalOrientation: political_orientation || null,
+            priorBelief: prior_belief || null,
+            currentBelief: current_belief || null
         };
         
         // Save participant data
-        console.log('Saving participant data...');
-        saveParticipant(participantData);
+        const filename = path.join(participantsDir, `${participantId}.json`);
+        if (!writeJson(filename, participantData)) {
+            throw new Error('Failed to save participant data');
+        }
         
-        // Store in active participants
-        console.log('Storing in active participants...');
-        activeParticipants.set(participant_id, participantData);
+        console.log('Participant saved successfully:', participantId);
         
-        console.log('Sending response to client...');
-        const responseData = {
-            success: true,
-            participant_id,
-            classification,
-            redirect: classification === 'neutral' ? '/exit-survey' : '/waiting'
-        };
-        console.log('Response data:', responseData);
-        
-        res.json(responseData);
-        console.log('Response sent successfully');
+        res.json({ participantId });
         
     } catch (error) {
         console.error('Error processing survey:', error);
-        console.error('Error stack:', error.stack);
-        
-        // Ensure we always send a response
-        if (!res.headersSent) {
-            res.status(500).json({
-                success: false,
-                error: error.message || 'Internal server error',
-                details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-            });
-        }
+        res.status(500).json({
+            error: error.message || 'Internal server error'
+        });
     }
 });
 
-// API endpoint to submit exit survey
-app.post('/exit-survey', (req, res) => {
+// Start a new conversation
+app.post('/api/conversations/start', (req, res) => {
     try {
-        const exitSurveyData = req.body;
+        const { participantId } = req.body;
         
-        // Save exit survey data
-        const filename = path.join(exportsDir, `exit_survey_${exitSurveyData.participant_id}.json`);
-        fs.writeFileSync(filename, JSON.stringify(exitSurveyData, null, 2));
+        if (!participantId) {
+            return res.status(400).json({ error: 'participantId is required' });
+        }
         
-        res.json({ success: true });
-        
-    } catch (error) {
-        console.error('Error saving exit survey:', error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
-});
-
-// Socket.io connection handling
-io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
-    
-    // Join waiting queue
-    socket.on('join_queue', (data) => {
-        const { participant_id } = data;
-        const participant = activeParticipants.get(participant_id);
-        
+        // Check if participant exists
+        const participantFile = path.join(participantsDir, `${participantId}.json`);
+        const participant = readJson(participantFile);
         if (!participant) {
-            socket.emit('error', { message: 'Participant not found' });
-            return;
+            return res.status(404).json({ error: 'Participant not found' });
         }
         
-        // Add to appropriate queue
-        if (participant.classification === 'pro_climate' || participant.classification === 'anti_climate') {
-            waitingQueues[participant.classification].push({
-                participant_id,
-                socket_id: socket.id,
-                timestamp: moment().toISOString()
-            });
-            
-            socket.participant_id = participant_id;
-            socket.classification = participant.classification;
-            
-            // Try to find a match
-            tryToMatch();
-            
-            // Send queue status
-            socket.emit('queue_status', {
-                position: waitingQueues[participant.classification].length,
-                waiting_for: participant.classification === 'pro_climate' ? 'anti_climate' : 'pro_climate'
-            });
-        }
-    });
-    
-    // Join session room for chat
-    socket.on('join_session', (data) => {
-        const { session_id, participant_id } = data;
-        const session = activeSessions.get(session_id);
+        // Generate conversation ID
+        const conversationId = uuidv4();
+        const now = new Date().toISOString();
         
-        if (!session) {
-            socket.emit('error', { message: 'Session not found or has ended' });
-            return;
-        }
+        // System prompt for the conversation
+        const systemPrompt = `You are an AI assistant facilitating a conversation about climate change. Your role is to engage thoughtfully and ask follow-up questions to help the participant explore their views. Do not try to persuade or change their mind - instead, focus on understanding their perspective and encouraging reflection. Keep responses conversational and under 150 words.`;
         
-        if (!session.participants.includes(participant_id)) {
-            socket.emit('error', { message: 'You are not part of this session' });
-            return;
-        }
-        
-        // Check if session is still active (not ended due to timeout or disconnect)
-        if (session.status === 'ended') {
-            socket.emit('conversation_ended', { reason: 'session_ended' });
-            return;
-        }
-        
-        socket.join(session_id);
-        socket.session_id = session_id;
-        socket.participant_id = participant_id;
-        
-        // Mark participant as connected to session
-        if (!session.connected_participants) {
-            session.connected_participants = [];
-        }
-        if (!session.connected_participants.includes(participant_id)) {
-            session.connected_participants.push(participant_id);
-        }
-        
-        console.log(`Participant ${participant_id} joined session ${session_id}`);
-        
-        // If both participants are now connected, ensure session is active and send introductions
-        if (session.connected_participants.length === 2) {
-            session.status = 'active';
-            console.log(`Session ${session_id} is now fully active with both participants`);
-            
-            // Send participant introductions and names to both participants
-            const introductions = session.participants.map(pid => {
-                const participant = activeParticipants.get(pid);
-                if (participant) {
-                    return {
-                        participant_id: pid,
-                        participant_name: `Participant ${participant.classification === 'pro_climate' ? 'A' : 'B'}`,
-                        classification: participant.classification,
-                        personal_views: participant.survey_responses.overall_perspective.substring(0, 200) + '...',
-                        influencing_factors: participant.survey_responses.opinion_influences.substring(0, 150) + '...'
-                    };
-                }
-                return null;
-            }).filter(intro => intro !== null);
-            
-            // Create participant name mapping for messages
-            const participantNames = {};
-            introductions.forEach(intro => {
-                participantNames[intro.participant_id] = intro.participant_name;
-            });
-            session.participant_names = participantNames;
-            
-            io.to(session_id).emit('session_joined', {
-                participant_introductions: introductions,
-                participant_names: participantNames
-            });
-        }
-    });
-
-    // Handle chat messages
-    socket.on('send_message', (data) => {
-        const { session_id, message } = data;
-        const session = activeSessions.get(session_id);
-        
-        if (!session) {
-            socket.emit('error', { message: 'Session not found' });
-            return;
-        }
-        
-        // Check if conversation is still active
-        const now = moment();
-        const sessionStart = moment(session.timestamp_start);
-        const elapsed = now.diff(sessionStart, 'seconds');
-        
-        if (elapsed >= 300) { // 5 minutes
-            socket.emit('conversation_ended', { reason: 'time_limit' });
-            return;
-        }
-        
-        // Create message object
-        const messageObj = {
-            timestamp: now.toISOString(),
-            sender: socket.participant_id,
-            message: message.substring(0, 500), // Limit to 500 characters
-            character_count: message.length
+        // Create conversation data
+        const conversationData = {
+            id: conversationId,
+            participantId: participantId,
+            startedAt: now,
+            endedAt: null,
+            durationSeconds: null,
+            systemPrompt: systemPrompt,
+            messages: []
         };
         
-        // Add to session conversation
-        session.conversation.push(messageObj);
-        
-        // Broadcast to both participants
-        io.to(session_id).emit('receive_message', messageObj);
-        
         // Save conversation data
-        saveConversation({
-            session_id,
-            conversation: session.conversation,
-            conversation_metadata: {
-                total_messages: session.conversation.length,
-                last_updated: now.toISOString()
-            }
+        const filename = path.join(conversationsDir, `${conversationId}.json`);
+        if (!writeJson(filename, conversationData)) {
+            throw new Error('Failed to create conversation');
+        }
+        
+        // Track in memory
+        activeConversations.set(conversationId, {
+            participantId,
+            startedAt: now,
+            lastActivity: now
         });
-    });
-
-    // Handle typing indicators
-    socket.on('typing_start', (data) => {
-        const { session_id } = data;
-        socket.to(session_id).emit('typing_start');
-    });
-
-    socket.on('typing_stop', (data) => {
-        const { session_id } = data;
-        socket.to(session_id).emit('typing_stop');
-    });
-
-    // Handle leaving session
-    socket.on('leave_session', (data) => {
-        const { session_id } = data;
-        socket.to(session_id).emit('participant_disconnected');
-        socket.leave(session_id);
-    });
-
-    // Handle early chat exit
-    socket.on('leave_chat_early', (data) => {
-        const { session_id } = data;
-        const session = activeSessions.get(session_id);
         
-        if (session && session.status === 'active') {
-            // Notify other participant
-            socket.to(session_id).emit('participant_left_early');
-            
-            // End the session
-            endSession(session_id, 'participant_left_early');
-        }
+        console.log('Conversation started:', conversationId, 'for participant:', participantId);
         
-        socket.leave(session_id);
-    });
-    
-    // Handle disconnection
-    socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
+        res.json({ conversationId });
         
-        // Remove from waiting queues
-        if (socket.classification) {
-            waitingQueues[socket.classification] = waitingQueues[socket.classification].filter(
-                item => item.socket_id !== socket.id
-            );
-        }
-        
-        // Handle session disconnection - but give some time for reconnection
-        if (socket.session_id && socket.participant_id) {
-            const session = activeSessions.get(socket.session_id);
-            if (session && session.status !== 'ended') {
-                // Remove from connected participants
-                if (session.connected_participants) {
-                    session.connected_participants = session.connected_participants.filter(
-                        pid => pid !== socket.participant_id
-                    );
-                }
-                
-                // Only notify and end session if this was a real disconnect (not page navigation)
-                // Give 10 seconds for reconnection before notifying other participant
-                setTimeout(() => {
-                    const currentSession = activeSessions.get(socket.session_id);
-                    if (currentSession && currentSession.status !== 'ended') {
-                        // Check if participant reconnected
-                        if (!currentSession.connected_participants ||
-                            !currentSession.connected_participants.includes(socket.participant_id)) {
-                            
-                            // Notify other participant about disconnection
-                            socket.to(socket.session_id).emit('participant_disconnected');
-                            
-                            // Give additional 20 seconds for reconnection before ending session
-                            setTimeout(() => {
-                                const finalSession = activeSessions.get(socket.session_id);
-                                if (finalSession && finalSession.status !== 'ended') {
-                                    if (!finalSession.connected_participants ||
-                                        !finalSession.connected_participants.includes(socket.participant_id)) {
-                                        endSession(socket.session_id, 'participant_disconnect');
-                                    }
-                                }
-                            }, 20000);
-                        }
-                    }
-                }, 10000);
-            }
-        }
-    });
-    
-    function tryToMatch() {
-        const proQueue = waitingQueues.pro_climate;
-        const antiQueue = waitingQueues.anti_climate;
-        
-        if (proQueue.length > 0 && antiQueue.length > 0) {
-            // Get first participant from each queue
-            const proParticipant = proQueue.shift();
-            const antiParticipant = antiQueue.shift();
-            
-            // Create session
-            const session_id = `sess_${uuidv4().substring(0, 8)}`;
-            const now = moment();
-            
-            const sessionData = {
-                session_id,
-                timestamp_start: now.toISOString(),
-                participants: [proParticipant.participant_id, antiParticipant.participant_id],
-                pairing_time_seconds: now.diff(moment(proParticipant.timestamp), 'seconds'),
-                conversation: [],
-                status: 'created',
-                connected_participants: []
-            };
-            
-            // Store session
-            activeSessions.set(session_id, sessionData);
-            saveSession(sessionData);
-            
-            // Get socket connections
-            const proSocket = io.sockets.sockets.get(proParticipant.socket_id);
-            const antiSocket = io.sockets.sockets.get(antiParticipant.socket_id);
-            
-            if (proSocket && antiSocket) {
-                // Join both to session room
-                proSocket.join(session_id);
-                antiSocket.join(session_id);
-                
-                // Set session IDs
-                proSocket.session_id = session_id;
-                antiSocket.session_id = session_id;
-                
-                // Notify both participants
-                proSocket.emit('match_found', { session_id });
-                antiSocket.emit('match_found', { session_id });
-                
-                // Start 10-minute timer
-                setTimeout(() => {
-                    endSession(session_id, 'time_limit');
-                }, 300000); // 5 minutes
-                
-                console.log(`Session ${session_id} started with participants ${proParticipant.participant_id} and ${antiParticipant.participant_id}`);
-            }
-        }
-    }
-    
-    function endSession(session_id, reason) {
-        const session = activeSessions.get(session_id);
-        if (!session) return;
-        
-        const now = moment();
-        const sessionStart = moment(session.timestamp_start);
-        
-        // Mark session as ended
-        session.status = 'ended';
-        
-        // Update session data
-        session.timestamp_end = now.toISOString();
-        session.conversation_duration_seconds = now.diff(sessionStart, 'seconds');
-        session.completion_status = reason === 'time_limit' ? 'completed' : 'incomplete';
-        session.message_count = session.conversation.length;
-        
-        // Save final session data
-        saveSession(session);
-        
-        // Save final conversation data
-        if (session.conversation.length > 0) {
-            const conversationData = {
-                session_id,
-                conversation: session.conversation,
-                conversation_metadata: {
-                    total_messages: session.conversation.length,
-                    messages_per_participant: {},
-                    conversation_duration_seconds: session.conversation_duration_seconds,
-                    completion_reason: reason
-                }
-            };
-            
-            // Calculate messages per participant
-            session.participants.forEach(pid => {
-                conversationData.conversation_metadata.messages_per_participant[pid] =
-                    session.conversation.filter(msg => msg.sender === pid).length;
-            });
-            
-            saveConversation(conversationData);
-        }
-        
-        // Notify participants
-        io.to(session_id).emit('conversation_ended', { reason });
-        
-        // Remove from active sessions after a delay to allow participants to see the end message
-        setTimeout(() => {
-            activeSessions.delete(session_id);
-        }, 5000);
-        
-        console.log(`Session ${session_id} ended: ${reason}`);
+    } catch (error) {
+        console.error('Error starting conversation:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
     }
 });
+
+// Send a message in a conversation
+app.post('/api/conversations/:id/message', async (req, res) => {
+    try {
+        const conversationId = req.params.id;
+        const { content } = req.body;
+        
+        if (!content || !content.trim()) {
+            return res.status(400).json({ error: 'Message content is required' });
+        }
+        
+        // Check if conversation is active
+        const activeConv = activeConversations.get(conversationId);
+        if (!activeConv) {
+            return res.status(404).json({ error: 'Conversation not found or ended' });
+        }
+        
+        // Check 10-minute time limit (600 seconds)
+        const now = new Date();
+        const startTime = new Date(activeConv.startedAt);
+        const elapsedSeconds = Math.floor((now - startTime) / 1000);
+        
+        if (elapsedSeconds >= 600) {
+            // End conversation due to time limit
+            activeConversations.delete(conversationId);
+            return res.status(410).json({ error: 'Conversation time limit exceeded' });
+        }
+        
+        // Load conversation data
+        const filename = path.join(conversationsDir, `${conversationId}.json`);
+        const conversationData = readJson(filename);
+        if (!conversationData) {
+            return res.status(404).json({ error: 'Conversation data not found' });
+        }
+        
+        // Add user message
+        const userMessage = {
+            role: 'user',
+            content: content.trim(),
+            timestamp: now.toISOString()
+        };
+        conversationData.messages.push(userMessage);
+        
+        // Call OpenAI API (mock implementation for now - replace with actual OpenAI call)
+        const assistantReply = await generateAIResponse(conversationData.messages, conversationData.systemPrompt);
+        
+        // Add assistant message
+        const assistantMessage = {
+            role: 'assistant',
+            content: assistantReply,
+            timestamp: new Date().toISOString()
+        };
+        conversationData.messages.push(assistantMessage);
+        
+        // Update last activity
+        activeConv.lastActivity = now.toISOString();
+        
+        // Save updated conversation
+        if (!writeJson(filename, conversationData)) {
+            throw new Error('Failed to save conversation');
+        }
+        
+        res.json({ reply: assistantReply });
+        
+    } catch (error) {
+        console.error('Error processing message:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+// End a conversation
+app.post('/api/conversations/:id/end', (req, res) => {
+    try {
+        const conversationId = req.params.id;
+        
+        // Check if conversation is active
+        const activeConv = activeConversations.get(conversationId);
+        if (!activeConv) {
+            return res.status(404).json({ error: 'Conversation not found or already ended' });
+        }
+        
+        // Load conversation data
+        const filename = path.join(conversationsDir, `${conversationId}.json`);
+        const conversationData = readJson(filename);
+        if (!conversationData) {
+            return res.status(404).json({ error: 'Conversation data not found' });
+        }
+        
+        // Calculate duration
+        const now = new Date();
+        const startTime = new Date(conversationData.startedAt);
+        const durationSeconds = Math.floor((now - startTime) / 1000);
+        
+        // Update conversation data
+        conversationData.endedAt = now.toISOString();
+        conversationData.durationSeconds = durationSeconds;
+        
+        // Save updated conversation
+        if (!writeJson(filename, conversationData)) {
+            throw new Error('Failed to save conversation end data');
+        }
+        
+        // Remove from active conversations
+        activeConversations.delete(conversationId);
+        
+        console.log('Conversation ended:', conversationId, 'Duration:', durationSeconds, 'seconds');
+        
+        res.json({ ok: true });
+        
+    } catch (error) {
+        console.error('Error ending conversation:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+// Admin export endpoints
+function authenticateAdmin(req, res, next) {
+    const authHeader = req.headers.authorization;
+    const adminToken = process.env.ADMIN_TOKEN || 'changeme';
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    const token = authHeader.substring(7);
+    if (token !== adminToken) {
+        return res.status(403).json({ error: 'Invalid authentication token' });
+    }
+    
+    next();
+}
+
+// Export JSON data
+app.get('/api/admin/export.json', authenticateAdmin, (req, res) => {
+    try {
+        const participants = [];
+        const conversations = [];
+        
+        // Read all participant files
+        if (fs.existsSync(participantsDir)) {
+            const participantFiles = fs.readdirSync(participantsDir);
+            for (const file of participantFiles) {
+                if (file.endsWith('.json')) {
+                    const participant = readJson(path.join(participantsDir, file));
+                    if (participant) {
+                        participants.push(participant);
+                    }
+                }
+            }
+        }
+        
+        // Read all conversation files
+        if (fs.existsSync(conversationsDir)) {
+            const conversationFiles = fs.readdirSync(conversationsDir);
+            for (const file of conversationFiles) {
+                if (file.endsWith('.json')) {
+                    const conversation = readJson(path.join(conversationsDir, file));
+                    if (conversation) {
+                        conversations.push(conversation);
+                    }
+                }
+            }
+        }
+        
+        res.json({ participants, conversations });
+        
+    } catch (error) {
+        console.error('Error exporting JSON data:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+// Export CSV data
+app.get('/api/admin/export.csv', authenticateAdmin, (req, res) => {
+    try {
+        // Create participants lookup
+        const participantLookup = new Map();
+        if (fs.existsSync(participantsDir)) {
+            const participantFiles = fs.readdirSync(participantsDir);
+            for (const file of participantFiles) {
+                if (file.endsWith('.json')) {
+                    const participant = readJson(path.join(participantsDir, file));
+                    if (participant) {
+                        participantLookup.set(participant.id, participant);
+                    }
+                }
+            }
+        }
+        
+        // CSV header
+        const csvRows = [
+            'participantId,conversationId,timestamp,role,content,age,gender,country,education,politicalOrientation,priorBelief,currentBelief'
+        ];
+        
+        // Process conversations
+        if (fs.existsSync(conversationsDir)) {
+            const conversationFiles = fs.readdirSync(conversationsDir);
+            for (const file of conversationFiles) {
+                if (file.endsWith('.json')) {
+                    const conversation = readJson(path.join(conversationsDir, file));
+                    if (conversation && conversation.messages) {
+                        const participant = participantLookup.get(conversation.participantId);
+                        
+                        for (const message of conversation.messages) {
+                            const row = [
+                                escapeCsv(conversation.participantId || ''),
+                                escapeCsv(conversation.id || ''),
+                                escapeCsv(message.timestamp || ''),
+                                escapeCsv(message.role || ''),
+                                escapeCsv(message.content || ''),
+                                participant ? (participant.age || '') : '',
+                                participant ? escapeCsv(participant.gender || '') : '',
+                                participant ? escapeCsv(participant.country || '') : '',
+                                participant ? escapeCsv(participant.education || '') : '',
+                                participant ? escapeCsv(participant.politicalOrientation || '') : '',
+                                participant ? escapeCsv(participant.priorBelief || '') : '',
+                                participant ? escapeCsv(participant.currentBelief || '') : ''
+                            ].join(',');
+                            
+                            csvRows.push(row);
+                        }
+                    }
+                }
+            }
+        }
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="conversation_export.csv"');
+        res.send(csvRows.join('\n'));
+        
+    } catch (error) {
+        console.error('Error exporting CSV data:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+function escapeCsv(str) {
+    if (typeof str !== 'string') return str;
+    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+}
+
+// Mock AI response function (replace with actual OpenAI implementation)
+async function generateAIResponse(messages, systemPrompt) {
+    // This is a placeholder - you should implement actual OpenAI API call here
+    const responses = [
+        "That's an interesting perspective. What specific experiences or information helped shape that view?",
+        "I can see you feel strongly about this. Could you tell me more about what led you to that conclusion?",
+        "Thank you for sharing that. Are there particular aspects of this topic that you find most compelling?",
+        "That's a thoughtful point. How do you think others who disagree might respond to that argument?",
+        "I appreciate you explaining your viewpoint. What questions do you think are most important to consider about this issue?"
+    ];
+    
+    // Simple mock response selection
+    return responses[Math.floor(Math.random() * responses.length)];
+}
 
 // Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Climate Conversation Platform running on port ${PORT}`);
-    console.log(`Access the application at: http://localhost:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server on http://localhost:${PORT}`);
 });

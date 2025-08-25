@@ -1,29 +1,29 @@
 # Climate Change Conversation Platform
 
-A research platform for studying cross-ideological conversations about climate change. Participants are paired based on opposing views and engage in real-time conversations through a Facebook Messenger-style interface.
+A research platform for studying AI-assisted conversations about climate change. Participants engage in conversations with an AI assistant that helps them explore their views on climate change.
 
 ## 🎯 Purpose
 
-This platform facilitates research on how people with different climate change perspectives communicate with each other. It's designed for use with Prolific participants and provides a controlled environment for studying attitude change and cross-ideological dialogue.
+This platform facilitates research on how people discuss and reflect on their climate change perspectives through AI-guided conversations. It's designed for use with Prolific participants and provides a controlled environment for studying attitude exploration and reflection.
 
 ## ✨ Features
 
-- **Facebook Messenger-style chat interface** for familiar user experience
-- **Automatic participant pairing** based on climate change views (pro-climate vs anti-climate)
-- **Real-time messaging** with typing indicators and connection status
-- **5-minute timed conversations** with visual countdown
+- **Clean conversation interface** for engaging user experience
+- **AI-powered conversations** using OpenAI's GPT models
+- **10-minute timed conversations** with visual countdown
 - **Comprehensive data collection**:
-  - Pre-conversation survey responses
-  - Complete chat transcripts
-  - Post-conversation exit surveys
-- **Participant classification algorithm** based on survey responses
+  - Pre-conversation survey responses (demographics, beliefs)
+  - Complete conversation transcripts with AI responses
+  - Structured participant data storage
 - **Professional UI/UX** designed for research participants
+- **Admin export functionality** for data analysis
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js (v14 or higher)
 - npm
+- OpenAI API key
 
 ### Installation
 
@@ -38,31 +38,66 @@ cd debate_paradigm
 npm install
 ```
 
-3. Start the server:
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
+Then edit `.env` with your actual values:
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `ADMIN_TOKEN`: Secure token for admin endpoints
+- `PORT`: Server port (default: 3000)
+
+4. Start the server:
 ```bash
 npm start
 ```
 
-4. Access the platform at `http://localhost:3000`
+5. Access the platform at `http://localhost:3000`
 
 ## 📊 Data Collection
 
 The platform automatically saves data in JSON format:
 
 ### Participant Data (`data/participants/`)
-- Survey responses and climate change classifications
-- Demographics and Prolific IDs
-- Pro-climate vs anti-climate categorization
+- Demographics (age, gender, country, education, political orientation)
+- Climate change beliefs (prior and current)
+- Unique participant IDs and timestamps
+- Optional Prolific IDs for payment
 
 ### Conversation Data (`data/conversations/`)
-- Complete chat transcripts with timestamps
-- Message counts and conversation duration
-- Completion reasons (time limit, disconnect, etc.)
+- Complete conversation transcripts with AI responses
+- Message timestamps and role indicators (user/assistant)
+- Conversation duration and completion status
+- System prompts used for AI responses
 
-### Exit Survey Data (`data/exports/`)
-- Post-conversation feedback and attitude changes
-- Platform usability ratings
-- Participant experience data
+### Export Data (`data/exports/`)
+- Combined CSV and JSON exports for analysis
+- Participant demographics linked to conversation data
+
+## 🔧 Environment Variables
+
+Required environment variables (see `.env.example`):
+
+```env
+OPENAI_API_KEY=your-openai-key-here
+ADMIN_TOKEN=changeme
+PORT=3000
+```
+
+## 📊 Admin Export Endpoints
+
+### JSON Export
+```bash
+curl -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
+     http://localhost:3000/api/admin/export.json
+```
+
+### CSV Export
+```bash
+curl -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
+     http://localhost:3000/api/admin/export.csv \
+     -o conversation_export.csv
+```
 
 ## 🌐 Deployment for Prolific
 
@@ -74,71 +109,77 @@ The platform automatically saves data in JSON format:
 3. Deploy:
 ```bash
 heroku create your-study-name
+heroku config:set OPENAI_API_KEY=your-key-here
+heroku config:set ADMIN_TOKEN=your-secure-token
 git push heroku main
 ```
 
 **Railway**
 1. Connect your GitHub repository
-2. Deploy automatically from Railway dashboard
+2. Add environment variables in Railway dashboard
+3. Deploy automatically
 
 **DigitalOcean App Platform**
 1. Connect repository
-2. Configure build settings
+2. Configure environment variables
 3. Deploy
 
 ### Environment Setup
 
 For production deployment, ensure:
 - Set `NODE_ENV=production`
-- Configure any necessary environment variables
+- Configure all required environment variables
 - Ensure data directory permissions are correct
+- Use a secure `ADMIN_TOKEN`
 
 ## 🔧 Configuration
 
 ### Survey Questions
-Modify survey questions in `public/survey.html`
+Modify survey fields in `public/survey.html`
 
-### Classification Algorithm
-Adjust participant classification logic in `server.js` (function `classifyParticipant`)
+### AI System Prompt
+Adjust the AI behavior in `server.js` (look for `systemPrompt` variable)
 
 ### Conversation Duration
-Change timer duration in `server.js` (default: 300 seconds = 5 minutes)
+Change timer duration in both:
+- `server.js` (API timeout: currently 600 seconds = 10 minutes)
+- `public/chat.html` (frontend timer: currently 600 seconds = 10 minutes)
 
 ### Styling
-Customize the Facebook Messenger interface in `public/messenger-styles.css`
+Customize the interface in `public/styles.css` and `public/messenger-styles.css`
 
 ## 📱 User Flow
 
 1. **Landing Page** - Study introduction and Prolific ID entry
 2. **Consent Form** - Informed consent for participation
-3. **Survey** - Climate change views and demographics
-4. **Waiting Room** - Participant matching (up to 10 minutes)
-5. **Chat Interface** - 5-minute conversation with opposing participant
-6. **Exit Survey** - Post-conversation feedback and attitude assessment
+3. **Survey** - Demographics and climate change beliefs
+4. **Chat Interface** - 10-minute AI-guided conversation
+5. **Exit Survey** - Post-conversation feedback
 
 ## 🛠️ Technical Stack
 
 - **Backend**: Node.js with Express.js
-- **Real-time Communication**: Socket.io
+- **AI Integration**: OpenAI API (GPT-4o-mini)
 - **Frontend**: HTML, CSS, JavaScript
 - **Data Storage**: JSON files
-- **Styling**: Custom CSS (Facebook Messenger-inspired)
+- **API Architecture**: RESTful endpoints
 
 ## 📋 Research Features
 
-- **Automatic participant classification** based on survey responses
-- **Balanced pairing** of pro-climate and anti-climate participants
-- **Conversation quality metrics** (message count, duration, completion rate)
-- **Attitude change measurement** through pre/post surveys
-- **Platform usability assessment** for research validity
+- **Structured participant data collection** with demographics and beliefs
+- **AI-guided conversation flow** designed to encourage reflection
+- **Comprehensive conversation logging** with timestamps
+- **Flexible export options** (JSON and CSV) for analysis
+- **Secure admin access** for data retrieval
 
 ## 🔒 Privacy & Ethics
 
-- Participant data is anonymized with generated IDs
-- Prolific IDs are stored separately for payment purposes
+- Participant data is anonymized with generated UUIDs
+- Prolific IDs are optional and stored separately
 - All conversations are logged for research analysis
 - Participants can leave at any time
 - Data retention follows research ethics guidelines
+- Secure admin authentication for data access
 
 ## 📄 License
 
