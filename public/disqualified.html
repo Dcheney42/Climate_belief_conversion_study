@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank you - Climate Change Study</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Thank you for your time</h1>
+        </div>
+        
+        <div class="content">
+            <div class="card">
+                <div class="card-content">
+                    <p class="message-text">
+                        We appreciate your willingness to take part in this study.<br><br>
+                        Based on your responses, you are not eligible to continue with the conversation portion.<br><br>
+                        Your responses so far have been saved and will still contribute to our research.
+                    </p>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary" id="finishBtn">Finish</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user has participant data
+            const participantId = sessionStorage.getItem('participant_id');
+            if (!participantId) {
+                // Redirect to start if no participant data
+                window.location.href = '/';
+                return;
+            }
+        });
+
+        document.getElementById('finishBtn').addEventListener('click', function() {
+            // Clear session storage
+            sessionStorage.clear();
+            
+            // Show completion message
+            alert('Thank you for your participation. You may now close this window.');
+            
+            // Optionally redirect to a thank you page or close window
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>

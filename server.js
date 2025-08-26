@@ -78,6 +78,10 @@ app.get('/exit-survey', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'exit-survey.html'));
 });
 
+app.get('/disqualified', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'disqualified.html'));
+});
+
 // Debug endpoint to check data files
 app.get('/debug/data', (req, res) => {
     try {
@@ -155,6 +159,16 @@ app.post('/survey/submit', (req, res) => {
             return res.status(400).json({ error: 'Consent is required' });
         }
         
+        // Check eligibility based on belief change
+        // Eligible if (prior_belief < 4 AND current_belief > 4) OR (prior_belief > 4 AND current_belief < 4)
+        // Treat 4 as strictly neutral, so any movement involving 4 is not eligible
+        const priorBeliefNum = parseInt(prior_belief);
+        const currentBeliefNum = parseInt(current_belief);
+        
+        const eligible = (priorBeliefNum < 4 && currentBeliefNum > 4) || (priorBeliefNum > 4 && currentBeliefNum < 4);
+        
+        console.log(`Eligibility check: prior=${priorBeliefNum}, current=${currentBeliefNum}, eligible=${eligible}`);
+        
         // Generate participant ID
         const participantId = uuidv4();
         const now = new Date().toISOString();
@@ -173,8 +187,11 @@ app.post('/survey/submit', (req, res) => {
             
             // Attitudinal measures (1-7 scale)
             politicalAffiliation: parseInt(political_orientation),
-            priorClimateBelief: parseInt(prior_belief),
-            currentClimateBelief: parseInt(current_belief),
+            priorClimateBelief: priorBeliefNum,
+            currentClimateBelief: currentBeliefNum,
+            
+            // Eligibility
+            eligible: eligible,
             
             // Consent
             consentAnonymised: Boolean(consent),
@@ -184,15 +201,18 @@ app.post('/survey/submit', (req, res) => {
             consentGiven: Boolean(consent)
         };
         
-        // Save participant data
+        // Save participant data (always save regardless of eligibility)
         const filename = path.join(participantsDir, `${participantId}.json`);
         if (!writeJson(filename, participantData)) {
             throw new Error('Failed to save participant data');
         }
         
-        console.log('Participant saved successfully:', participantId);
+        console.log('Participant saved successfully:', participantId, eligible ? '(eligible)' : '(not eligible)');
         
-        res.json({ participantId });
+        res.json({
+            participantId,
+            eligible
+        });
         
     } catch (error) {
         console.error('Error processing survey:', error);

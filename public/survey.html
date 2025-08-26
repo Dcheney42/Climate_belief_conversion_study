@@ -410,8 +410,17 @@
                     sessionStorage.setItem('participant_id', data.participantId);
                     // Clear any old survey data
                     sessionStorage.removeItem('survey_responses');
-                    // Redirect to chat with participant ID
-                    window.location.href = `/chat/${data.participantId}`;
+                    
+                    // Check eligibility and route accordingly
+                    if (data.eligible === true) {
+                        // Eligible participants continue to chat
+                        console.log('Participant eligible - proceeding to chat');
+                        window.location.href = `/chat/${data.participantId}`;
+                    } else {
+                        // Ineligible participants go to disqualification page
+                        console.log('Participant not eligible - redirecting to disqualification page');
+                        window.location.href = '/disqualified';
+                    }
                 } else {
                     console.error('Server error:', data);
                     alert(`Error submitting survey: ${data.error || 'Unknown error'}. Please try again.`);
