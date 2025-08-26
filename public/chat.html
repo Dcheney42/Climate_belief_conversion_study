@@ -95,13 +95,13 @@
             }
             
             try {
-                // Start conversation with the API
-                const response = await fetch('/api/conversations/start', {
+                // Start conversation with the enhanced API
+                const response = await fetch('/chat/start', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ participantId })
+                    body: JSON.stringify({ userId: participantId })
                 });
                 
                 if (!response.ok) {
@@ -118,12 +118,17 @@
                 updateSendButtonState();
                 startTimer();
                 
-                // Add opening assistant message
-                addMessage({
-                    role: 'assistant',
-                    content: 'To start: could you describe what led you to change your mind about climate change?',
-                    timestamp: new Date().toISOString()
-                });
+                // Add dynamic opening assistant message from enhanced system
+                if (data.messages && data.messages.length > 1) {
+                    const openingMessage = data.messages.find(msg => msg.role === 'assistant');
+                    if (openingMessage) {
+                        addMessage({
+                            role: 'assistant',
+                            content: openingMessage.content,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                }
                 
                 connectionStatus.textContent = 'Connected';
                 connectionStatus.className = 'status-connected';
@@ -216,13 +221,13 @@
             messageInput.value = '';
             
             try {
-                // Send to API
-                const response = await fetch(`/api/conversations/${conversationId}/message`, {
+                // Send to enhanced API
+                const response = await fetch('/chat/reply', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ content })
+                    body: JSON.stringify({ conversationId, message: content })
                 });
                 
                 if (response.status === 410) {
@@ -291,19 +296,8 @@
             messageInput.disabled = true;
             sendButton.disabled = true;
             
-            // Call end conversation API
-            if (conversationId) {
-                try {
-                    await fetch(`/api/conversations/${conversationId}/end`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                } catch (error) {
-                    console.error('Error ending conversation:', error);
-                }
-            }
+            // End conversation (enhanced system handles this automatically)
+            // No separate end endpoint needed with new chat system
             
             let reasonText;
             switch(reason) {

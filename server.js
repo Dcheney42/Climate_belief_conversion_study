@@ -6,6 +6,17 @@ const cors = require('cors');
 const OpenAI = require('openai');
 require('dotenv').config();
 
+// Import new chat router (dynamic import for ES modules)
+let chatRouter;
+(async () => {
+  try {
+    const module = await import('./backend/src/routes/chat.js');
+    chatRouter = module.default;
+  } catch (error) {
+    console.warn('Chat router not available:', error.message);
+  }
+})();
+
 // Chat duration constant - 5 minutes
 const CHAT_DURATION_MS = Number(process.env.CHAT_DURATION_MS ?? 5 * 60 * 1000);
 
@@ -33,6 +44,95 @@ const exportsDir = path.join(dataDir, 'exports');
 // In-memory storage for active conversations
 const activeConversations = new Map();
 
+// Global database and LLM shims for new chat functionality
+global.db = global.db || {
+  participants: {
+    async getProfile(userId) {
+      // Return object with fields:
+      // prior_belief_cc_happening, prior_belief_human_cause,
+      // current_belief_cc_happening, current_belief_human_cause,
+      // changed_belief_flag (boolean)
+      const filename = path.join(participantsDir, `${userId}.json`);
+      const participant = readJson(filename);
+      if (!participant) return null;
+      
+      // Map existing fields to new structure
+      return {
+        prior_belief_cc_happening: participant.priorClimateBelief,
+        prior_belief_human_cause: "unspecified", // Not collected yet
+        current_belief_cc_happening: participant.currentClimateBelief,
+        current_belief_human_cause: "unspecified", // Not collected yet
+        changed_belief_flag: participant.priorClimateBelief !== participant.currentClimateBelief
+      };
+    },
+    async updateFromConversation(conversationId, updates) {
+      const filename = path.join(conversationsDir, `${conversationId}.json`);
+      const conv = readJson(filename);
+      if (!conv) return;
+      
+      const participantFile = path.join(participantsDir, `${conv.participantId}.json`);
+      const participant = readJson(participantFile);
+      if (!participant) return;
+      
+      // Update participant with new fields
+      Object.assign(participant, updates);
+      participant.updatedAt = new Date().toISOString();
+      writeJson(participantFile, participant);
+    }
+  },
+  conversations: {
+    async save(userId, conversationId, messages) {
+      const conversationData = {
+        id: conversationId,
+        participantId: userId,
+        startedAt: new Date().toISOString(),
+        endedAt: null,
+        durationSeconds: null,
+        messages: messages
+      };
+      const filename = path.join(conversationsDir, `${conversationId}.json`);
+      writeJson(filename, conversationData);
+    },
+    async load(conversationId) {
+      const filename = path.join(conversationsDir, `${conversationId}.json`);
+      const c = readJson(filename);
+      return c?.messages || [];
+    },
+    async append(conversationId, message) {
+      const filename = path.join(conversationsDir, `${conversationId}.json`);
+      const c = readJson(filename);
+      if (!c) return;
+      
+      const newMsgs = [...(c.messages || []), message];
+      c.messages = newMsgs;
+      writeJson(filename, c);
+    }
+  }
+};
+
+global.llm = global.llm || {
+  async chat(messages) {
+    // Use existing OpenAI integration
+    if (!process.env.OPENAI_API_KEY) {
+      return { content: "I'm here to help you explore your thoughts about climate change. Could you tell me more about your perspective?" };
+    }
+    
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: messages,
+        max_tokens: 150,
+        temperature: 0.7
+      });
+      
+      return { content: completion.choices[0]?.message?.content?.trim() || "Could you tell me more about your thoughts?" };
+    } catch (error) {
+      console.error('LLM error:', error);
+      return { content: "Could you tell me more about your thoughts on climate change?" };
+    }
+  }
+};
+
 // Utility functions
 function writeJson(filePath, obj) {
     try {
@@ -58,6 +158,14 @@ function readJson(filePath) {
 }
 
 // Routes
+// Mount chat router when available
+setTimeout(() => {
+  if (chatRouter) {
+    app.use("/chat", chatRouter);
+    console.log('Chat router mounted at /chat');
+  }
+}, 100); // Small delay to ensure the async import completes
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -125,11 +233,14 @@ app.post('/survey/submit', (req, res) => {
         } = req.body;
         
         console.log('Received survey submission:', req.body);
+        console.log('DEBUG: Starting validation process...');
         
         // Validate required fields
         if (!age || age < 16 || age > 120) {
+            console.log('DEBUG: Age validation FAILED - age:', age);
             return res.status(400).json({ error: 'Age must be between 16 and 120' });
         }
+        console.log('DEBUG: Age validation PASSED');
         
         if (!gender || !['Woman', 'Man', 'Non-binary', 'Other'].includes(gender)) {
             return res.status(400).json({ error: 'Valid gender identity is required' });
@@ -166,9 +277,14 @@ app.post('/survey/submit', (req, res) => {
         const priorBeliefNum = parseInt(prior_belief);
         const currentBeliefNum = parseInt(current_belief);
         
+        console.log(`DEBUG: Raw values - prior_belief: "${prior_belief}", current_belief: "${current_belief}"`);
+        console.log(`DEBUG: Parsed values - priorBeliefNum: ${priorBeliefNum}, currentBeliefNum: ${currentBeliefNum}`);
+        console.log(`DEBUG: Condition 1 (prior < 4 && current > 4): ${priorBeliefNum < 4} && ${currentBeliefNum > 4} = ${priorBeliefNum < 4 && currentBeliefNum > 4}`);
+        console.log(`DEBUG: Condition 2 (prior > 4 && current < 4): ${priorBeliefNum > 4} && ${currentBeliefNum < 4} = ${priorBeliefNum > 4 && currentBeliefNum < 4}`);
+        
         const eligible = (priorBeliefNum < 4 && currentBeliefNum > 4) || (priorBeliefNum > 4 && currentBeliefNum < 4);
         
-        console.log(`Eligibility check: priorBelief=${priorBeliefNum}, currentBelief=${currentBeliefNum}, eligible=${eligible}`);
+        console.log(`FINAL Eligibility check: priorBelief=${priorBeliefNum}, currentBelief=${currentBeliefNum}, eligible=${eligible}`);
         
         // Generate participant ID
         const participantId = uuidv4();
