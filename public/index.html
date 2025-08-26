@@ -3,188 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informed Consent - Climate Change Study</title>
+    <title>Welcome to Our Research Study</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Climate Change Conversion Narratives Study</h1>
-            <p class="subtitle">Understanding changes of belief through dialogues with AI</p>
+            <h1>Welcome to Our Research Study</h1>
+            <p class="subtitle">Climate change belief conversion narratives study</p>
         </div>
         
         <div class="content">
-            <!-- Prolific ID Section -->
-            <div class="start-form" id="prolificSection">
+            <p class="intro-paragraph">You are invited to take part in a research study about how and why people change their beliefs about climate change. We are interested in hearing your story about what influenced your views.</p>
+            
+            <div class="section-card">
+                <h2>What You'll Do</h2>
+                <ul class="section-list">
+                    <li>Complete a brief survey about your background and current views on climate change (2–3 minutes)</li>
+                    <li>Have a short text-based conversation with a chatbot designed to guide you in telling your story (5–7 minutes)</li>
+                    <li>Complete a short exit survey about your experience (2–3 minutes)</li>
+                </ul>
+            </div>
+            
+            <hr class="section-divider">
+            
+            <div class="section-card">
+                <h2>Total Time Commitment</h2>
+                <p class="commitment-text">10–15 minutes</p>
+            </div>
+            
+            <hr class="section-divider">
+            
+            <div class="section-card">
+                <h2>Important Information</h2>
+                <ul class="section-list">
+                    <li>Your responses are anonymous</li>
+                    <li>You may withdraw from the study at any time</li>
+                    <li>Your data will only be used for research purposes</li>
+                    <li>Please answer honestly and respectfully</li>
+                </ul>
+            </div>
+            
+            <hr class="section-divider">
+            
+            <div class="ready-section">
+                <h2>Ready to Begin?</h2>
                 <form id="startForm">
                     <div class="form-group">
-                        <label for="prolificId">Enter your Prolific ID:</label>
+                        <label for="prolificId">Enter your Participant ID:</label>
                         <input type="text" id="prolificId" name="prolificId" required
-                               placeholder="e.g., 5f8a9b2c3d4e5f6g7h8i9j0k">
-                        <small>This ID was provided to you by Prolific</small>
+                               placeholder="e.g., 12345ABCD">
+                        <small>This ID was provided to you by the study administrator.</small>
+                        <div class="error-message" id="idError" style="display: none; color: #e74c3c; font-size: 14px; margin-top: 5px;"></div>
                     </div>
                     
-                    <button type="submit" class="btn-primary">Continue to Consent</button>
+                    <button type="submit" class="btn-primary">Begin Study</button>
                 </form>
-            </div>
-
-            <!-- Consent Form Section -->
-            <div class="consent-form" id="consentSection" style="display: none;">
-                <div class="header">
-                    <h1>Participant Information and Consent</h1>
-                    <p class="subtitle">Climate Change Conversion Narratives Study</p>
-                </div>
-
-                <div class="consent-section">
-                    <h2>Purpose of study</h2>
-                    <p>This research study aims to understand how people change their beliefs about climate change. We are interested in examining the reasons given as to why people who are climate accepters become sceptical, and why those who are cliamte denyers become believers.</p>
-                </div>
-                
-                <div class="consent-section">
-                    <h2>What to expect</h2>
-                    <p>If you choose to participate, you'll first be asked to provide some demographic information. Next, you'll evaluate your views on climate change and the role of human influence. You'll then communicate with an AI chatbot which will ask you various questions about why your beliefs about climate change shifted.</p>
-                </div>
-                
-                <div class="consent-section">
-                    <h2>Benefits of participating</h2>
-                    <p>You may gain insight into how your beliefs on climate change formed and changed. Your participation contributes to research that may help better understand belief change.</p>
-                </div>
-                
-                <div class="consent-section">
-                    <h2>Risks</h2>
-                    <p>You may find that reflecting on your changes in belief make you uncomfortable.</p>
-                </div>
-                
-                <div class="consent-section">
-                    <h2>Withdrawal and confidentiality</h2>
-                    <p>Participation is completely voluntary. If you wish to withdraw at any time your responses will be deleted, and you will incur no penalty. If you decide not to complete the study, you can close your browser at any time before the study's completion. You are free to skip any questions that you don't want to respond to. All responses you provide will be unidentifiable. Any data provided by participating in this survey may be used in the future by us or other researchers for related projects. However, any stored data will not have personally identifiable information.</p>
-                </div>
-                
-                <div class="consent-section">
-                    <h2>Access to results and contact details</h2>
-                    <p>If you wish to access the study's results, you can contact David Cheney via email at d.cheney@uq.edu.au. Contact details will be provided again during debriefing. This study may become part of an eventual publication or presentation.</p>
-                </div>
-                
-                <div class="consent-section">
-                    <h2>Ethical clearance</h2>
-                    <p>This study adheres to the Guidelines of the ethical review process of The University of Queensland and the National Statement on Ethical Conduct in Human Research. Whilst you are free to discuss your participation in this study with project staff (contactable at samuel.pearson@uq.edu.au), if you would like to speak to an officer of the University not involved in the study, you may contact the Ethics Coordinators on +617 3365 3924 / +617 3443 1656 or email humanethics@research.uq.edu.au.</p>
-                </div>
-                
-                <div class="consent-checkboxes">
-                    <h2>Consent Question</h2>
-                    <p>After reading the information sheet, do you consent to participating in this study?</p>
-                    
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="consent_response" value="yes" required>
-                            Yes, I consent to participate
-                        </label>
-                    </div>
-                    
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="consent_response" value="no" required>
-                            No, I do not consent to participate
-                        </label>
-                    </div>
-                </div>
-                
-                <div class="consent-buttons">
-                    <button type="button" class="btn-secondary" id="backBtn">
-                        Back to Prolific ID
-                    </button>
-                    <button type="button" class="btn-primary" id="consentBtn" disabled>
-                        Continue to Survey
-                    </button>
-                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Handle Prolific ID form submission
+        // Handle Participant ID form submission
         document.getElementById('startForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const prolificId = document.getElementById('prolificId').value.trim();
             
+            // Validate Participant ID
             if (!prolificId) {
-                alert('Please enter your Prolific ID');
+                showError('Please enter your Participant ID');
                 return;
             }
             
-            // Store Prolific ID in session storage
+            // Check if ID is 6-32 alphanumeric characters
+            const idPattern = /^[A-Za-z0-9]{6,32}$/;
+            if (!idPattern.test(prolificId)) {
+                showError('Participant ID must be 6–32 alphanumeric characters');
+                return;
+            }
+            
+            // Clear any previous errors
+            hideError();
+            
+            // Store Participant ID and consent information
             sessionStorage.setItem('prolific_id', prolificId);
-            
-            // Show consent form and hide Prolific section
-            document.getElementById('prolificSection').style.display = 'none';
-            document.getElementById('consentSection').style.display = 'block';
-            
-            // Scroll to top of consent form
-            document.getElementById('consentSection').scrollIntoView({ behavior: 'smooth' });
-        });
-
-        // Handle back button
-        document.getElementById('backBtn').addEventListener('click', function() {
-            document.getElementById('consentSection').style.display = 'none';
-            document.getElementById('prolificSection').style.display = 'block';
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Check if consent is given
-        function checkConsent() {
-            const consentRadios = document.querySelectorAll('input[name="consent_response"]');
-            const consentBtn = document.getElementById('consentBtn');
-            
-            let consentGiven = false;
-            consentRadios.forEach(radio => {
-                if (radio.checked && radio.value === 'yes') {
-                    consentGiven = true;
-                }
-            });
-            
-            if (consentGiven) {
-                consentBtn.disabled = false;
-                consentBtn.textContent = 'Continue to Survey';
-            } else {
-                consentBtn.disabled = true;
-                consentBtn.textContent = 'Continue to Survey';
-            }
-        }
-        
-        // Add event listeners to radio buttons
-        document.querySelectorAll('input[name="consent_response"]').forEach(radio => {
-            radio.addEventListener('change', checkConsent);
-        });
-        
-        // Handle consent button click
-        document.getElementById('consentBtn').addEventListener('click', function() {
-            const selectedConsent = document.querySelector('input[name="consent_response"]:checked');
-            
-            if (!selectedConsent) {
-                alert('Please select your consent response.');
-                return;
-            }
-            
-            if (selectedConsent.value === 'no') {
-                alert('You have chosen not to participate. You will be redirected to the start page.');
-                window.location.reload();
-                return;
-            }
-            
-            // Store consent information
             const consentData = {
                 timestamp: new Date().toISOString(),
                 consent_given: true,
-                prolific_id: sessionStorage.getItem('prolific_id')
+                prolific_id: prolificId
             };
-            
             sessionStorage.setItem('consent_data', JSON.stringify(consentData));
             
             // Redirect to survey
             window.location.href = '/survey';
+        });
+
+        // Error handling functions
+        function showError(message) {
+            const errorElement = document.getElementById('idError');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            document.getElementById('prolificId').style.borderColor = '#e74c3c';
+        }
+
+        function hideError() {
+            const errorElement = document.getElementById('idError');
+            errorElement.style.display = 'none';
+            document.getElementById('prolificId').style.borderColor = '#e1e8ed';
+        }
+
+        // Add real-time validation
+        document.getElementById('prolificId').addEventListener('input', function() {
+            hideError();
+        });
+
+        // Add keyboard accessibility - Enter key on Participant ID input triggers form submit
+        document.getElementById('prolificId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('startForm').dispatchEvent(new Event('submit'));
+            }
         });
     </script>
 </body>

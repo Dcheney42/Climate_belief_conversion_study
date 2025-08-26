@@ -1191,3 +1191,350 @@ textarea:focus {
         order: 2;
     }
 }
+
+/* Welcome Page Section Cards */
+.intro-paragraph {
+    color: #4a5568;
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.section-card {
+    background-color: #f8f9fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+}
+
+.section-card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 12px;
+    margin-top: 0;
+}
+
+.section-list {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 0;
+    color: #4a5568;
+}
+
+.section-list li {
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.commitment-text {
+    color: #1a202c;
+    font-size: 16px;
+    margin: 0;
+    font-weight: 500;
+}
+
+.section-divider {
+    border: none;
+    height: 1px;
+    background-color: #e1e8ed;
+    margin: 16px 0;
+}
+
+.ready-section {
+    margin-top: 24px;
+}
+
+.ready-section h2 {
+    color: #2c3e50;
+    font-size: 1.4em;
+    margin-bottom: 20px;
+}
+
+/* Responsive adjustments for section cards */
+@media (max-width: 768px) {
+    .section-card {
+        padding: 16px 20px;
+        margin-bottom: 12px;
+    }
+    
+    .section-card h2 {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    
+    .intro-paragraph {
+        font-size: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .section-list {
+        padding-left: 16px;
+    }
+    
+    .ready-section {
+        margin-top: 20px;
+    }
+}
+
+/* Demographics Form Styling */
+.demo-field-card {
+    background-color: #f8f9fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.field-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a202c;
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
+.field-input {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background-color: white;
+    padding: 8px 12px;
+    color: #1a202c;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #6366f1;
+}
+
+.field-input.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px #ef4444;
+}
+
+.field-input::placeholder {
+    color: #9ca3af;
+}
+
+.field-error {
+    font-size: 12px;
+    color: #ef4444;
+    margin-top: 4px;
+    display: none;
+}
+
+.field-error.show {
+    display: block;
+}
+
+/* Radio Groups */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.radio-label:hover {
+    background-color: rgba(99, 102, 241, 0.05);
+}
+
+.radio-label input[type="radio"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.radio-label input[type="radio"]:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.radio-text {
+    color: #4a5568;
+    font-size: 15px;
+}
+
+/* Likert Scale */
+.likert-scale {
+    margin-top: 8px;
+}
+
+.likert-anchors {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.anchor-left {
+    text-align: left;
+}
+
+.anchor-right {
+    text-align: right;
+}
+
+.likert-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.likert-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    flex: 1;
+}
+
+.likert-option:hover {
+    background-color: rgba(99, 102, 241, 0.05);
+}
+
+.likert-option input[type="radio"] {
+    margin-bottom: 4px;
+    cursor: pointer;
+}
+
+.likert-option input[type="radio"]:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.likert-number {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Checkbox */
+.checkbox-group {
+    margin-top: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.checkbox-label:hover {
+    background-color: rgba(99, 102, 241, 0.05);
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 8px;
+    margin-top: 2px;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"]:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.checkbox-text {
+    color: #4a5568;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* Submit Button States */
+.btn-primary:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary:disabled:hover {
+    background-color: #9ca3af;
+    transform: none;
+}
+
+/* Responsive Design for Demographics */
+@media (max-width: 768px) {
+    .demo-field-card {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .field-label {
+        font-size: 13px;
+    }
+    
+    .field-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .likert-options {
+        gap: 4px;
+    }
+    
+    .likert-option {
+        padding: 6px 2px;
+    }
+    
+    .likert-anchors {
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .anchor-left,
+    .anchor-right {
+        flex: 1;
+        max-width: 45%;
+    }
+    
+    .radio-group {
+        gap: 6px;
+    }
+    
+    .radio-label,
+    .checkbox-label {
+        padding: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .likert-anchors {
+        font-size: 11px;
+    }
+    
+    .likert-option {
+        padding: 4px 1px;
+    }
+    
+    .likert-number {
+        font-size: 11px;
+    }
+}

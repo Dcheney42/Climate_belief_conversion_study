@@ -8,102 +8,181 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Thank You for Participating!</h1>
+        <!-- Header Box -->
+        <div class="demo-field-card" style="text-align: center; margin-bottom: 24px;">
+            <h1 style="font-size: 2em; margin-bottom: 8px;">🎉 Thank you for participating!</h1>
+            <p style="color: #6b7280; margin: 0;">Your feedback helps improve this study.</p>
         </div>
         
         <div class="content">
             <form id="exitSurveyForm" class="survey-form">
-                <div class="question-section">
-                    <h2>Your Experience</h2>
+                
+                <!-- Section 1 - Your Experience -->
+                <div class="demo-field-card">
+                    <h2 style="margin-bottom: 20px;">Your Experience</h2>
                     
-                    <div class="question">
-                        <label class="question-text">How would you rate the overall quality of your conversation?</label>
-                        <div class="rating-scale">
-                            <label><input type="radio" name="conversation_quality" value="1" required> 1 - Very Poor</label>
-                            <label><input type="radio" name="conversation_quality" value="2"> 2 - Poor</label>
-                            <label><input type="radio" name="conversation_quality" value="3"> 3 - Average</label>
-                            <label><input type="radio" name="conversation_quality" value="4"> 4 - Good</label>
-                            <label><input type="radio" name="conversation_quality" value="5"> 5 - Excellent</label>
-                        </div>
-                    </div>
-                    
-                    <div class="question">
-                        <label class="question-text">Did the conversation change your views on climate change in any way?</label>
-                        <div class="multiple-choice">
-                            <label><input type="radio" name="attitude_change" value="strengthened" required> It strengthened my existing views</label>
-                            <label><input type="radio" name="attitude_change" value="weakened"> It weakened my existing views</label>
-                            <label><input type="radio" name="attitude_change" value="shifted"> It shifted my views in a new direction</label>
-                            <label><input type="radio" name="attitude_change" value="no_change"> It didn't change my views at all</label>
-                            <label><input type="radio" name="attitude_change" value="unsure"> I'm not sure</label>
-                        </div>
-                    </div>
-                    
-                    <div class="question">
-                        <label class="question-text">How respectful was the other participant during the conversation?</label>
-                        <div class="rating-scale">
-                            <label><input type="radio" name="other_respectfulness" value="1" required> 1 - Very Disrespectful</label>
-                            <label><input type="radio" name="other_respectfulness" value="2"> 2 - Disrespectful</label>
-                            <label><input type="radio" name="other_respectfulness" value="3"> 3 - Neutral</label>
-                            <label><input type="radio" name="other_respectfulness" value="4"> 4 - Respectful</label>
-                            <label><input type="radio" name="other_respectfulness" value="5"> 5 - Very Respectful</label>
-                        </div>
-                    </div>
-                    
-                    <div class="question">
-                        <label class="question-text">Climate change is happening and is caused mostly by human activity</label>
+                    <!-- Q1: Overall quality -->
+                    <div style="margin-bottom: 24px;">
+                        <label class="field-label">Overall quality of the conversation with the chatbot <span class="required">*</span></label>
                         <div class="likert-scale">
-                            <div class="scale-labels">
-                                <span>Strongly Disagree</span>
-                                <span>Strongly Agree</span>
+                            <div class="likert-anchors">
+                                <span class="anchor-left">Very poor</span>
+                                <span class="anchor-right">Excellent</span>
                             </div>
-                            <div class="scale-options">
-                                <label><input type="radio" name="climate_change_post" value="1" required> 1</label>
-                                <label><input type="radio" name="climate_change_post" value="2"> 2</label>
-                                <label><input type="radio" name="climate_change_post" value="3"> 3</label>
-                                <label><input type="radio" name="climate_change_post" value="4"> 4</label>
-                                <label><input type="radio" name="climate_change_post" value="5"> 5</label>
-                                <label><input type="radio" name="climate_change_post" value="6"> 6</label>
-                                <label><input type="radio" name="climate_change_post" value="7"> 7</label>
+                            <div class="likert-options">
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="1" required>
+                                    <span class="likert-number">1</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="2" required>
+                                    <span class="likert-number">2</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="3" required>
+                                    <span class="likert-number">3</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="4" required>
+                                    <span class="likert-number">4</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="5" required>
+                                    <span class="likert-number">5</span>
+                                </label>
                             </div>
                         </div>
+                        <div class="field-error" id="overallQuality-error"></div>
+                    </div>
+                    
+                    <!-- Q2: Views changed -->
+                    <div style="margin-bottom: 0;">
+                        <label class="field-label">Did the conversation with the chatbot change your views in any way? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="viewsChangedHow" value="strengthened" required>
+                                <span class="radio-text">It strengthened my existing views</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="viewsChangedHow" value="weakened" required>
+                                <span class="radio-text">It weakened my existing views</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="viewsChangedHow" value="no_change" required>
+                                <span class="radio-text">It didn't change my views at all</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="viewsChangedHow" value="unsure" required>
+                                <span class="radio-text">I'm not sure</span>
+                            </label>
+                        </div>
+                        <div class="field-error" id="viewsChangedHow-error"></div>
                     </div>
                 </div>
-                
-                
-                <div class="question-section">
-                    <h2>Additional Feedback</h2>
+
+                <!-- Section 2 - Climate Belief -->
+                <!-- Box A: Reminder + Binary change -->
+                <div class="demo-field-card">
+                    <h2 style="margin-bottom: 20px;">Climate Belief</h2>
                     
-                    <div class="question">
-                        <label class="question-text">What did you like most about this experience? (Optional)</label>
-                        <textarea name="liked_most" rows="3" maxlength="500" 
-                                  placeholder="Share what you found valuable or interesting..."></textarea>
-                        <div class="char-counter">
-                            <span id="likedMostCount">0</span>/500 characters
-                        </div>
+                    <div style="margin-bottom: 24px;">
+                        <p style="color: #4a5568; margin-bottom: 8px;">Earlier you indicated…</p>
+                        <p style="font-weight: 500; color: #1a202c;">Your current belief about climate change was: <span id="earlierBeliefDisplay">Loading...</span>/7</p>
+                        <input type="hidden" id="earlierCurrentBelief" name="earlierCurrentBelief" value="">
                     </div>
                     
-                    <div class="question">
-                        <label class="question-text">What could be improved about this study? (Optional)</label>
-                        <textarea name="improvements" rows="3" maxlength="500" 
-                                  placeholder="Share any suggestions for improvement..."></textarea>
-                        <div class="char-counter">
-                            <span id="improvementsCount">0</span>/500 characters
+                    <div style="margin-bottom: 0;">
+                        <label class="field-label">Has your belief changed after the conversation with the chatbot? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="beliefChanged" value="no" required>
+                                <span class="radio-text">No, my belief has not changed</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="beliefChanged" value="yes" required>
+                                <span class="radio-text">Yes, my belief has changed</span>
+                            </label>
                         </div>
+                        <div class="field-error" id="beliefChanged-error"></div>
+                    </div>
+                </div>
+
+                <!-- Box B: Conditional new belief and reason -->
+                <div class="demo-field-card" id="newBeliefSection" style="display: none;">
+                    <div style="margin-bottom: 24px;">
+                        <label class="field-label">If your belief has changed, where would you now place yourself? <span class="required">*</span></label>
+                        <div class="likert-scale">
+                            <div class="likert-anchors">
+                                <span class="anchor-left">Definitely not caused by humans</span>
+                                <span class="anchor-right">Definitely caused by humans</span>
+                            </div>
+                            <div class="likert-options">
+                                <label class="likert-option">
+                                    <input type="radio" name="newBelief" value="1">
+                                    <span class="likert-number">1</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="newBelief" value="2">
+                                    <span class="likert-number">2</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="newBelief" value="3">
+                                    <span class="likert-number">3</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="newBelief" value="4">
+                                    <span class="likert-number">4</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="newBelief" value="5">
+                                    <span class="likert-number">5</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="newBelief" value="6">
+                                    <span class="likert-number">6</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="newBelief" value="7">
+                                    <span class="likert-number">7</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field-error" id="newBelief-error"></div>
                     </div>
                     
-                    <div class="question">
-                        <label class="question-text">Any other comments or feedback? (Optional)</label>
-                        <textarea name="other_feedback" rows="3" maxlength="500" 
+                    <div style="margin-bottom: 0;">
+                        <label class="field-label" for="changeReason">Please tell us why your position has changed <span class="required">*</span></label>
+                        <textarea id="changeReason" name="changeReason" rows="4" class="field-input"
+                                  placeholder="Please explain what led to the change in your belief..."></textarea>
+                        <div class="field-error" id="changeReason-error"></div>
+                    </div>
+                </div>
+
+                <!-- Section 3 - Additional Feedback -->
+                <div class="demo-field-card">
+                    <h2 style="margin-bottom: 20px;">Additional Feedback</h2>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <label class="field-label" for="mostUseful">What was most useful about this conversation?</label>
+                        <textarea id="mostUseful" name="mostUseful" rows="3" class="field-input"
+                                  placeholder="Share what you found most valuable or helpful..."></textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <label class="field-label" for="leastUseful">What was least useful about this conversation?</label>
+                        <textarea id="leastUseful" name="leastUseful" rows="3" class="field-input"
+                                  placeholder="Share what you found least helpful or could be improved..."></textarea>
+                    </div>
+                    
+                    <div style="margin-bottom: 0;">
+                        <label class="field-label" for="otherComments">Any other comments?</label>
+                        <textarea id="otherComments" name="otherComments" rows="3" class="field-input"
                                   placeholder="Share any other thoughts about your experience..."></textarea>
-                        <div class="char-counter">
-                            <span id="otherFeedbackCount">0</span>/500 characters
-                        </div>
                     </div>
                 </div>
                 
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary">Submit Feedback</button>
+                    <button type="submit" class="btn-primary" id="submitBtn" disabled>Submit Feedback</button>
                 </div>
             </form>
             
@@ -135,50 +214,215 @@
     </div>
 
     <script>
-        // Character counters
-        function setupCharCounter(textareaName, counterId) {
-            const textarea = document.querySelector(`textarea[name="${textareaName}"]`);
-            const counter = document.getElementById(counterId);
-            
-            if (textarea && counter) {
-                textarea.addEventListener('input', function() {
-                    counter.textContent = this.value.length;
-                });
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeExitSurvey();
+        });
+
+        function initializeExitSurvey() {
+            const participantId = sessionStorage.getItem('participant_id');
+            if (!participantId) {
+                showError('Participant ID not found. Please complete the study from the beginning.');
+                return;
+            }
+
+            // Load earlier current belief from participant data
+            loadParticipantData(participantId);
+
+            // Initialize form validation
+            initializeFormValidation();
+
+            // Set up conditional display for belief change
+            setupBeliefChangeLogic();
+        }
+
+        async function loadParticipantData(participantId) {
+            try {
+                // In a real implementation, this would fetch from the server
+                // For now, we'll try to get it from sessionStorage or fetch from server
+                const response = await fetch(`/api/participant/${participantId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const earlierBelief = data.currentClimateBelief || 4; // fallback
+                    document.getElementById('earlierCurrentBelief').value = earlierBelief;
+                    document.getElementById('earlierBeliefDisplay').textContent = earlierBelief;
+                } else {
+                    // Fallback: try to get from form data if available
+                    const fallbackBelief = 4; // neutral fallback
+                    document.getElementById('earlierCurrentBelief').value = fallbackBelief;
+                    document.getElementById('earlierBeliefDisplay').textContent = fallbackBelief;
+                }
+            } catch (error) {
+                console.error('Error loading participant data:', error);
+                // Use fallback
+                const fallbackBelief = 4;
+                document.getElementById('earlierCurrentBelief').value = fallbackBelief;
+                document.getElementById('earlierBeliefDisplay').textContent = fallbackBelief;
             }
         }
-        
-        setupCharCounter('liked_most', 'likedMostCount');
-        setupCharCounter('improvements', 'improvementsCount');
-        setupCharCounter('other_feedback', 'otherFeedbackCount');
-        
+
+        function initializeFormValidation() {
+            const form = document.getElementById('exitSurveyForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Add event listeners for real-time validation
+            const inputs = form.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('change', validateForm);
+                input.addEventListener('input', function() {
+                    clearFieldError(this.name || this.id);
+                });
+            });
+
+            // Initial validation check
+            validateForm();
+        }
+
+        function setupBeliefChangeLogic() {
+            const beliefChangedRadios = document.querySelectorAll('input[name="beliefChanged"]');
+            const newBeliefSection = document.getElementById('newBeliefSection');
+
+            beliefChangedRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'yes') {
+                        newBeliefSection.style.display = 'block';
+                        // Make newBelief and changeReason required
+                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.required = true);
+                        document.getElementById('changeReason').required = true;
+                    } else {
+                        newBeliefSection.style.display = 'none';
+                        // Remove required from conditional fields
+                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.required = false);
+                        document.getElementById('changeReason').required = false;
+                        // Clear their values
+                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.checked = false);
+                        document.getElementById('changeReason').value = '';
+                    }
+                    validateForm();
+                });
+            });
+        }
+
+        function validateForm() {
+            const submitBtn = document.getElementById('submitBtn');
+            let isValid = true;
+
+            // Clear all errors first
+            document.querySelectorAll('.field-error').forEach(error => {
+                error.classList.remove('show');
+            });
+            document.querySelectorAll('.field-input').forEach(input => {
+                input.classList.remove('error');
+            });
+
+            // Validate overall quality
+            const overallQuality = document.querySelector('input[name="overallQuality"]:checked');
+            if (!overallQuality) {
+                showFieldError('overallQuality', 'Please rate the overall quality');
+                isValid = false;
+            }
+
+            // Validate views changed
+            const viewsChanged = document.querySelector('input[name="viewsChangedHow"]:checked');
+            if (!viewsChanged) {
+                showFieldError('viewsChangedHow', 'Please select how the conversation affected your views');
+                isValid = false;
+            }
+
+            // Validate belief changed
+            const beliefChanged = document.querySelector('input[name="beliefChanged"]:checked');
+            if (!beliefChanged) {
+                showFieldError('beliefChanged', 'Please indicate if your belief has changed');
+                isValid = false;
+            }
+
+            // Conditional validation for belief change
+            if (beliefChanged && beliefChanged.value === 'yes') {
+                const newBelief = document.querySelector('input[name="newBelief"]:checked');
+                if (!newBelief) {
+                    showFieldError('newBelief', 'Please indicate your new belief position');
+                    isValid = false;
+                }
+
+                const changeReason = document.getElementById('changeReason').value.trim();
+                if (!changeReason) {
+                    showFieldError('changeReason', 'Please explain why your position has changed');
+                    isValid = false;
+                }
+            }
+
+            // Enable/disable submit button
+            submitBtn.disabled = !isValid;
+            
+            return isValid;
+        }
+
+        function showFieldError(fieldName, message) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            const inputElement = document.getElementById(fieldName) ||
+                                 document.querySelector(`input[name="${fieldName}"]`);
+            
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+            }
+            
+            if (inputElement && inputElement.classList) {
+                inputElement.classList.add('error');
+            }
+        }
+
+        function clearFieldError(fieldName) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            const inputElement = document.getElementById(fieldName) ||
+                                 document.querySelector(`input[name="${fieldName}"]`);
+            
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+            
+            if (inputElement && inputElement.classList) {
+                inputElement.classList.remove('error');
+            }
+        }
+
         // Form submission
         document.getElementById('exitSurveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            if (!validateForm()) {
+                alert('Please complete all required fields before submitting.');
+                return;
+            }
+
             submitSurvey();
         });
         
-        
         function submitSurvey() {
             const formData = new FormData(document.getElementById('exitSurveyForm'));
+            const beliefChanged = formData.get('beliefChanged');
             
             const surveyData = {
                 participant_id: sessionStorage.getItem('participant_id'),
-                prolific_id: sessionStorage.getItem('prolific_id'),
-                session_id: sessionStorage.getItem('session_id'),
-                timestamp: new Date().toISOString(),
-                responses: {
-                    conversation_quality: parseInt(formData.get('conversation_quality')),
-                    attitude_change: formData.get('attitude_change'),
-                    other_respectfulness: parseInt(formData.get('other_respectfulness')),
-                    climate_change_post: parseInt(formData.get('climate_change_post')),
-                    liked_most: formData.get('liked_most') || '',
-                    improvements: formData.get('improvements') || '',
-                    other_feedback: formData.get('other_feedback') || ''
-                }
+                overallQuality: parseInt(formData.get('overallQuality')),
+                viewsChangedHow: formData.get('viewsChangedHow'),
+                earlierCurrentBelief: parseInt(formData.get('earlierCurrentBelief')),
+                beliefChanged: beliefChanged,
+                newBelief: beliefChanged === 'yes' ? parseInt(formData.get('newBelief')) : null,
+                changeReason: beliefChanged === 'yes' ? formData.get('changeReason') : null,
+                mostUseful: formData.get('mostUseful') || null,
+                leastUseful: formData.get('leastUseful') || null,
+                otherComments: formData.get('otherComments') || null
             };
             
+            console.log('Submitting exit survey:', surveyData);
+
+            // Disable submit button during submission
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
             // Submit to server
-            fetch('/exit-survey', {
+            fetch('/api/end-survey', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -187,15 +431,19 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data.ok) {
                     showCompletion();
                 } else {
                     alert('Error submitting survey. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Feedback';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error submitting survey. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Feedback';
             });
         }
         
@@ -206,16 +454,31 @@
             // Clear session storage
             sessionStorage.clear();
         }
-        
-        // Check if user completed the study
-        const participantId = sessionStorage.getItem('participant_id');
-        if (!participantId) {
-            // Show completion message for users who didn't complete the full study
-            document.querySelector('.header h1').textContent = 'Thank You';
-            document.querySelector('.header .subtitle').textContent = 'Thank you for your interest in participating';
-            document.getElementById('exitSurveyForm').style.display = 'none';
-            document.getElementById('completionMessage').style.display = 'block';
+
+        function showError(message) {
+            alert(message);
+            window.location.href = '/';
         }
+
+        // Add keyboard navigation for Likert scales
+        document.querySelectorAll('.likert-scale').forEach(scale => {
+            const radios = scale.querySelectorAll('input[type="radio"]');
+            radios.forEach((radio, index) => {
+                radio.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        e.preventDefault();
+                        radios[index - 1].focus();
+                        radios[index - 1].checked = true;
+                        validateForm();
+                    } else if (e.key === 'ArrowRight' && index < radios.length - 1) {
+                        e.preventDefault();
+                        radios[index + 1].focus();
+                        radios[index + 1].checked = true;
+                        validateForm();
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

@@ -6,6 +6,9 @@ const cors = require('cors');
 const OpenAI = require('openai');
 require('dotenv').config();
 
+// Chat duration constant - 5 minutes
+const CHAT_DURATION_MS = Number(process.env.CHAT_DURATION_MS ?? 5 * 60 * 1000);
+
 const app = express();
 
 // Middleware
@@ -105,36 +108,80 @@ app.get('/debug/data', (req, res) => {
 // Survey submission endpoint
 app.post('/survey/submit', (req, res) => {
     try {
-        const { 
-            prolific_id, 
-            age, 
-            gender, 
-            country, 
-            education, 
-            political_orientation, 
-            prior_belief, 
-            current_belief 
+        const {
+            prolific_id,
+            age,
+            gender,
+            country,
+            education,
+            political_orientation,
+            prior_belief,
+            current_belief,
+            consent
         } = req.body;
         
         console.log('Received survey submission:', req.body);
+        
+        // Validate required fields
+        if (!age || age < 16 || age > 120) {
+            return res.status(400).json({ error: 'Age must be between 16 and 120' });
+        }
+        
+        if (!gender || !['Woman', 'Man', 'Non-binary', 'Other'].includes(gender)) {
+            return res.status(400).json({ error: 'Valid gender identity is required' });
+        }
+        
+        if (!education || !['Less than high school', 'High school', 'Vocational/TAFE', 'Bachelor', 'Honours', 'Masters', 'Doctorate'].includes(education)) {
+            return res.status(400).json({ error: 'Valid education level is required' });
+        }
+        
+        if (!country) {
+            return res.status(400).json({ error: 'Country is required' });
+        }
+        
+        if (!political_orientation || political_orientation < 1 || political_orientation > 7) {
+            return res.status(400).json({ error: 'Political affiliation must be between 1 and 7' });
+        }
+        
+        if (!prior_belief || prior_belief < 1 || prior_belief > 7) {
+            return res.status(400).json({ error: 'Prior climate belief must be between 1 and 7' });
+        }
+        
+        if (!current_belief || current_belief < 1 || current_belief > 7) {
+            return res.status(400).json({ error: 'Current climate belief must be between 1 and 7' });
+        }
+        
+        if (!consent) {
+            return res.status(400).json({ error: 'Consent is required' });
+        }
         
         // Generate participant ID
         const participantId = uuidv4();
         const now = new Date().toISOString();
         
-        // Create participant data
+        // Create participant data with new structure
         const participantData = {
             id: participantId,
             createdAt: now,
-            consentGiven: true,
+            updatedAt: now,
+            
+            // Factual demographics
+            age: parseInt(age),
+            gender: gender,
+            education: education,
+            country: country,
+            
+            // Attitudinal measures (1-7 scale)
+            politicalAffiliation: parseInt(political_orientation),
+            priorClimateBelief: parseInt(prior_belief),
+            currentClimateBelief: parseInt(current_belief),
+            
+            // Consent
+            consentAnonymised: Boolean(consent),
+            
+            // Legacy fields for backwards compatibility
             prolificId: prolific_id || null,
-            age: age ? parseInt(age) : null,
-            gender: gender || null,
-            country: country || null,
-            education: education || null,
-            politicalOrientation: political_orientation || null,
-            priorBelief: prior_belief || null,
-            currentBelief: current_belief || null
+            consentGiven: Boolean(consent)
         };
         
         // Save participant data
@@ -212,6 +259,13 @@ app.post('/api/conversations/start', (req, res) => {
     }
 });
 
+// Helper function to detect early-end phrase
+function shouldEndNow(text) {
+    if (!text) return false;
+    // case-insensitive, allow surrounding punctuation/whitespace
+    return /\bend the chat\b/i.test(text.trim());
+}
+
 // Send a message in a conversation
 app.post('/api/conversations/:id/message', async (req, res) => {
     try {
@@ -228,15 +282,61 @@ app.post('/api/conversations/:id/message', async (req, res) => {
             return res.status(404).json({ error: 'Conversation not found or ended' });
         }
         
-        // Check 10-minute time limit (600 seconds)
+        // Check 5-minute time limit (300 seconds)
         const now = new Date();
         const startTime = new Date(activeConv.startedAt);
         const elapsedSeconds = Math.floor((now - startTime) / 1000);
         
-        if (elapsedSeconds >= 600) {
+        if (elapsedSeconds >= (CHAT_DURATION_MS / 1000)) {
             // End conversation due to time limit
             activeConversations.delete(conversationId);
             return res.status(410).json({ error: 'Conversation time limit exceeded' });
+        }
+        
+        // Check for early-end phrase
+        if (shouldEndNow(content)) {
+            // Load conversation data
+            const filename = path.join(conversationsDir, `${conversationId}.json`);
+            const conversationData = readJson(filename);
+            if (!conversationData) {
+                return res.status(404).json({ error: 'Conversation data not found' });
+            }
+            
+            // Add user message
+            const userMessage = {
+                role: 'user',
+                content: content.trim(),
+                timestamp: now.toISOString()
+            };
+            conversationData.messages.push(userMessage);
+            
+            // Add final assistant message
+            const finalMessage = {
+                role: 'assistant',
+                content: 'Okay — ending the chat now. Thanks for participating!',
+                timestamp: new Date().toISOString()
+            };
+            conversationData.messages.push(finalMessage);
+            
+            // End conversation
+            const durationSeconds = Math.floor((now - startTime) / 1000);
+            conversationData.endedAt = now.toISOString();
+            conversationData.durationSeconds = durationSeconds;
+            
+            // Save conversation
+            if (!writeJson(filename, conversationData)) {
+                throw new Error('Failed to save conversation');
+            }
+            
+            // Remove from active conversations
+            activeConversations.delete(conversationId);
+            
+            console.log('Conversation ended by phrase:', conversationId, 'Duration:', durationSeconds, 'seconds');
+            
+            return res.json({
+                reply: finalMessage.content,
+                sessionEnded: true
+            });
         }
         
         // Load conversation data
@@ -323,6 +423,126 @@ app.post('/api/conversations/:id/end', (req, res) => {
     } catch (error) {
         console.error('Error ending conversation:', error);
         res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+// Get participant data endpoint
+app.get('/api/participant/:id', (req, res) => {
+    try {
+        const participantId = req.params.id;
+        
+        // Read participant file
+        const filename = path.join(participantsDir, `${participantId}.json`);
+        const participantData = readJson(filename);
+        
+        if (!participantData) {
+            return res.status(404).json({ error: 'Participant not found' });
+        }
+        
+        res.json(participantData);
+        
+    } catch (error) {
+        console.error('Error getting participant data:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+// End survey submission endpoint
+app.post('/api/end-survey', (req, res) => {
+    try {
+        const {
+            participant_id,
+            overallQuality,
+            viewsChangedHow,
+            earlierCurrentBelief,
+            beliefChanged,
+            newBelief,
+            changeReason,
+            mostUseful,
+            leastUseful,
+            otherComments
+        } = req.body;
+        
+        console.log('Received end survey submission:', req.body);
+        
+        // Validate required fields
+        if (!participant_id) {
+            return res.status(400).json({ error: 'Participant ID is required' });
+        }
+        
+        if (!overallQuality || overallQuality < 1 || overallQuality > 5) {
+            return res.status(400).json({ error: 'Overall quality must be between 1 and 5' });
+        }
+        
+        if (!viewsChangedHow || !['strengthened', 'weakened', 'no_change', 'unsure'].includes(viewsChangedHow)) {
+            return res.status(400).json({ error: 'Valid views changed selection is required' });
+        }
+        
+        if (!earlierCurrentBelief || earlierCurrentBelief < 1 || earlierCurrentBelief > 7) {
+            return res.status(400).json({ error: 'Earlier current belief must be between 1 and 7' });
+        }
+        
+        if (!beliefChanged || !['no', 'yes'].includes(beliefChanged)) {
+            return res.status(400).json({ error: 'Belief changed response is required' });
+        }
+        
+        // Conditional validation for belief change
+        if (beliefChanged === 'yes') {
+            if (!newBelief || newBelief < 1 || newBelief > 7) {
+                return res.status(400).json({ error: 'New belief must be between 1 and 7 when belief has changed' });
+            }
+            
+            if (!changeReason || !changeReason.trim()) {
+                return res.status(400).json({ error: 'Change reason is required when belief has changed' });
+            }
+        }
+        
+        // Generate survey ID
+        const surveyId = uuidv4();
+        const now = new Date().toISOString();
+        
+        // Create end survey data
+        const endSurveyData = {
+            id: surveyId,
+            participantId: participant_id,
+            createdAt: now,
+            
+            // Survey responses
+            overallQuality: parseInt(overallQuality),
+            viewsChangedHow: viewsChangedHow,
+            earlierCurrentBelief: parseInt(earlierCurrentBelief),
+            beliefChanged: beliefChanged,
+            newBelief: beliefChanged === 'yes' ? parseInt(newBelief) : null,
+            changeReason: beliefChanged === 'yes' ? changeReason.trim() : null,
+            
+            // Optional feedback
+            mostUseful: mostUseful ? mostUseful.trim() : null,
+            leastUseful: leastUseful ? leastUseful.trim() : null,
+            otherComments: otherComments ? otherComments.trim() : null
+        };
+        
+        // Save end survey data
+        const filename = path.join(dataDir, 'end-surveys', `${surveyId}.json`);
+        
+        // Create end-surveys directory if it doesn't exist
+        const endSurveysDir = path.join(dataDir, 'end-surveys');
+        if (!fs.existsSync(endSurveysDir)) {
+            fs.mkdirSync(endSurveysDir, { recursive: true });
+        }
+        
+        if (!writeJson(filename, endSurveyData)) {
+            throw new Error('Failed to save end survey data');
+        }
+        
+        console.log('End survey saved successfully:', surveyId);
+        
+        res.json({ ok: true, id: surveyId });
+        
+    } catch (error) {
+        console.error('Error processing end survey:', error);
+        res.status(500).json({
+            error: error.message || 'Internal server error'
+        });
     }
 });
 

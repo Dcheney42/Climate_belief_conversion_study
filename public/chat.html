@@ -16,7 +16,7 @@
             
             <div class="timer-display">
                 <div class="timer-circle">
-                    <span id="timeRemaining">10:00</span>
+                    <span id="timeRemaining">5:00</span>
                 </div>
                 <p>Time Remaining</p>
             </div>
@@ -25,11 +25,14 @@
         <div class="chat-main">
             <div class="chat-messages" id="chatMessages">
                 <div class="system-message">
-                    <div class="message-content">Conversation started. You have 10 minutes to chat.</div>
+                    <div class="message-content">Conversation started. You have 5 minutes to chat.</div>
                 </div>
             </div>
             
             <div class="chat-input-area">
+                <div class="input-helper">
+                    <small>Type "end the chat" to finish early.</small>
+                </div>
                 <div class="input-container">
                     <textarea id="messageInput" placeholder="Type your message here..." rows="1" disabled></textarea>
                     <div class="input-controls">
@@ -48,7 +51,7 @@
     <div id="endModal" class="modal" style="display: none;">
         <div class="modal-content">
             <h2>Conversation Ended</h2>
-            <p id="endReason">Your 10-minute conversation has ended.</p>
+            <p id="endReason">Your 5-minute conversation has ended.</p>
             <p>Thank you for participating! You will now be redirected to a brief exit survey.</p>
             <button id="continueBtn" class="btn-primary">Continue to Exit Survey</button>
         </div>
@@ -58,7 +61,7 @@
         let conversationId = null;
         let participantId = null;
         let conversationActive = false;
-        let timeRemaining = 600; // 10 minutes in seconds
+        let timeRemaining = 300; // 5 minutes in seconds
         let timerInterval = null;
         
         // DOM elements
@@ -234,6 +237,21 @@
                 
                 const data = await response.json();
                 
+                // Check if session ended
+                if (data.sessionEnded) {
+                    // Add assistant reply
+                    const assistantMessage = {
+                        role: 'assistant',
+                        content: data.reply,
+                        timestamp: new Date().toISOString()
+                    };
+                    addMessage(assistantMessage);
+                    
+                    // End conversation
+                    endConversation('user_ended');
+                    return;
+                }
+                
                 // Add assistant reply
                 const assistantMessage = {
                     role: 'assistant',
@@ -290,7 +308,10 @@
             let reasonText;
             switch(reason) {
                 case 'time_limit':
-                    reasonText = 'Your 10-minute conversation has ended.';
+                    reasonText = 'Your 5-minute conversation has ended.';
+                    break;
+                case 'user_ended':
+                    reasonText = 'You ended the conversation early.';
                     break;
                 default:
                     reasonText = 'The conversation has ended.';

@@ -15,99 +15,212 @@
         
         <div class="content">
             <form id="surveyForm" class="survey-form">
-                <div class="form-group">
-                    <label for="prolific_id">Prolific ID (optional):</label>
-                    <input type="text" id="prolific_id" name="prolific_id" placeholder="Enter your Prolific ID if you have one">
+                <!-- Age -->
+                <div class="demo-field-card">
+                    <label for="age" class="field-label">Age <span class="required">*</span></label>
+                    <input type="number" id="age" name="age" min="16" max="120" required
+                           class="field-input" placeholder="Enter your age">
+                    <div class="field-error" id="age-error"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="age">Age:</label>
-                    <input type="number" id="age" name="age" min="18" max="100" required placeholder="Enter your age">
+                <!-- Gender Identity -->
+                <div class="demo-field-card">
+                    <label class="field-label">Gender identity <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="Woman" required>
+                            <span class="radio-text">Woman</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="Man" required>
+                            <span class="radio-text">Man</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="Non-binary" required>
+                            <span class="radio-text">Non-binary</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="Other" required>
+                            <span class="radio-text">Other</span>
+                        </label>
+                    </div>
+                    <div class="field-error" id="gender-error"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="gender">Gender:</label>
-                    <select id="gender" name="gender" required>
-                        <option value="">Select your gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="non-binary">Non-binary</option>
-                        <option value="prefer-not-to-say">Prefer not to say</option>
-                        <option value="other">Other</option>
+                <!-- Highest Education -->
+                <div class="demo-field-card">
+                    <label for="education" class="field-label">Highest education <span class="required">*</span></label>
+                    <select id="education" name="education" required class="field-input">
+                        <option value="">Select your highest education</option>
+                        <option value="Less than high school">Less than high school</option>
+                        <option value="High school">High school</option>
+                        <option value="Vocational/TAFE">Vocational/TAFE</option>
+                        <option value="Bachelor">Bachelor</option>
+                        <option value="Honours">Honours</option>
+                        <option value="Masters">Masters</option>
+                        <option value="Doctorate">Doctorate</option>
                     </select>
+                    <div class="field-error" id="education-error"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="country">Country:</label>
-                    <select id="country" name="country" required>
+                <!-- Country -->
+                <div class="demo-field-card">
+                    <label for="country" class="field-label">Country <span class="required">*</span></label>
+                    <select id="country" name="country" required class="field-input">
                         <option value="">Select your country</option>
-                        <option value="australia">Australia</option>
-                        <option value="canada">Canada</option>
-                        <option value="germany">Germany</option>
-                        <option value="uk">United Kingdom</option>
-                        <option value="usa">United States</option>
-                        <option value="other">Other</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Germany">Germany</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="United States">United States</option>
+                        <option value="New Zealand">New Zealand</option>
+                        <option value="France">France</option>
+                        <option value="Japan">Japan</option>
+                        <option value="South Korea">South Korea</option>
+                        <option value="Other">Other</option>
                     </select>
+                    <div class="field-error" id="country-error"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="education">Education level:</label>
-                    <select id="education" name="education" required>
-                        <option value="">Select your education level</option>
-                        <option value="high-school">High school or equivalent</option>
-                        <option value="some-college">Some college</option>
-                        <option value="bachelors">Bachelor's degree</option>
-                        <option value="masters">Master's degree</option>
-                        <option value="phd">PhD or equivalent</option>
-                        <option value="other">Other</option>
-                    </select>
+                <!-- Political Affiliation -->
+                <div class="demo-field-card">
+                    <label class="field-label">Political affiliation <span class="required">*</span></label>
+                    <div class="likert-scale">
+                        <div class="likert-anchors">
+                            <span class="anchor-left">Very liberal</span>
+                            <span class="anchor-right">Very conservative</span>
+                        </div>
+                        <div class="likert-options">
+                            <label class="likert-option">
+                                <input type="radio" name="politicalAffiliation" value="1" required>
+                                <span class="likert-number">1</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="politicalAffiliation" value="2" required>
+                                <span class="likert-number">2</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="politicalAffiliation" value="3" required>
+                                <span class="likert-number">3</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="politicalAffiliation" value="4" required>
+                                <span class="likert-number">4</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="politicalAffiliation" value="5" required>
+                                <span class="likert-number">5</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="politicalAffiliation" value="6" required>
+                                <span class="likert-number">6</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="politicalAffiliation" value="7" required>
+                                <span class="likert-number">7</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field-error" id="politicalAffiliation-error"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="political_orientation">Political orientation:</label>
-                    <select id="political_orientation" name="political_orientation" required>
-                        <option value="">Select your political orientation</option>
-                        <option value="very-liberal">Very liberal</option>
-                        <option value="liberal">Liberal</option>
-                        <option value="slightly-liberal">Slightly liberal</option>
-                        <option value="moderate">Moderate</option>
-                        <option value="slightly-conservative">Slightly conservative</option>
-                        <option value="conservative">Conservative</option>
-                        <option value="very-conservative">Very conservative</option>
-                        <option value="prefer-not-to-say">Prefer not to say</option>
-                    </select>
+                <!-- Prior Belief about Climate Change -->
+                <div class="demo-field-card">
+                    <label class="field-label">Prior belief about climate change <span class="required">*</span></label>
+                    <div class="likert-scale">
+                        <div class="likert-anchors">
+                            <span class="anchor-left">Definitely not caused by humans</span>
+                            <span class="anchor-right">Definitely caused by humans</span>
+                        </div>
+                        <div class="likert-options">
+                            <label class="likert-option">
+                                <input type="radio" name="priorClimateBelief" value="1" required>
+                                <span class="likert-number">1</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="priorClimateBelief" value="2" required>
+                                <span class="likert-number">2</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="priorClimateBelief" value="3" required>
+                                <span class="likert-number">3</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="priorClimateBelief" value="4" required>
+                                <span class="likert-number">4</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="priorClimateBelief" value="5" required>
+                                <span class="likert-number">5</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="priorClimateBelief" value="6" required>
+                                <span class="likert-number">6</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="priorClimateBelief" value="7" required>
+                                <span class="likert-number">7</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field-error" id="priorClimateBelief-error"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="prior_belief">Prior belief about climate change:</label>
-                    <select id="prior_belief" name="prior_belief" required>
-                        <option value="">Select your prior belief</option>
-                        <option value="strongly-agree-human">Strongly agree it's human-caused</option>
-                        <option value="agree-human">Agree it's human-caused</option>
-                        <option value="somewhat-agree-human">Somewhat agree it's human-caused</option>
-                        <option value="neutral">Neutral/Unsure</option>
-                        <option value="somewhat-disagree-human">Somewhat disagree it's human-caused</option>
-                        <option value="disagree-human">Disagree it's human-caused</option>
-                        <option value="strongly-disagree-human">Strongly disagree it's human-caused</option>
-                    </select>
+                <!-- Current Belief about Climate Change -->
+                <div class="demo-field-card">
+                    <label class="field-label">Current belief about climate change <span class="required">*</span></label>
+                    <div class="likert-scale">
+                        <div class="likert-anchors">
+                            <span class="anchor-left">Definitely not caused by humans</span>
+                            <span class="anchor-right">Definitely caused by humans</span>
+                        </div>
+                        <div class="likert-options">
+                            <label class="likert-option">
+                                <input type="radio" name="currentClimateBelief" value="1" required>
+                                <span class="likert-number">1</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="currentClimateBelief" value="2" required>
+                                <span class="likert-number">2</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="currentClimateBelief" value="3" required>
+                                <span class="likert-number">3</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="currentClimateBelief" value="4" required>
+                                <span class="likert-number">4</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="currentClimateBelief" value="5" required>
+                                <span class="likert-number">5</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="currentClimateBelief" value="6" required>
+                                <span class="likert-number">6</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="currentClimateBelief" value="7" required>
+                                <span class="likert-number">7</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="field-error" id="currentClimateBelief-error"></div>
                 </div>
 
-                <div class="form-group">
-                    <label for="current_belief">Current belief about climate change:</label>
-                    <select id="current_belief" name="current_belief" required>
-                        <option value="">Select your current belief</option>
-                        <option value="strongly-agree-human">Strongly agree it's human-caused</option>
-                        <option value="agree-human">Agree it's human-caused</option>
-                        <option value="somewhat-agree-human">Somewhat agree it's human-caused</option>
-                        <option value="neutral">Neutral/Unsure</option>
-                        <option value="somewhat-disagree-human">Somewhat disagree it's human-caused</option>
-                        <option value="disagree-human">Disagree it's human-caused</option>
-                        <option value="strongly-disagree-human">Strongly disagree it's human-caused</option>
-                    </select>
+                <!-- Consent -->
+                <div class="demo-field-card">
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="consent" name="consent" required>
+                            <span class="checkbox-text">I consent to the use of my anonymised responses. <span class="required">*</span></span>
+                        </label>
+                    </div>
+                    <div class="field-error" id="consent-error"></div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary">Submit Survey</button>
+                    <button type="submit" class="btn-primary" id="submitBtn" disabled>Submit Survey</button>
                 </div>
             </form>
         </div>
@@ -122,32 +235,159 @@
                 return;
             }
 
-            // Load prolific_id from session storage if available
-            const prolificId = sessionStorage.getItem('prolific_id');
-            if (prolificId) {
-                document.getElementById('prolific_id').value = prolificId;
-            }
+            // Initialize form validation
+            initializeFormValidation();
         });
+
+        function initializeFormValidation() {
+            const form = document.getElementById('surveyForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Add event listeners for real-time validation
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('change', validateForm);
+                input.addEventListener('input', function() {
+                    clearFieldError(this.name || this.id);
+                });
+            });
+
+            // Initial validation check
+            validateForm();
+        }
+
+        function validateForm() {
+            const submitBtn = document.getElementById('submitBtn');
+            let isValid = true;
+
+            // Clear all errors first
+            document.querySelectorAll('.field-error').forEach(error => {
+                error.classList.remove('show');
+            });
+            document.querySelectorAll('.field-input').forEach(input => {
+                input.classList.remove('error');
+            });
+
+            // Validate age
+            const age = document.getElementById('age').value;
+            if (!age || age < 16 || age > 120) {
+                showFieldError('age', 'Age must be between 16 and 120');
+                isValid = false;
+            }
+
+            // Validate gender
+            const gender = document.querySelector('input[name="gender"]:checked');
+            if (!gender) {
+                showFieldError('gender', 'Please select your gender identity');
+                isValid = false;
+            }
+
+            // Validate education
+            const education = document.getElementById('education').value;
+            if (!education) {
+                showFieldError('education', 'Please select your highest education');
+                isValid = false;
+            }
+
+            // Validate country
+            const country = document.getElementById('country').value;
+            if (!country) {
+                showFieldError('country', 'Please select your country');
+                isValid = false;
+            }
+
+            // Validate political affiliation
+            const political = document.querySelector('input[name="politicalAffiliation"]:checked');
+            if (!political) {
+                showFieldError('politicalAffiliation', 'Please rate your political affiliation');
+                isValid = false;
+            }
+
+            // Validate prior climate belief
+            const priorBelief = document.querySelector('input[name="priorClimateBelief"]:checked');
+            if (!priorBelief) {
+                showFieldError('priorClimateBelief', 'Please rate your prior belief about climate change');
+                isValid = false;
+            }
+
+            // Validate current climate belief
+            const currentBelief = document.querySelector('input[name="currentClimateBelief"]:checked');
+            if (!currentBelief) {
+                showFieldError('currentClimateBelief', 'Please rate your current belief about climate change');
+                isValid = false;
+            }
+
+            // Validate consent
+            const consent = document.getElementById('consent').checked;
+            if (!consent) {
+                showFieldError('consent', 'Consent is required to proceed');
+                isValid = false;
+            }
+
+            // Enable/disable submit button
+            submitBtn.disabled = !isValid;
+            
+            return isValid;
+        }
+
+        function showFieldError(fieldName, message) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            const inputElement = document.getElementById(fieldName) ||
+                                 document.querySelector(`input[name="${fieldName}"]`);
+            
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+            }
+            
+            if (inputElement && inputElement.classList) {
+                inputElement.classList.add('error');
+            }
+        }
+
+        function clearFieldError(fieldName) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            const inputElement = document.getElementById(fieldName) ||
+                                 document.querySelector(`input[name="${fieldName}"]`);
+            
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+            
+            if (inputElement && inputElement.classList) {
+                inputElement.classList.remove('error');
+            }
+        }
 
         document.getElementById('surveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Final validation check
+            if (!validateForm()) {
+                alert('Please complete all required fields before submitting.');
+                return;
+            }
+            
             // Collect form data
             const formData = new FormData(this);
-            const surveyData = {};
-            
-            for (let [key, value] of formData.entries()) {
-                if (value.trim()) {
-                    surveyData[key] = value.trim();
-                }
-            }
-            
-            // Convert age to number
-            if (surveyData.age) {
-                surveyData.age = parseInt(surveyData.age);
-            }
+            const surveyData = {
+                prolific_id: sessionStorage.getItem('prolific_id') || null,
+                age: parseInt(formData.get('age')),
+                gender: formData.get('gender'),
+                education: formData.get('education'),
+                country: formData.get('country'),
+                political_orientation: parseInt(formData.get('politicalAffiliation')),
+                prior_belief: parseInt(formData.get('priorClimateBelief')),
+                current_belief: parseInt(formData.get('currentClimateBelief')),
+                consent: formData.get('consent') === 'on'
+            };
             
             console.log('Submitting survey data:', surveyData);
+            
+            // Disable submit button during submission
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
             
             // Submit to server
             fetch('/survey/submit', {
@@ -175,11 +415,37 @@
                 } else {
                     console.error('Server error:', data);
                     alert(`Error submitting survey: ${data.error || 'Unknown error'}. Please try again.`);
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Survey';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert(`Error submitting survey: ${error.message}. Please try again.`);
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Survey';
+            });
+        });
+
+        // Add keyboard navigation for Likert scales
+        document.querySelectorAll('.likert-scale').forEach(scale => {
+            const radios = scale.querySelectorAll('input[type="radio"]');
+            radios.forEach((radio, index) => {
+                radio.addEventListener('keydown', function(e) {
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        e.preventDefault();
+                        radios[index - 1].focus();
+                        radios[index - 1].checked = true;
+                        validateForm();
+                    } else if (e.key === 'ArrowRight' && index < radios.length - 1) {
+                        e.preventDefault();
+                        radios[index + 1].focus();
+                        radios[index + 1].checked = true;
+                        validateForm();
+                    }
+                });
             });
         });
     </script>
