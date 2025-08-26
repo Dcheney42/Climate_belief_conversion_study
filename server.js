@@ -159,15 +159,16 @@ app.post('/survey/submit', (req, res) => {
             return res.status(400).json({ error: 'Consent is required' });
         }
         
-        // Check eligibility based on belief change
-        // Eligible if (prior_belief < 4 AND current_belief > 4) OR (prior_belief > 4 AND current_belief < 4)
-        // Treat 4 as strictly neutral, so any movement involving 4 is not eligible
+        // Check eligibility based on belief change - participants must cross the midpoint (4)
+        // Treat 4 as strictly neutral midpoint
+        // Eligible = (priorBelief < 4 && currentBelief > 4) || (priorBelief > 4 && currentBelief < 4)
+        // All other cases (including moving to/from 4, or staying on same side of 4) are not eligible
         const priorBeliefNum = parseInt(prior_belief);
         const currentBeliefNum = parseInt(current_belief);
         
         const eligible = (priorBeliefNum < 4 && currentBeliefNum > 4) || (priorBeliefNum > 4 && currentBeliefNum < 4);
         
-        console.log(`Eligibility check: prior=${priorBeliefNum}, current=${currentBeliefNum}, eligible=${eligible}`);
+        console.log(`Eligibility check: priorBelief=${priorBeliefNum}, currentBelief=${currentBeliefNum}, eligible=${eligible}`);
         
         // Generate participant ID
         const participantId = uuidv4();
