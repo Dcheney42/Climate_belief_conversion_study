@@ -15,6 +15,7 @@ let chatRouter;
   } catch (error) {
     console.warn('Chat router not available:', error.message);
   }
+  console.log('Chat router mounted:', Boolean(chatRouter));
 })();
 
 // Chat duration constant - 5 minutes
@@ -39,6 +40,14 @@ const exportsDir = path.join(dataDir, 'exports');
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
+});
+
+// Ensure core data directories exist with logging
+[participantsDir, conversationsDir].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log('Created data dir:', dir);
+  }
 });
 
 // In-memory storage for active conversations
@@ -163,6 +172,95 @@ setTimeout(() => {
   if (chatRouter) {
     app.use("/chat", chatRouter);
     console.log('Chat router mounted at /chat');
+  } else {
+    // Fallback chat endpoints when chatRouter is unavailable
+    console.log('Chat router not available, registering fallback endpoints');
+  // Start chat — create a new conversation
+  app.post('/chat/start', async (req, res) => {
+    try {
+      const { userId } = req.body || {};
+      const participantId = userId || uuidv4();
+      const conversationId = uuidv4();
+
+      const now = new Date().toISOString();
+      const initial = {
+        id: conversationId,
+        participantId,
+        startedAt: now,
+        endedAt: null,
+        durationSeconds: 0,
+        messages: []
+      };
+
+      const filename = path.join(conversationsDir, `${conversationId}.json`);
+      writeJson(filename, initial);
+
+      activeConversations.set(conversationId, { startedAt: now });
+
+      // Opening line from system prompt (reuse your generateAIResponse if you prefer)
+      const opening = "Thanks for joining. I'm here to explore your views on climate change. What's on your mind?";
+      initial.messages.push({ role: "assistant", content: opening });
+      writeJson(filename, initial);
+
+      res.json({ conversationId, messages: initial.messages });
+    } catch (err) {
+      console.error('fallback /chat/start error', err);
+      res.status(500).json({ error: 'Failed to start chat' });
+    }
+  });
+
+  // Reply endpoint — mirrors /api/conversations/:id/message logic
+  app.post('/chat/reply', async (req, res) => {
+    try {
+      const { conversationId, message } = req.body || {};
+      if (!conversationId || !message || !message.trim()) {
+        return res.status(400).json({ error: 'conversationId and message are required' });
+      }
+
+      const activeConv = activeConversations.get(conversationId);
+      if (!activeConv) {
+        return res.status(404).json({ error: 'Conversation not found or ended' });
+      }
+
+      const now = new Date();
+      const startTime = new Date(activeConv.startedAt);
+      const elapsedSeconds = Math.floor((now - startTime) / 1000);
+      if (elapsedSeconds >= (CHAT_DURATION_MS / 1000)) {
+        activeConversations.delete(conversationId);
+        return res.status(410).json({ error: 'Conversation time limit exceeded' });
+      }
+
+      // Early-end phrase
+      if (shouldEndNow(message)) {
+        const filename = path.join(conversationsDir, `${conversationId}.json`);
+        const conv = readJson(filename) || {};
+        conv.messages = conv.messages || [];
+        conv.messages.push({ role: "user", content: message });
+        const finalReply = "Okay — ending the chat now. Thanks for participating!";
+        conv.messages.push({ role: "assistant", content: finalReply });
+        conv.endedAt = now.toISOString();
+        conv.durationSeconds = Math.floor((now - startTime) / 1000);
+        writeJson(filename, conv);
+        activeConversations.delete(conversationId);
+        return res.json({ reply: finalReply, sessionEnded: true });
+      }
+
+      // Normal AI reply
+      const filename = path.join(conversationsDir, `${conversationId}.json`);
+      const conv = readJson(filename) || {};
+      conv.messages = conv.messages || [];
+      conv.messages.push({ role: "user", content: message });
+
+      const aiReply = await generateAIResponse(conv.messages, "You are a helpful interviewer...");
+      conv.messages.push({ role: "assistant", content: aiReply });
+      writeJson(filename, conv);
+
+      res.json({ reply: aiReply });
+    } catch (err) {
+      console.error('fallback /chat/reply error', err);
+      res.status(500).json({ error: 'Failed to generate reply' });
+    }
+  });
   }
 }, 100); // Small delay to ensure the async import completes
 
@@ -188,6 +286,15 @@ app.get('/exit-survey', (req, res) => {
 
 app.get('/disqualified', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'disqualified.html'));
+});
+
+app.get('/healthz', (req, res) => {
+  res.json({
+    ok: true,
+    time: new Date().toISOString(),
+    chatRouterMounted: Boolean(chatRouter),
+    activeConversations: activeConversations.size
+  });
 });
 
 // Debug endpoint to check data files
@@ -270,12 +377,24 @@ app.post('/survey/submit', (req, res) => {
             return res.status(400).json({ error: 'Consent is required' });
         }
         
+        // Convert belief values to numbers and validate
+        const priorBeliefNum = Number(prior_belief);
+        const currentBeliefNum = Number(current_belief);
+        
+        // Validate prior belief
+        if (!Number.isInteger(priorBeliefNum) || priorBeliefNum < 1 || priorBeliefNum > 7) {
+            return res.status(400).json({ error: 'Prior climate belief must be an integer between 1 and 7' });
+        }
+        
+        // Validate current belief
+        if (!Number.isInteger(currentBeliefNum) || currentBeliefNum < 1 || currentBeliefNum > 7) {
+            return res.status(400).json({ error: 'Current climate belief must be an integer between 1 and 7' });
+        }
+        
         // Check eligibility based on belief change - participants must cross the midpoint (4)
         // Treat 4 as strictly neutral midpoint
         // Eligible = (priorBelief < 4 && currentBelief > 4) || (priorBelief > 4 && currentBelief < 4)
         // All other cases (including moving to/from 4, or staying on same side of 4) are not eligible
-        const priorBeliefNum = parseInt(prior_belief);
-        const currentBeliefNum = parseInt(current_belief);
         
         console.log(`DEBUG: Raw values - prior_belief: "${prior_belief}", current_belief: "${current_belief}"`);
         console.log(`DEBUG: Parsed values - priorBeliefNum: ${priorBeliefNum}, currentBeliefNum: ${currentBeliefNum}`);
@@ -684,24 +803,20 @@ app.post('/api/end-survey', (req, res) => {
 });
 
 // Admin export endpoints
-function authenticateAdmin(req, res, next) {
-    const authHeader = req.headers.authorization;
-    const adminToken = process.env.ADMIN_TOKEN || 'changeme';
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'Authentication required' });
-    }
-    
-    const token = authHeader.substring(7);
-    if (token !== adminToken) {
-        return res.status(403).json({ error: 'Invalid authentication token' });
-    }
-    
-    next();
+function requireAdmin(req, res, next) {
+  const token = req.headers['x-admin-token'];
+  if (!process.env.ADMIN_TOKEN) {
+    console.warn('ADMIN_TOKEN not configured; blocking admin endpoints by default.');
+    return res.status(403).json({ error: 'Admin token not configured' });
+  }
+  if (token !== process.env.ADMIN_TOKEN) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  next();
 }
 
 // Export JSON data
-app.get('/api/admin/export.json', authenticateAdmin, (req, res) => {
+app.get('/api/admin/export.json', requireAdmin, (req, res) => {
     try {
         const participants = [];
         const conversations = [];
@@ -741,7 +856,7 @@ app.get('/api/admin/export.json', authenticateAdmin, (req, res) => {
 });
 
 // Export CSV data
-app.get('/api/admin/export.csv', authenticateAdmin, (req, res) => {
+app.get('/api/admin/export.csv', requireAdmin, (req, res) => {
     try {
         // Create participants lookup
         const participantLookup = new Map();

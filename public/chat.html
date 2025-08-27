@@ -231,8 +231,27 @@
                 });
                 
                 if (response.status === 410) {
-                    // Time limit exceeded
-                    endConversation('time_limit');
+                    // Time limit exceeded - show brief message and redirect
+                    // Add a final assistant-style message to the chat window
+                    const messagesDiv = document.getElementById('chatMessages');
+                    const endMsg = document.createElement('div');
+                    endMsg.className = 'message other-message';
+                    endMsg.innerHTML = `
+                        <div class="message-header">
+                            <span class="sender-name">Assistant</span>
+                            <span class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        </div>
+                        <div class="message-content">The chat has now ended. Please continue to the final survey.</div>
+                    `;
+                    messagesDiv.appendChild(endMsg);
+
+                    // Scroll to bottom
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = '/exit-survey';
+                    }, 2000);
                     return;
                 }
                 
@@ -252,8 +271,27 @@
                     };
                     addMessage(assistantMessage);
                     
-                    // End conversation
-                    endConversation('user_ended');
+                    // Show brief message and redirect
+                    // Add a final assistant-style message to the chat window
+                    const messagesDiv = document.getElementById('chatMessages');
+                    const endMsg = document.createElement('div');
+                    endMsg.className = 'message other-message';
+                    endMsg.innerHTML = `
+                        <div class="message-header">
+                            <span class="sender-name">Assistant</span>
+                            <span class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        </div>
+                        <div class="message-content">The chat has now ended. Please continue to the final survey.</div>
+                    `;
+                    messagesDiv.appendChild(endMsg);
+
+                    // Scroll to bottom
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = '/exit-survey';
+                    }, 2000);
                     return;
                 }
                 

@@ -192,3 +192,10 @@ For questions about this research platform, please contact the research team.
 ---
 
 **Note**: This platform is designed for controlled research environments. Ensure proper ethical approval before collecting participant data.
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+- **CHAT_DURATION_MS**: Number of milliseconds for chat length (default 5 * 60 * 1000 = 5 minutes).
+- **ADMIN_TOKEN**: Token required in the 'x-admin-token' header to access /api/admin/export.*.
