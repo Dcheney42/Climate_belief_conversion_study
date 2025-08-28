@@ -1,10 +1,10 @@
 // backend/src/utils/openingLine.js
 export function openingLineFrom(profile) {
-  const { changed_belief_flag } = profile || {};
+  const { views_changed, change_direction } = profile || {};
 
-  if (changed_belief_flag) {
-    return "Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.";
+  if (views_changed === 'Yes') {
+    return "Hi there! Thanks for sharing that your views on climate change have changed. I'd love to hear your story about that journey. Let's start at the beginning - can you tell me how you used to think about climate change?";
   } else {
-    return "Hello! I'm here to chat with you about your thoughts on climate change. I'd be really interested to hear about what factors have been most important in shaping your current views on this topic.";
+    return "Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?";
   }
 }

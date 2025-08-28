@@ -9,15 +9,16 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Welcome to Our Research Study</h1>
-            <p class="subtitle">Climate change belief conversion narratives study</p>
+            <h1>Climate Belief Conversion Narratives Study</h1>
+            <p class="subtitle">Understanding belief change through dialogues with AI</p>
         </div>
         
         <div class="content">
+            <h2>Welcome to Our Research Study</h2>
             <p class="intro-paragraph">You are invited to take part in a research study about how and why people change their beliefs about climate change. We are interested in hearing your story about what influenced your views.</p>
             
             <div class="section-card">
-                <h2>What You'll Do</h2>
+                <h2>What You'll Do:</h2>
                 <ul class="section-list">
                     <li>Complete a brief survey about your background and current views on climate change (2–3 minutes)</li>
                     <li>Have a short text-based conversation with a chatbot designed to guide you in telling your story (5–7 minutes)</li>
@@ -28,14 +29,14 @@
             <hr class="section-divider">
             
             <div class="section-card">
-                <h2>Total Time Commitment</h2>
+                <h2>Total Time Commitment:</h2>
                 <p class="commitment-text">10–15 minutes</p>
             </div>
             
             <hr class="section-divider">
             
             <div class="section-card">
-                <h2>Important Information</h2>
+                <h2>Important Information:</h2>
                 <ul class="section-list">
                     <li>Your responses are anonymous</li>
                     <li>You may withdraw from the study at any time</li>
@@ -50,41 +51,70 @@
                 <h2>Ready to Begin?</h2>
                 <form id="startForm">
                     <div class="form-group">
-                        <label for="prolificId">Enter your Participant ID:</label>
+                        <label for="prolificId">Enter your Prolific ID:</label>
                         <input type="text" id="prolificId" name="prolificId" required
                                placeholder="e.g., 12345ABCD">
-                        <small>This ID was provided to you by the study administrator.</small>
+                        <small>This ID was provided to you by Prolific.</small>
                         <div class="error-message" id="idError" style="display: none; color: #e74c3c; font-size: 14px; margin-top: 5px;"></div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="consent" name="consent" required>
+                            <span class="checkbox-text">I consent to the use of my anonymised responses.</span>
+                        </label>
+                        <div class="error-message" id="consentError" style="display: none; color: #e74c3c; font-size: 14px; margin-top: 5px;"></div>
+                    </div>
                     
-                    <button type="submit" class="btn-primary">Begin Study</button>
+                    <button type="submit" class="btn-primary" id="beginBtn" disabled>Begin Study</button>
                 </form>
             </div>
         </div>
     </div>
 
     <script>
+        // Check form validity and enable/disable button
+        function checkFormValidity() {
+            const prolificId = document.getElementById('prolificId').value.trim();
+            const consent = document.getElementById('consent').checked;
+            const beginBtn = document.getElementById('beginBtn');
+            
+            const idPattern = /^[A-Za-z0-9]{6,32}$/;
+            const isIdValid = prolificId && idPattern.test(prolificId);
+            const isFormValid = isIdValid && consent;
+            
+            beginBtn.disabled = !isFormValid;
+        }
+
         // Handle Participant ID form submission
         document.getElementById('startForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const prolificId = document.getElementById('prolificId').value.trim();
+            const consent = document.getElementById('consent').checked;
             
             // Validate Participant ID
             if (!prolificId) {
-                showError('Please enter your Participant ID');
+                showError('idError', 'Please enter your Participant ID');
                 return;
             }
             
             // Check if ID is 6-32 alphanumeric characters
             const idPattern = /^[A-Za-z0-9]{6,32}$/;
             if (!idPattern.test(prolificId)) {
-                showError('Participant ID must be 6–32 alphanumeric characters');
+                showError('idError', 'Participant ID must be 6–32 alphanumeric characters');
+                return;
+            }
+            
+            // Validate consent
+            if (!consent) {
+                showError('consentError', 'You must consent to participate in the study');
                 return;
             }
             
             // Clear any previous errors
-            hideError();
+            hideError('idError');
+            hideError('consentError');
             
             // Store Participant ID and consent information
             sessionStorage.setItem('prolific_id', prolificId);
@@ -100,22 +130,39 @@
         });
 
         // Error handling functions
-        function showError(message) {
-            const errorElement = document.getElementById('idError');
+        function showError(errorId, message) {
+            const errorElement = document.getElementById(errorId);
             errorElement.textContent = message;
             errorElement.style.display = 'block';
-            document.getElementById('prolificId').style.borderColor = '#e74c3c';
+            
+            if (errorId === 'idError') {
+                document.getElementById('prolificId').style.borderColor = '#e74c3c';
+            }
         }
 
-        function hideError() {
-            const errorElement = document.getElementById('idError');
+        function hideError(errorId) {
+            const errorElement = document.getElementById(errorId);
             errorElement.style.display = 'none';
-            document.getElementById('prolificId').style.borderColor = '#e1e8ed';
+            
+            if (errorId === 'idError') {
+                document.getElementById('prolificId').style.borderColor = '#e1e8ed';
+            }
         }
 
         // Add real-time validation
         document.getElementById('prolificId').addEventListener('input', function() {
-            hideError();
+            hideError('idError');
+            checkFormValidity();
+        });
+
+        document.getElementById('consent').addEventListener('change', function() {
+            hideError('consentError');
+            checkFormValidity();
+        });
+
+        // Initial form validity check
+        document.addEventListener('DOMContentLoaded', function() {
+            checkFormValidity();
         });
 
         // Add keyboard accessibility - Enter key on Participant ID input triggers form submit

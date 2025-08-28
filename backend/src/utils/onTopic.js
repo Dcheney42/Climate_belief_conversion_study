@@ -14,5 +14,5 @@ export function enforceOnTopic(text) {
 }
 
 export function redirectLine() {
-  return "That's interesting! I'd love to keep our conversation focused on climate change though. Could you tell me more about your thoughts on that topic?";
+  return "I appreciate you sharing that! For this interview, I'd like to stay focused on your climate change beliefs and experiences. Could we return to discussing that topic?";
 }

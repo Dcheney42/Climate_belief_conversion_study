@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Climate Change Views Survey</h1>
+            <h1>Background & Views</h1>
             <p class="subtitle">Please answer the following questions about your background and views</p>
         </div>
         
@@ -17,31 +17,35 @@
             <form id="surveyForm" class="survey-form">
                 <!-- Age -->
                 <div class="demo-field-card">
-                    <label for="age" class="field-label">Age <span class="required">*</span></label>
-                    <input type="number" id="age" name="age" min="16" max="120" required
-                           class="field-input" placeholder="Enter your age">
+                    <h3 class="card-heading">Age:</h3>
+                    <input type="number" id="age" name="age" min="16" max="120"
+                           class="field-input" placeholder="Enter your age (optional)">
                     <div class="field-error" id="age-error"></div>
                 </div>
 
                 <!-- Gender Identity -->
                 <div class="demo-field-card">
-                    <label class="field-label">Gender identity <span class="required">*</span></label>
+                    <h3 class="card-heading">Gender identity:</h3>
                     <div class="radio-group">
                         <label class="radio-label">
-                            <input type="radio" name="gender" value="Woman" required>
+                            <input type="radio" name="gender" value="Woman">
                             <span class="radio-text">Woman</span>
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="gender" value="Man" required>
+                            <input type="radio" name="gender" value="Man">
                             <span class="radio-text">Man</span>
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="gender" value="Non-binary" required>
+                            <input type="radio" name="gender" value="Non-binary">
                             <span class="radio-text">Non-binary</span>
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="gender" value="Other" required>
+                            <input type="radio" name="gender" value="Other">
                             <span class="radio-text">Other</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="gender" value="Prefer not to say">
+                            <span class="radio-text">Prefer not to say</span>
                         </label>
                     </div>
                     <div class="field-error" id="gender-error"></div>
@@ -49,9 +53,9 @@
 
                 <!-- Highest Education -->
                 <div class="demo-field-card">
-                    <label for="education" class="field-label">Highest education <span class="required">*</span></label>
-                    <select id="education" name="education" required class="field-input">
-                        <option value="">Select your highest education</option>
+                    <h3 class="card-heading">Highest education:</h3>
+                    <select id="education" name="education" class="field-input">
+                        <option value="">Select your highest education (optional)</option>
                         <option value="Less than high school">Less than high school</option>
                         <option value="High school">High school</option>
                         <option value="Vocational/TAFE">Vocational/TAFE</option>
@@ -59,32 +63,15 @@
                         <option value="Honours">Honours</option>
                         <option value="Masters">Masters</option>
                         <option value="Doctorate">Doctorate</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
                     </select>
                     <div class="field-error" id="education-error"></div>
                 </div>
 
-                <!-- Country -->
-                <div class="demo-field-card">
-                    <label for="country" class="field-label">Country <span class="required">*</span></label>
-                    <select id="country" name="country" required class="field-input">
-                        <option value="">Select your country</option>
-                        <option value="Australia">Australia</option>
-                        <option value="Canada">Canada</option>
-                        <option value="Germany">Germany</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                        <option value="United States">United States</option>
-                        <option value="New Zealand">New Zealand</option>
-                        <option value="France">France</option>
-                        <option value="Japan">Japan</option>
-                        <option value="South Korea">South Korea</option>
-                        <option value="Other">Other</option>
-                    </select>
-                    <div class="field-error" id="country-error"></div>
-                </div>
 
                 <!-- Political Affiliation -->
                 <div class="demo-field-card">
-                    <label class="field-label">Political affiliation <span class="required">*</span></label>
+                    <h3 class="card-heading">Political affiliation:</h3>
                     <div class="likert-scale">
                         <div class="likert-anchors">
                             <span class="anchor-left">Very liberal</span>
@@ -92,41 +79,46 @@
                         </div>
                         <div class="likert-options">
                             <label class="likert-option">
-                                <input type="radio" name="politicalAffiliation" value="1" required>
+                                <input type="radio" name="politicalAffiliation" value="1">
                                 <span class="likert-number">1</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="politicalAffiliation" value="2" required>
+                                <input type="radio" name="politicalAffiliation" value="2">
                                 <span class="likert-number">2</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="politicalAffiliation" value="3" required>
+                                <input type="radio" name="politicalAffiliation" value="3">
                                 <span class="likert-number">3</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="politicalAffiliation" value="4" required>
+                                <input type="radio" name="politicalAffiliation" value="4">
                                 <span class="likert-number">4</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="politicalAffiliation" value="5" required>
+                                <input type="radio" name="politicalAffiliation" value="5">
                                 <span class="likert-number">5</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="politicalAffiliation" value="6" required>
+                                <input type="radio" name="politicalAffiliation" value="6">
                                 <span class="likert-number">6</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="politicalAffiliation" value="7" required>
+                                <input type="radio" name="politicalAffiliation" value="7">
                                 <span class="likert-number">7</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="politicalAffiliation" value="prefer_not_to_say">
+                                <span class="likert-number">N/A</span>
                             </label>
                         </div>
                     </div>
+                    <small style="color: #666; font-style: italic;">Optional - leave blank if you prefer not to answer</small>
                     <div class="field-error" id="politicalAffiliation-error"></div>
                 </div>
 
                 <!-- Prior Belief about Climate Change -->
                 <div class="demo-field-card">
-                    <label class="field-label">Prior belief about climate change <span class="required">*</span></label>
+                    <h3 class="card-heading">Prior belief about climate change:</h3>
                     <div class="likert-scale">
                         <div class="likert-anchors">
                             <span class="anchor-left">Definitely not caused by humans</span>
@@ -134,41 +126,46 @@
                         </div>
                         <div class="likert-options">
                             <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="1" required>
+                                <input type="radio" name="priorClimateBelief" value="1">
                                 <span class="likert-number">1</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="2" required>
+                                <input type="radio" name="priorClimateBelief" value="2">
                                 <span class="likert-number">2</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="3" required>
+                                <input type="radio" name="priorClimateBelief" value="3">
                                 <span class="likert-number">3</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="4" required>
+                                <input type="radio" name="priorClimateBelief" value="4">
                                 <span class="likert-number">4</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="5" required>
+                                <input type="radio" name="priorClimateBelief" value="5">
                                 <span class="likert-number">5</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="6" required>
+                                <input type="radio" name="priorClimateBelief" value="6">
                                 <span class="likert-number">6</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="7" required>
+                                <input type="radio" name="priorClimateBelief" value="7">
                                 <span class="likert-number">7</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="priorClimateBelief" value="prefer_not_to_say">
+                                <span class="likert-number">N/A</span>
                             </label>
                         </div>
                     </div>
+                    <small style="color: #666; font-style: italic;">Optional - leave blank if you prefer not to answer</small>
                     <div class="field-error" id="priorClimateBelief-error"></div>
                 </div>
 
                 <!-- Current Belief about Climate Change -->
                 <div class="demo-field-card">
-                    <label class="field-label">Current belief about climate change <span class="required">*</span></label>
+                    <h3 class="card-heading">Current belief about climate change:</h3>
                     <div class="likert-scale">
                         <div class="likert-anchors">
                             <span class="anchor-left">Definitely not caused by humans</span>
@@ -176,57 +173,136 @@
                         </div>
                         <div class="likert-options">
                             <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="1" required>
+                                <input type="radio" name="currentClimateBelief" value="1">
                                 <span class="likert-number">1</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="2" required>
+                                <input type="radio" name="currentClimateBelief" value="2">
                                 <span class="likert-number">2</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="3" required>
+                                <input type="radio" name="currentClimateBelief" value="3">
                                 <span class="likert-number">3</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="4" required>
+                                <input type="radio" name="currentClimateBelief" value="4">
                                 <span class="likert-number">4</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="5" required>
+                                <input type="radio" name="currentClimateBelief" value="5">
                                 <span class="likert-number">5</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="6" required>
+                                <input type="radio" name="currentClimateBelief" value="6">
                                 <span class="likert-number">6</span>
                             </label>
                             <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="7" required>
+                                <input type="radio" name="currentClimateBelief" value="7">
                                 <span class="likert-number">7</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="currentClimateBelief" value="prefer_not_to_say">
+                                <span class="likert-number">N/A</span>
                             </label>
                         </div>
                     </div>
+                    <small style="color: #666; font-style: italic;">Optional - leave blank if you prefer not to answer</small>
                     <div class="field-error" id="currentClimateBelief-error"></div>
                 </div>
 
-                <!-- Consent -->
+                <!-- Confidence in Current Beliefs -->
                 <div class="demo-field-card">
-                    <div class="checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="consent" name="consent" required>
-                            <span class="checkbox-text">I consent to the use of my anonymised responses. <span class="required">*</span></span>
+                    <h3 class="card-heading">How confident are you in your current beliefs about climate change?</h3>
+                    <div class="likert-scale">
+                        <div class="likert-anchors">
+                            <span class="anchor-left">Not at all confident</span>
+                            <span class="anchor-right">Extremely confident</span>
+                        </div>
+                        <div class="likert-options">
+                            <label class="likert-option">
+                                <input type="radio" name="confidenceLevel" value="1">
+                                <span class="likert-number">1</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="confidenceLevel" value="2">
+                                <span class="likert-number">2</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="confidenceLevel" value="3">
+                                <span class="likert-number">3</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="confidenceLevel" value="4">
+                                <span class="likert-number">4</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="confidenceLevel" value="5">
+                                <span class="likert-number">5</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="confidenceLevel" value="6">
+                                <span class="likert-number">6</span>
+                            </label>
+                            <label class="likert-option">
+                                <input type="radio" name="confidenceLevel" value="7">
+                                <span class="likert-number">7</span>
+                            </label>
+                        </div>
+                        <div class="likert-labels">
+                            <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                                1 = Not at all confident, 2 = Slightly confident, 3 = Somewhat confident, 4 = Moderately confident, 5 = Quite confident, 6 = Very confident, 7 = Extremely confident
+                            </small>
+                        </div>
+                    </div>
+                    <small style="color: #666; font-style: italic;">Optional - leave blank if you prefer not to answer</small>
+                    <div class="field-error" id="confidenceLevel-error"></div>
+                </div>
+
+                <!-- Views Changed Question - MANDATORY -->
+                <div class="demo-field-card">
+                    <h3 class="card-heading">Have your views on climate change changed? <span class="required">*</span></h3>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="viewsChanged" value="Yes" required id="viewsChangedYes">
+                            <span class="radio-text">Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="viewsChanged" value="No" required id="viewsChangedNo">
+                            <span class="radio-text">No</span>
                         </label>
                     </div>
-                    <div class="field-error" id="consent-error"></div>
+                    <div class="field-error" id="viewsChanged-error"></div>
+                </div>
+
+                <!-- Follow-up Question for Change Direction - Conditional -->
+                <div class="demo-field-card" id="changeDirectionCard" style="display: none;">
+                    <h3 class="card-heading">Which best describes your change in belief? <span class="required">*</span></h3>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="changeDirection" value="From climate sceptic to climate believer" id="scepticToBeliever">
+                            <span class="radio-text">From climate sceptic to climate believer</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="changeDirection" value="From climate believer to climate sceptic" id="believerToSceptic">
+                            <span class="radio-text">From climate believer to climate sceptic</span>
+                        </label>
+                    </div>
+                    <div class="field-error" id="changeDirection-error"></div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary" id="submitBtn" disabled>Submit Survey</button>
+                    <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
+                    <button type="submit" class="btn-primary" id="submitBtn" disabled>Continue</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
+        // State management
+        let hasTriedSubmit = false;
+        let generalError = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             // Check if user came from consent
             if (!sessionStorage.getItem('consent_data')) {
@@ -246,19 +322,95 @@
             // Add event listeners for real-time validation
             const inputs = form.querySelectorAll('input, select');
             inputs.forEach(input => {
-                input.addEventListener('change', validateForm);
+                input.addEventListener('change', function() {
+                    // Handle conditional display of follow-up question
+                    if (this.name === 'viewsChanged') {
+                        handleViewsChangedSelection();
+                    }
+                    
+                    if (hasTriedSubmit) {
+                        validateForm();
+                    } else {
+                        checkFormCompleteness();
+                    }
+                });
                 input.addEventListener('input', function() {
-                    clearFieldError(this.name || this.id);
+                    if (hasTriedSubmit) {
+                        clearFieldError(this.name || this.id);
+                        validateForm();
+                    } else {
+                        checkFormCompleteness();
+                    }
                 });
             });
 
-            // Initial validation check
-            validateForm();
+            // Initial validation check - only for button state, no error display
+            checkFormCompleteness();
+        }
+
+        function handleViewsChangedSelection() {
+            const viewsChangedYes = document.getElementById('viewsChangedYes');
+            const viewsChangedNo = document.getElementById('viewsChangedNo');
+            const changeDirectionCard = document.getElementById('changeDirectionCard');
+            const changeDirectionInputs = document.querySelectorAll('input[name="changeDirection"]');
+            
+            if (viewsChangedYes.checked) {
+                // Show follow-up question
+                changeDirectionCard.style.display = 'block';
+                // Make follow-up question required
+                changeDirectionInputs.forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+            } else if (viewsChangedNo.checked) {
+                // Hide follow-up question
+                changeDirectionCard.style.display = 'none';
+                // Clear and remove required from follow-up question
+                changeDirectionInputs.forEach(input => {
+                    input.checked = false;
+                    input.removeAttribute('required');
+                });
+                clearFieldError('changeDirection');
+            }
+        }
+
+        function checkFormCompleteness() {
+            const submitBtn = document.getElementById('submitBtn');
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
+            
+            // Only enable/disable button, don't show errors
+            submitBtn.disabled = !isValid;
+            
+            // If form becomes valid after a submit attempt, clear general error
+            if (isValid && hasTriedSubmit && generalError) {
+                clearGeneralError();
+            }
+            
+            return isValid;
+        }
+
+        function validateFormFields() {
+            const errors = {};
+
+            // Validate the mandatory "views changed" question
+            const viewsChanged = document.querySelector('input[name="viewsChanged"]:checked');
+            if (!viewsChanged) {
+                errors.viewsChanged = 'Please indicate whether your views on climate change have changed';
+            } else if (viewsChanged.value === 'Yes') {
+                // If Yes is selected, validate the follow-up question
+                const changeDirection = document.querySelector('input[name="changeDirection"]:checked');
+                if (!changeDirection) {
+                    errors.changeDirection = 'Please indicate which best describes your change in belief';
+                }
+            }
+
+            return errors;
         }
 
         function validateForm() {
             const submitBtn = document.getElementById('submitBtn');
-            let isValid = true;
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
 
             // Clear all errors first
             document.querySelectorAll('.field-error').forEach(error => {
@@ -266,62 +418,15 @@
             });
             document.querySelectorAll('.field-input').forEach(input => {
                 input.classList.remove('error');
+                input.removeAttribute('aria-invalid');
+                input.removeAttribute('aria-describedby');
             });
 
-            // Validate age
-            const age = document.getElementById('age').value;
-            if (!age || age < 16 || age > 120) {
-                showFieldError('age', 'Age must be between 16 and 120');
-                isValid = false;
-            }
-
-            // Validate gender
-            const gender = document.querySelector('input[name="gender"]:checked');
-            if (!gender) {
-                showFieldError('gender', 'Please select your gender identity');
-                isValid = false;
-            }
-
-            // Validate education
-            const education = document.getElementById('education').value;
-            if (!education) {
-                showFieldError('education', 'Please select your highest education');
-                isValid = false;
-            }
-
-            // Validate country
-            const country = document.getElementById('country').value;
-            if (!country) {
-                showFieldError('country', 'Please select your country');
-                isValid = false;
-            }
-
-            // Validate political affiliation
-            const political = document.querySelector('input[name="politicalAffiliation"]:checked');
-            if (!political) {
-                showFieldError('politicalAffiliation', 'Please rate your political affiliation');
-                isValid = false;
-            }
-
-            // Validate prior climate belief
-            const priorBelief = document.querySelector('input[name="priorClimateBelief"]:checked');
-            if (!priorBelief) {
-                showFieldError('priorClimateBelief', 'Please rate your prior belief about climate change');
-                isValid = false;
-            }
-
-            // Validate current climate belief
-            const currentBelief = document.querySelector('input[name="currentClimateBelief"]:checked');
-            if (!currentBelief) {
-                showFieldError('currentClimateBelief', 'Please rate your current belief about climate change');
-                isValid = false;
-            }
-
-            // Validate consent
-            const consent = document.getElementById('consent').checked;
-            if (!consent) {
-                showFieldError('consent', 'Consent is required to proceed');
-                isValid = false;
+            // Only show errors if we've tried to submit
+            if (hasTriedSubmit) {
+                Object.keys(errors).forEach(fieldName => {
+                    showFieldError(fieldName, errors[fieldName]);
+                });
             }
 
             // Enable/disable submit button
@@ -335,13 +440,18 @@
             const inputElement = document.getElementById(fieldName) ||
                                  document.querySelector(`input[name="${fieldName}"]`);
             
-            if (errorElement) {
+            if (errorElement && hasTriedSubmit) {
                 errorElement.textContent = message;
                 errorElement.classList.add('show');
+                errorElement.id = fieldName + '-error-msg';
             }
             
             if (inputElement && inputElement.classList) {
                 inputElement.classList.add('error');
+                if (hasTriedSubmit) {
+                    inputElement.setAttribute('aria-invalid', 'true');
+                    inputElement.setAttribute('aria-describedby', fieldName + '-error-msg');
+                }
             }
         }
 
@@ -356,30 +466,93 @@
             
             if (inputElement && inputElement.classList) {
                 inputElement.classList.remove('error');
+                inputElement.removeAttribute('aria-invalid');
+                inputElement.removeAttribute('aria-describedby');
+            }
+        }
+
+        function showGeneralError(message) {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = message;
+                generalErrorElement.style.display = 'block';
+                generalError = message;
+            }
+        }
+
+        function clearGeneralError() {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = '';
+                generalErrorElement.style.display = 'none';
+                generalError = null;
+            }
+        }
+
+        function focusFirstInvalidField() {
+            const firstInvalidField = document.querySelector('.field-input.error');
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
         document.getElementById('surveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Final validation check
-            if (!validateForm()) {
-                alert('Please complete all required fields before submitting.');
+            // Set that we've tried to submit
+            hasTriedSubmit = true;
+            
+            // Validate form and get errors
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
+            
+            if (!isValid) {
+                // Show general error message
+                const viewsChanged = document.querySelector('input[name="viewsChanged"]:checked');
+                if (!viewsChanged) {
+                    showGeneralError('Please indicate whether your views on climate change have changed.');
+                } else if (viewsChanged.value === 'Yes') {
+                    showGeneralError('Please indicate which best describes your change in belief.');
+                }
+                
+                // Show field-specific errors
+                validateForm();
+                
+                // Focus first invalid field
+                focusFirstInvalidField();
+                
                 return;
+            } else {
+                // Clear general error if form is now valid
+                clearGeneralError();
             }
             
             // Collect form data
             const formData = new FormData(this);
+            const viewsChanged = formData.get('viewsChanged');
+            
+            // Check routing logic based on views changed response
+            if (viewsChanged === 'No') {
+                // If no change, redirect to exit survey immediately
+                console.log('No belief change - redirecting to exit survey');
+                window.location.href = '/exit-survey.html';
+                return;
+            }
+            
+            // If views changed = Yes, continue with full survey submission
             const surveyData = {
                 prolific_id: sessionStorage.getItem('prolific_id') || null,
-                age: parseInt(formData.get('age')),
-                gender: formData.get('gender'),
-                education: formData.get('education'),
-                country: formData.get('country'),
-                political_orientation: parseInt(formData.get('politicalAffiliation')),
-                prior_belief: parseInt(formData.get('priorClimateBelief')),
-                current_belief: parseInt(formData.get('currentClimateBelief')),
-                consent: formData.get('consent') === 'on'
+                age: formData.get('age') ? parseInt(formData.get('age')) : null,
+                gender: formData.get('gender') || null,
+                education: formData.get('education') || null,
+                political_orientation: formData.get('politicalAffiliation') ? (formData.get('politicalAffiliation') === 'prefer_not_to_say' ? null : parseInt(formData.get('politicalAffiliation'))) : null,
+                prior_belief: formData.get('priorClimateBelief') ? (formData.get('priorClimateBelief') === 'prefer_not_to_say' ? null : parseInt(formData.get('priorClimateBelief'))) : null,
+                current_belief: formData.get('currentClimateBelief') ? (formData.get('currentClimateBelief') === 'prefer_not_to_say' ? null : parseInt(formData.get('currentClimateBelief'))) : null,
+                confidence_level: formData.get('confidenceLevel') ? parseInt(formData.get('confidenceLevel')) : null,
+                views_changed: viewsChanged,
+                change_direction: formData.get('changeDirection'), // Only populated if views_changed = Yes
+                consent: true
             };
             
             console.log('Submitting survey data:', surveyData);
@@ -411,22 +584,15 @@
                     // Clear any old survey data
                     sessionStorage.removeItem('survey_responses');
                     
-                    // Check eligibility and route accordingly
-                    if (data.eligible === true) {
-                        // Eligible participants continue to chat
-                        console.log('Participant eligible - proceeding to chat');
-                        window.location.href = `/chat/${data.participantId}`;
-                    } else {
-                        // Ineligible participants go to disqualification page
-                        console.log('Participant not eligible - redirecting to disqualification page');
-                        window.location.href = '/disqualified.html';
-                    }
+                    // Since views changed = Yes, proceed directly to chat
+                    console.log('Belief change confirmed - proceeding to chat');
+                    window.location.href = `/chat/${data.participantId}`;
                 } else {
                     console.error('Server error:', data);
                     alert(`Error submitting survey: ${data.error || 'Unknown error'}. Please try again.`);
                     // Re-enable submit button
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Survey';
+                    submitBtn.textContent = 'Continue';
                 }
             })
             .catch(error => {
@@ -434,7 +600,7 @@
                 alert(`Error submitting survey: ${error.message}. Please try again.`);
                 // Re-enable submit button
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit Survey';
+                submitBtn.textContent = 'Continue';
             });
         });
 
