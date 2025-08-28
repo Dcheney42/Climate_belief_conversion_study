@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Exit Survey Validation</title>
+    <link rel="stylesheet" href="public/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="demo-field-card" style="text-align: center; margin-bottom: 24px;">
+            <h1 style="font-size: 2em; margin-bottom: 8px;">🎉 Test Exit Survey Validation</h1>
+            <p style="color: #6b7280; margin: 0;">Testing the new validation behavior</p>
+        </div>
+        
+        <div class="content">
+            <form id="exitSurveyForm" class="survey-form">
+                <!-- Section 1 - Your Experience -->
+                <div class="demo-field-card">
+                    <h2 style="margin-bottom: 20px;">Your Experience</h2>
+                    
+                    <!-- Q1: Overall quality -->
+                    <div style="margin-bottom: 24px;">
+                        <label class="field-label">Overall quality of the conversation with the chatbot <span class="required">*</span></label>
+                        <div class="likert-scale">
+                            <div class="likert-anchors">
+                                <span class="anchor-left">Very poor</span>
+                                <span class="anchor-right">Excellent</span>
+                            </div>
+                            <div class="likert-options">
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="1" required>
+                                    <span class="likert-number">1</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="2" required>
+                                    <span class="likert-number">2</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="3" required>
+                                    <span class="likert-number">3</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="4" required>
+                                    <span class="likert-number">4</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="overallQuality" value="5" required>
+                                    <span class="likert-number">5</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field-error" id="overallQuality-error"></div>
+                    </div>
+                    
+                    <!-- Q2: Views changed -->
+                    <div style="margin-bottom: 0;">
+                        <label class="field-label">Did the conversation with the chatbot change your views in any way? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="viewsChangedHow" value="strengthened" required>
+                                <span class="radio-text">It strengthened my existing views</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="viewsChangedHow" value="weakened" required>
+                                <span class="radio-text">It weakened my existing views</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="viewsChangedHow" value="no_change" required>
+                                <span class="radio-text">It didn't change my views at all</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="viewsChangedHow" value="unsure" required>
+                                <span class="radio-text">I'm not sure</span>
+                            </label>
+                        </div>
+                        <div class="field-error" id="viewsChangedHow-error"></div>
+                    </div>
+                </div>
+
+                <!-- Section 2 - Climate Belief -->
+                <div class="demo-field-card">
+                    <h2 style="margin-bottom: 20px;">Climate Belief</h2>
+                    
+                    <div style="margin-bottom: 0;">
+                        <label class="field-label">Has your belief changed after the conversation with the chatbot? <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="beliefChanged" value="no" required>
+                                <span class="radio-text">No, my belief has not changed</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="beliefChanged" value="yes" required>
+                                <span class="radio-text">Yes, my belief has changed</span>
+                            </label>
+                        </div>
+                        <div class="field-error" id="beliefChanged-error"></div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
+                    <button type="submit" class="btn-primary" id="submitBtn">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let hasTriedSubmit = false;
+        let generalError = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFormValidation();
+        });
+
+        function initializeFormValidation() {
+            const form = document.getElementById('exitSurveyForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Add event listeners for real-time validation
+            const inputs = form.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (hasTriedSubmit) {
+                        validateForm();
+                    } else {
+                        checkFormCompleteness();
+                    }
+                });
+                input.addEventListener('input', function() {
+                    if (hasTriedSubmit) {
+                        clearFieldError(this.name || this.id);
+                        validateForm();
+                    } else {
+                        checkFormCompleteness();
+                    }
+                });
+            });
+
+            // Initial check - don't disable button initially to allow testing validation
+            // checkFormCompleteness();
+        }
+
+        function checkFormCompleteness() {
+            const submitBtn = document.getElementById('submitBtn');
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
+            
+            // Only enable/disable button after first submit attempt, don't show errors
+            if (hasTriedSubmit) {
+                submitBtn.disabled = !isValid;
+            }
+            
+            // If form becomes valid after a submit attempt, clear general error
+            if (isValid && hasTriedSubmit && generalError) {
+                clearGeneralError();
+            }
+            
+            return isValid;
+        }
+
+        function validateFormFields() {
+            const errors = {};
+
+            // Validate overall quality
+            const overallQuality = document.querySelector('input[name="overallQuality"]:checked');
+            if (!overallQuality) {
+                errors.overallQuality = 'Please rate the overall quality';
+            }
+
+            // Validate views changed
+            const viewsChanged = document.querySelector('input[name="viewsChangedHow"]:checked');
+            if (!viewsChanged) {
+                errors.viewsChangedHow = 'Please select how the conversation affected your views';
+            }
+
+            // Validate belief changed
+            const beliefChanged = document.querySelector('input[name="beliefChanged"]:checked');
+            if (!beliefChanged) {
+                errors.beliefChanged = 'Please indicate if your belief has changed';
+            }
+
+            return errors;
+        }
+
+        function validateForm() {
+            const submitBtn = document.getElementById('submitBtn');
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
+
+            // Clear all errors first
+            document.querySelectorAll('.field-error').forEach(error => {
+                error.classList.remove('show');
+            });
+            document.querySelectorAll('.field-input').forEach(input => {
+                input.classList.remove('error');
+                input.removeAttribute('aria-invalid');
+                input.removeAttribute('aria-describedby');
+            });
+
+            // Only show errors if we've tried to submit
+            if (hasTriedSubmit) {
+                Object.keys(errors).forEach(fieldName => {
+                    showFieldError(fieldName, errors[fieldName]);
+                });
+            }
+
+            // Enable/disable submit button only after first submit attempt
+            if (hasTriedSubmit) {
+                submitBtn.disabled = !isValid;
+            }
+            
+            return isValid;
+        }
+
+        function showFieldError(fieldName, message) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            const inputElement = document.getElementById(fieldName) ||
+                                 document.querySelector(`input[name="${fieldName}"]`);
+            
+            if (errorElement && hasTriedSubmit) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+                errorElement.id = fieldName + '-error-msg';
+            }
+            
+            if (inputElement && inputElement.classList) {
+                inputElement.classList.add('error');
+                if (hasTriedSubmit) {
+                    inputElement.setAttribute('aria-invalid', 'true');
+                    inputElement.setAttribute('aria-describedby', fieldName + '-error-msg');
+                }
+            }
+        }
+
+        function clearFieldError(fieldName) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            const inputElement = document.getElementById(fieldName) ||
+                                 document.querySelector(`input[name="${fieldName}"]`);
+            
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+            
+            if (inputElement && inputElement.classList) {
+                inputElement.classList.remove('error');
+                inputElement.removeAttribute('aria-invalid');
+                inputElement.removeAttribute('aria-describedby');
+            }
+        }
+
+        function showGeneralError(message) {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = message;
+                generalErrorElement.style.display = 'block';
+                generalError = message;
+            }
+        }
+
+        function clearGeneralError() {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = '';
+                generalErrorElement.style.display = 'none';
+                generalError = null;
+            }
+        }
+
+        function focusFirstInvalidField() {
+            const firstInvalidField = document.querySelector('.field-input.error');
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Form submission
+        document.getElementById('exitSurveyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Set that we've tried to submit
+            hasTriedSubmit = true;
+            
+            // Validate form and get errors
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
+            
+            if (!isValid) {
+                // Show general error message
+                showGeneralError('Please complete all required fields.');
+                
+                // Show field-specific errors
+                validateForm();
+                
+                // Focus first invalid field
+                focusFirstInvalidField();
+                
+                return;
+            } else {
+                // Clear general error if form is now valid
+                clearGeneralError();
+            }
+
+            alert('Form validation passed! In the real form, this would submit the data.');
+        });
+    </script>
+</body>
+</html>

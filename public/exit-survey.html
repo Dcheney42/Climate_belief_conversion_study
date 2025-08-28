@@ -31,23 +31,23 @@
                             </div>
                             <div class="likert-options">
                                 <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="1" required>
+                                    <input type="radio" name="overallQuality" value="1">
                                     <span class="likert-number">1</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="2" required>
+                                    <input type="radio" name="overallQuality" value="2">
                                     <span class="likert-number">2</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="3" required>
+                                    <input type="radio" name="overallQuality" value="3">
                                     <span class="likert-number">3</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="4" required>
+                                    <input type="radio" name="overallQuality" value="4">
                                     <span class="likert-number">4</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="5" required>
+                                    <input type="radio" name="overallQuality" value="5">
                                     <span class="likert-number">5</span>
                                 </label>
                             </div>
@@ -60,19 +60,19 @@
                         <label class="field-label">Did the conversation with the chatbot change your views in any way? <span class="required">*</span></label>
                         <div class="radio-group">
                             <label class="radio-label">
-                                <input type="radio" name="viewsChangedHow" value="strengthened" required>
+                                <input type="radio" name="viewsChangedHow" value="strengthened">
                                 <span class="radio-text">It strengthened my existing views</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="viewsChangedHow" value="weakened" required>
+                                <input type="radio" name="viewsChangedHow" value="weakened">
                                 <span class="radio-text">It weakened my existing views</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="viewsChangedHow" value="no_change" required>
+                                <input type="radio" name="viewsChangedHow" value="no_change">
                                 <span class="radio-text">It didn't change my views at all</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="viewsChangedHow" value="unsure" required>
+                                <input type="radio" name="viewsChangedHow" value="unsure">
                                 <span class="radio-text">I'm not sure</span>
                             </label>
                         </div>
@@ -95,11 +95,11 @@
                         <label class="field-label">Has your belief changed after the conversation with the chatbot? <span class="required">*</span></label>
                         <div class="radio-group">
                             <label class="radio-label">
-                                <input type="radio" name="beliefChanged" value="no" required>
+                                <input type="radio" name="beliefChanged" value="no">
                                 <span class="radio-text">No, my belief has not changed</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="beliefChanged" value="yes" required>
+                                <input type="radio" name="beliefChanged" value="yes">
                                 <span class="radio-text">Yes, my belief has changed</span>
                             </label>
                         </div>
@@ -182,7 +182,8 @@
                 </div>
                 
                 <div class="form-actions">
-                    <button type="submit" class="btn-primary" id="submitBtn" disabled>Submit Feedback</button>
+                    <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
+                    <button type="submit" class="btn-primary" id="submitBtn">Submit Feedback</button>
                 </div>
             </form>
             
@@ -214,6 +215,10 @@
     </div>
 
     <script>
+        // State management
+        let hasTriedSubmit = false;
+        let generalError = null;
+
         document.addEventListener('DOMContentLoaded', function() {
             initializeExitSurvey();
         });
@@ -267,14 +272,25 @@
             // Add event listeners for real-time validation
             const inputs = form.querySelectorAll('input, textarea, select');
             inputs.forEach(input => {
-                input.addEventListener('change', validateForm);
+                input.addEventListener('change', function() {
+                    if (hasTriedSubmit) {
+                        validateForm();
+                    } else {
+                        checkFormCompleteness();
+                    }
+                });
                 input.addEventListener('input', function() {
-                    clearFieldError(this.name || this.id);
+                    if (hasTriedSubmit) {
+                        clearFieldError(this.name || this.id);
+                        validateForm();
+                    } else {
+                        checkFormCompleteness();
+                    }
                 });
             });
 
-            // Initial validation check
-            validateForm();
+            // Initial validation check - only for button state, no error display
+            checkFormCompleteness();
         }
 
         function setupBeliefChangeLogic() {
@@ -285,14 +301,14 @@
                 radio.addEventListener('change', function() {
                     if (this.value === 'yes') {
                         newBeliefSection.style.display = 'block';
-                        // Make newBelief and changeReason required
-                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.required = true);
-                        document.getElementById('changeReason').required = true;
+                        // Mark newBelief and changeReason as required for validation
+                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.setAttribute('data-required', 'true'));
+                        document.getElementById('changeReason').setAttribute('data-required', 'true');
                     } else {
                         newBeliefSection.style.display = 'none';
                         // Remove required from conditional fields
-                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.required = false);
-                        document.getElementById('changeReason').required = false;
+                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.removeAttribute('data-required'));
+                        document.getElementById('changeReason').removeAttribute('data-required');
                         // Clear their values
                         document.querySelectorAll('input[name="newBelief"]').forEach(r => r.checked = false);
                         document.getElementById('changeReason').value = '';
@@ -302,9 +318,63 @@
             });
         }
 
+        function checkFormCompleteness() {
+            const submitBtn = document.getElementById('submitBtn');
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
+            
+            // Only enable/disable button, don't show errors
+            submitBtn.disabled = !isValid;
+            
+            // If form becomes valid after a submit attempt, clear general error
+            if (isValid && hasTriedSubmit && generalError) {
+                clearGeneralError();
+            }
+            
+            return isValid;
+        }
+
+        function validateFormFields() {
+            const errors = {};
+
+            // Validate overall quality
+            const overallQuality = document.querySelector('input[name="overallQuality"]:checked');
+            if (!overallQuality) {
+                errors.overallQuality = 'Please rate the overall quality';
+            }
+
+            // Validate views changed
+            const viewsChanged = document.querySelector('input[name="viewsChangedHow"]:checked');
+            if (!viewsChanged) {
+                errors.viewsChangedHow = 'Please select how the conversation affected your views';
+            }
+
+            // Validate belief changed
+            const beliefChanged = document.querySelector('input[name="beliefChanged"]:checked');
+            if (!beliefChanged) {
+                errors.beliefChanged = 'Please indicate if your belief has changed';
+            }
+
+            // Conditional validation for belief change
+            if (beliefChanged && beliefChanged.value === 'yes') {
+                const newBelief = document.querySelector('input[name="newBelief"]:checked');
+                if (!newBelief) {
+                    errors.newBelief = 'Please indicate your new belief position';
+                }
+
+                const changeReason = document.getElementById('changeReason').value.trim();
+                if (!changeReason) {
+                    errors.changeReason = 'Please explain why your position has changed';
+                }
+            }
+
+            return errors;
+        }
+
         function validateForm() {
             const submitBtn = document.getElementById('submitBtn');
-            let isValid = true;
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
 
             // Clear all errors first
             document.querySelectorAll('.field-error').forEach(error => {
@@ -312,42 +382,15 @@
             });
             document.querySelectorAll('.field-input').forEach(input => {
                 input.classList.remove('error');
+                input.removeAttribute('aria-invalid');
+                input.removeAttribute('aria-describedby');
             });
 
-            // Validate overall quality
-            const overallQuality = document.querySelector('input[name="overallQuality"]:checked');
-            if (!overallQuality) {
-                showFieldError('overallQuality', 'Please rate the overall quality');
-                isValid = false;
-            }
-
-            // Validate views changed
-            const viewsChanged = document.querySelector('input[name="viewsChangedHow"]:checked');
-            if (!viewsChanged) {
-                showFieldError('viewsChangedHow', 'Please select how the conversation affected your views');
-                isValid = false;
-            }
-
-            // Validate belief changed
-            const beliefChanged = document.querySelector('input[name="beliefChanged"]:checked');
-            if (!beliefChanged) {
-                showFieldError('beliefChanged', 'Please indicate if your belief has changed');
-                isValid = false;
-            }
-
-            // Conditional validation for belief change
-            if (beliefChanged && beliefChanged.value === 'yes') {
-                const newBelief = document.querySelector('input[name="newBelief"]:checked');
-                if (!newBelief) {
-                    showFieldError('newBelief', 'Please indicate your new belief position');
-                    isValid = false;
-                }
-
-                const changeReason = document.getElementById('changeReason').value.trim();
-                if (!changeReason) {
-                    showFieldError('changeReason', 'Please explain why your position has changed');
-                    isValid = false;
-                }
+            // Only show errors if we've tried to submit
+            if (hasTriedSubmit) {
+                Object.keys(errors).forEach(fieldName => {
+                    showFieldError(fieldName, errors[fieldName]);
+                });
             }
 
             // Enable/disable submit button
@@ -361,13 +404,18 @@
             const inputElement = document.getElementById(fieldName) ||
                                  document.querySelector(`input[name="${fieldName}"]`);
             
-            if (errorElement) {
+            if (errorElement && hasTriedSubmit) {
                 errorElement.textContent = message;
                 errorElement.classList.add('show');
+                errorElement.id = fieldName + '-error-msg';
             }
             
             if (inputElement && inputElement.classList) {
                 inputElement.classList.add('error');
+                if (hasTriedSubmit) {
+                    inputElement.setAttribute('aria-invalid', 'true');
+                    inputElement.setAttribute('aria-describedby', fieldName + '-error-msg');
+                }
             }
         }
 
@@ -382,6 +430,34 @@
             
             if (inputElement && inputElement.classList) {
                 inputElement.classList.remove('error');
+                inputElement.removeAttribute('aria-invalid');
+                inputElement.removeAttribute('aria-describedby');
+            }
+        }
+
+        function showGeneralError(message) {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = message;
+                generalErrorElement.style.display = 'block';
+                generalError = message;
+            }
+        }
+
+        function clearGeneralError() {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = '';
+                generalErrorElement.style.display = 'none';
+                generalError = null;
+            }
+        }
+
+        function focusFirstInvalidField() {
+            const firstInvalidField = document.querySelector('.field-input.error');
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
 
@@ -389,9 +465,27 @@
         document.getElementById('exitSurveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            if (!validateForm()) {
-                alert('Please complete all required fields before submitting.');
+            // Set that we've tried to submit
+            hasTriedSubmit = true;
+            
+            // Validate form and get errors
+            const errors = validateFormFields();
+            const isValid = Object.keys(errors).length === 0;
+            
+            if (!isValid) {
+                // Show general error message
+                showGeneralError('Please complete all required fields.');
+                
+                // Show field-specific errors
+                validateForm();
+                
+                // Focus first invalid field
+                focusFirstInvalidField();
+                
                 return;
+            } else {
+                // Clear general error if form is now valid
+                clearGeneralError();
             }
 
             submitSurvey();
