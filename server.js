@@ -6,17 +6,7 @@ const cors = require('cors');
 const OpenAI = require('openai');
 require('dotenv').config();
 
-// Import new chat router (dynamic import for ES modules)
-let chatRouter;
-(async () => {
-  try {
-    const module = await import('./backend/src/routes/chat.js');
-    chatRouter = module.default;
-  } catch (error) {
-    console.warn('Chat router not available:', error.message);
-  }
-  console.log('Chat router mounted:', Boolean(chatRouter));
-})();
+// Enhanced chat router will be imported and mounted below
 
 // Chat duration constant - 5 minutes
 const CHAT_DURATION_MS = Number(process.env.CHAT_DURATION_MS ?? 5 * 60 * 1000);
@@ -57,21 +47,19 @@ const activeConversations = new Map();
 global.db = global.db || {
   participants: {
     async getProfile(userId) {
-      // Return object with fields:
-      // prior_belief_cc_happening, prior_belief_human_cause,
-      // current_belief_cc_happening, current_belief_human_cause,
-      // changed_belief_flag (boolean)
       const filename = path.join(participantsDir, `${userId}.json`);
       const participant = readJson(filename);
       if (!participant) return null;
       
-      // Map existing fields to new structure
+      // Map existing fields to expected structure for chat system
       return {
+        views_changed: participant.viewsChanged || "unspecified",
+        change_direction: participant.changeDirection || "unspecified",
         prior_belief_cc_happening: participant.priorClimateBelief,
         prior_belief_human_cause: "unspecified", // Not collected yet
         current_belief_cc_happening: participant.currentClimateBelief,
         current_belief_human_cause: "unspecified", // Not collected yet
-        changed_belief_flag: participant.priorClimateBelief !== participant.currentClimateBelief
+        changed_belief_flag: participant.viewsChanged === 'Yes'
       };
     },
     async updateFromConversation(conversationId, updates) {
@@ -167,102 +155,119 @@ function readJson(filePath) {
 }
 
 // Routes
-// Mount chat router when available
-setTimeout(() => {
-  if (chatRouter) {
-    app.use("/chat", chatRouter);
-    console.log('Chat router mounted at /chat');
-  } else {
-    // Fallback chat endpoints when chatRouter is unavailable
-    console.log('Chat router not available, registering fallback endpoints');
-  // Start chat — create a new conversation
-  app.post('/chat/start', async (req, res) => {
-    try {
-      const { userId } = req.body || {};
-      const participantId = userId || uuidv4();
-      const conversationId = uuidv4();
-
-      const now = new Date().toISOString();
-      const initial = {
-        id: conversationId,
-        participantId,
-        startedAt: now,
-        endedAt: null,
-        durationSeconds: 0,
-        messages: []
-      };
-
-      const filename = path.join(conversationsDir, `${conversationId}.json`);
-      writeJson(filename, initial);
-
-      activeConversations.set(conversationId, { startedAt: now });
-
-      // Opening line from system prompt (reuse your generateAIResponse if you prefer)
-      const opening = "Thanks for joining. I'm here to explore your views on climate change. What's on your mind?";
-      initial.messages.push({ role: "assistant", content: opening });
-      writeJson(filename, initial);
-
-      res.json({ conversationId, messages: initial.messages });
-    } catch (err) {
-      console.error('fallback /chat/start error', err);
-      res.status(500).json({ error: 'Failed to start chat' });
+// Enhanced chat router mounting with better error handling
+(async () => {
+  try {
+    // Try to import and mount the enhanced chat router
+    const module = await import('./backend/src/routes/chat.js');
+    const chatRouter = module.default;
+    
+    if (chatRouter) {
+      app.use("/chat", chatRouter);
+      console.log('✅ Enhanced chat router successfully mounted at /chat');
+    } else {
+      throw new Error('Chat router module did not export default router');
     }
-  });
+  } catch (error) {
+    console.error('❌ Failed to load enhanced chat router:', error.message);
+    console.log('🔄 Using fallback chat endpoints');
+    
+    // Fallback chat endpoints when enhanced router is unavailable
+    app.post('/chat/start', async (req, res) => {
+      try {
+        const { userId } = req.body || {};
+        const participantId = userId || uuidv4();
+        const conversationId = uuidv4();
 
-  // Reply endpoint — mirrors /api/conversations/:id/message logic
-  app.post('/chat/reply', async (req, res) => {
-    try {
-      const { conversationId, message } = req.body || {};
-      if (!conversationId || !message || !message.trim()) {
-        return res.status(400).json({ error: 'conversationId and message are required' });
+        const now = new Date().toISOString();
+        const initial = {
+          id: conversationId,
+          participantId,
+          startedAt: now,
+          endedAt: null,
+          durationSeconds: 0,
+          messages: []
+        };
+
+        const filename = path.join(conversationsDir, `${conversationId}.json`);
+        writeJson(filename, initial);
+
+        activeConversations.set(conversationId, { startedAt: now });
+
+        // Use enhanced opening line logic even in fallback
+        const profile = await global.db.participants.getProfile(participantId);
+        const { openingLineFrom } = await import('./backend/src/utils/openingLine.js');
+        const opening = openingLineFrom(profile);
+        
+        initial.messages.push({ role: "assistant", content: opening });
+        writeJson(filename, initial);
+
+        res.json({ conversationId, messages: initial.messages });
+      } catch (err) {
+        console.error('fallback /chat/start error', err);
+        res.status(500).json({ error: 'Failed to start chat' });
       }
+    });
 
-      const activeConv = activeConversations.get(conversationId);
-      if (!activeConv) {
-        return res.status(404).json({ error: 'Conversation not found or ended' });
-      }
+    // Reply endpoint with enhanced system prompt
+    app.post('/chat/reply', async (req, res) => {
+      try {
+        const { conversationId, message } = req.body || {};
+        if (!conversationId || !message || !message.trim()) {
+          return res.status(400).json({ error: 'conversationId and message are required' });
+        }
 
-      const now = new Date();
-      const startTime = new Date(activeConv.startedAt);
-      const elapsedSeconds = Math.floor((now - startTime) / 1000);
-      if (elapsedSeconds >= (CHAT_DURATION_MS / 1000)) {
-        activeConversations.delete(conversationId);
-        return res.status(410).json({ error: 'Conversation time limit exceeded' });
-      }
+        const activeConv = activeConversations.get(conversationId);
+        if (!activeConv) {
+          return res.status(404).json({ error: 'Conversation not found or ended' });
+        }
 
-      // Early-end phrase
-      if (shouldEndNow(message)) {
+        const now = new Date();
+        const startTime = new Date(activeConv.startedAt);
+        const elapsedSeconds = Math.floor((now - startTime) / 1000);
+        if (elapsedSeconds >= (CHAT_DURATION_MS / 1000)) {
+          activeConversations.delete(conversationId);
+          return res.status(410).json({ error: 'Conversation time limit exceeded' });
+        }
+
+        // Early-end phrase
+        if (shouldEndNow(message)) {
+          const filename = path.join(conversationsDir, `${conversationId}.json`);
+          const conv = readJson(filename) || {};
+          conv.messages = conv.messages || [];
+          conv.messages.push({ role: "user", content: message });
+          const finalReply = "Okay — ending the chat now. Thanks for participating!";
+          conv.messages.push({ role: "assistant", content: finalReply });
+          conv.endedAt = now.toISOString();
+          conv.durationSeconds = Math.floor((now - startTime) / 1000);
+          writeJson(filename, conv);
+          activeConversations.delete(conversationId);
+          return res.json({ reply: finalReply, sessionEnded: true });
+        }
+
+        // Normal AI reply with enhanced system prompt
         const filename = path.join(conversationsDir, `${conversationId}.json`);
         const conv = readJson(filename) || {};
         conv.messages = conv.messages || [];
         conv.messages.push({ role: "user", content: message });
-        const finalReply = "Okay — ending the chat now. Thanks for participating!";
-        conv.messages.push({ role: "assistant", content: finalReply });
-        conv.endedAt = now.toISOString();
-        conv.durationSeconds = Math.floor((now - startTime) / 1000);
+
+        // Get participant profile and use enhanced system prompt
+        const profile = await global.db.participants.getProfile(conv.participantId);
+        const { renderSystemPrompt } = await import('./backend/src/utils/systemPrompt.js');
+        const enhancedSystemPrompt = renderSystemPrompt(profile);
+
+        const aiReply = await generateAIResponse(conv.messages, enhancedSystemPrompt);
+        conv.messages.push({ role: "assistant", content: aiReply });
         writeJson(filename, conv);
-        activeConversations.delete(conversationId);
-        return res.json({ reply: finalReply, sessionEnded: true });
+
+        res.json({ reply: aiReply });
+      } catch (err) {
+        console.error('fallback /chat/reply error', err);
+        res.status(500).json({ error: 'Failed to generate reply' });
       }
-
-      // Normal AI reply
-      const filename = path.join(conversationsDir, `${conversationId}.json`);
-      const conv = readJson(filename) || {};
-      conv.messages = conv.messages || [];
-      conv.messages.push({ role: "user", content: message });
-
-      const aiReply = await generateAIResponse(conv.messages, "You are a helpful interviewer...");
-      conv.messages.push({ role: "assistant", content: aiReply });
-      writeJson(filename, conv);
-
-      res.json({ reply: aiReply });
-    } catch (err) {
-      console.error('fallback /chat/reply error', err);
-      res.status(500).json({ error: 'Failed to generate reply' });
-    }
-  });
+    });
   }
-}, 100); // Small delay to ensure the async import completes
+})();
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -331,79 +336,75 @@ app.post('/survey/submit', (req, res) => {
             prolific_id,
             age,
             gender,
-            country,
             education,
             political_orientation,
             prior_belief,
             current_belief,
+            confidence_level,
+            views_changed,
+            change_direction,
             consent
         } = req.body;
         
         console.log('Received survey submission:', req.body);
         console.log('DEBUG: Starting validation process...');
         
-        // Validate required fields
-        if (!age || age < 16 || age > 120) {
-            console.log('DEBUG: Age validation FAILED - age:', age);
-            return res.status(400).json({ error: 'Age must be between 16 and 120' });
+        // Validate required field: views_changed
+        if (!views_changed || !['Yes', 'No'].includes(views_changed)) {
+            console.log('DEBUG: views_changed validation FAILED - views_changed:', views_changed);
+            return res.status(400).json({ error: 'Please indicate whether your views on climate change have changed' });
         }
-        console.log('DEBUG: Age validation PASSED');
+        console.log('DEBUG: views_changed validation PASSED');
         
-        if (!gender || !['Woman', 'Man', 'Non-binary', 'Other'].includes(gender)) {
-            return res.status(400).json({ error: 'Valid gender identity is required' });
-        }
-        
-        if (!education || !['Less than high school', 'High school', 'Vocational/TAFE', 'Bachelor', 'Honours', 'Masters', 'Doctorate'].includes(education)) {
-            return res.status(400).json({ error: 'Valid education level is required' });
-        }
-        
-        if (!country) {
-            return res.status(400).json({ error: 'Country is required' });
+        // If views changed = Yes, validate change_direction
+        if (views_changed === 'Yes') {
+            if (!change_direction || !['From climate sceptic to climate believer', 'From climate believer to climate sceptic'].includes(change_direction)) {
+                console.log('DEBUG: change_direction validation FAILED - change_direction:', change_direction);
+                return res.status(400).json({ error: 'Please indicate which best describes your change in belief' });
+            }
+            console.log('DEBUG: change_direction validation PASSED');
         }
         
-        if (!political_orientation || political_orientation < 1 || political_orientation > 7) {
-            return res.status(400).json({ error: 'Political affiliation must be between 1 and 7' });
-        }
-        
-        if (!prior_belief || prior_belief < 1 || prior_belief > 7) {
-            return res.status(400).json({ error: 'Prior climate belief must be between 1 and 7' });
-        }
-        
-        if (!current_belief || current_belief < 1 || current_belief > 7) {
-            return res.status(400).json({ error: 'Current climate belief must be between 1 and 7' });
-        }
-        
+        // Validate consent
         if (!consent) {
             return res.status(400).json({ error: 'Consent is required' });
         }
         
-        // Convert belief values to numbers and validate
-        const priorBeliefNum = Number(prior_belief);
-        const currentBeliefNum = Number(current_belief);
-        
-        // Validate prior belief
-        if (!Number.isInteger(priorBeliefNum) || priorBeliefNum < 1 || priorBeliefNum > 7) {
-            return res.status(400).json({ error: 'Prior climate belief must be an integer between 1 and 7' });
+        // Optional field validations (only validate if provided)
+        if (age && (age < 16 || age > 120)) {
+            console.log('DEBUG: Age validation FAILED - age:', age);
+            return res.status(400).json({ error: 'Age must be between 16 and 120' });
         }
         
-        // Validate current belief
-        if (!Number.isInteger(currentBeliefNum) || currentBeliefNum < 1 || currentBeliefNum > 7) {
-            return res.status(400).json({ error: 'Current climate belief must be an integer between 1 and 7' });
+        if (gender && !['Woman', 'Man', 'Non-binary', 'Other', 'Prefer not to say'].includes(gender)) {
+            return res.status(400).json({ error: 'Valid gender identity is required' });
         }
         
-        // Check eligibility based on belief change - participants must cross the midpoint (4)
-        // Treat 4 as strictly neutral midpoint
-        // Eligible = (priorBelief < 4 && currentBelief > 4) || (priorBelief > 4 && currentBelief < 4)
-        // All other cases (including moving to/from 4, or staying on same side of 4) are not eligible
+        if (education && !['Less than high school', 'High school', 'Vocational/TAFE', 'Bachelor', 'Honours', 'Masters', 'Doctorate', 'Prefer not to say'].includes(education)) {
+            return res.status(400).json({ error: 'Valid education level is required' });
+        }
         
-        console.log(`DEBUG: Raw values - prior_belief: "${prior_belief}", current_belief: "${current_belief}"`);
-        console.log(`DEBUG: Parsed values - priorBeliefNum: ${priorBeliefNum}, currentBeliefNum: ${currentBeliefNum}`);
-        console.log(`DEBUG: Condition 1 (prior < 4 && current > 4): ${priorBeliefNum < 4} && ${currentBeliefNum > 4} = ${priorBeliefNum < 4 && currentBeliefNum > 4}`);
-        console.log(`DEBUG: Condition 2 (prior > 4 && current < 4): ${priorBeliefNum > 4} && ${currentBeliefNum < 4} = ${priorBeliefNum > 4 && currentBeliefNum < 4}`);
+        if (political_orientation && (political_orientation === 'prefer_not_to_say' || (political_orientation >= 1 && political_orientation <= 7))) {
+            // Valid - either prefer_not_to_say or 1-7
+        } else if (political_orientation && (political_orientation < 1 || political_orientation > 7)) {
+            return res.status(400).json({ error: 'Political affiliation must be between 1 and 7 or prefer not to say' });
+        }
         
-        const eligible = (priorBeliefNum < 4 && currentBeliefNum > 4) || (priorBeliefNum > 4 && currentBeliefNum < 4);
+        if (prior_belief && (prior_belief === 'prefer_not_to_say' || (prior_belief >= 1 && prior_belief <= 7))) {
+            // Valid - either prefer_not_to_say or 1-7
+        } else if (prior_belief && (prior_belief < 1 || prior_belief > 7)) {
+            return res.status(400).json({ error: 'Prior climate belief must be between 1 and 7 or prefer not to say' });
+        }
         
-        console.log(`FINAL Eligibility check: priorBelief=${priorBeliefNum}, currentBelief=${currentBeliefNum}, eligible=${eligible}`);
+        if (current_belief && (current_belief === 'prefer_not_to_say' || (current_belief >= 1 && current_belief <= 7))) {
+            // Valid - either prefer_not_to_say or 1-7
+        } else if (current_belief && (current_belief < 1 || current_belief > 7)) {
+            return res.status(400).json({ error: 'Current climate belief must be between 1 and 7 or prefer not to say' });
+        }
+        
+        if (confidence_level && (confidence_level < 1 || confidence_level > 7)) {
+            return res.status(400).json({ error: 'Confidence level must be between 1 and 7' });
+        }
         
         // Generate participant ID
         const participantId = uuidv4();
@@ -415,19 +416,20 @@ app.post('/survey/submit', (req, res) => {
             createdAt: now,
             updatedAt: now,
             
-            // Factual demographics
-            age: parseInt(age),
-            gender: gender,
-            education: education,
-            country: country,
+            // Factual demographics (optional)
+            age: age ? parseInt(age) : null,
+            gender: gender || null,
+            education: education || null,
             
-            // Attitudinal measures (1-7 scale)
-            politicalAffiliation: parseInt(political_orientation),
-            priorClimateBelief: priorBeliefNum,
-            currentClimateBelief: currentBeliefNum,
+            // Attitudinal measures (1-7 scale, optional)
+            politicalAffiliation: political_orientation ? (political_orientation === 'prefer_not_to_say' ? null : parseInt(political_orientation)) : null,
+            priorClimateBelief: prior_belief ? (prior_belief === 'prefer_not_to_say' ? null : parseInt(prior_belief)) : null,
+            currentClimateBelief: current_belief ? (current_belief === 'prefer_not_to_say' ? null : parseInt(current_belief)) : null,
+            confidenceLevel: confidence_level ? parseInt(confidence_level) : null,
             
-            // Eligibility
-            eligible: eligible,
+            // Required belief change questions
+            viewsChanged: views_changed,
+            changeDirection: views_changed === 'Yes' ? change_direction : null,
             
             // Consent
             consentAnonymised: Boolean(consent),
@@ -443,11 +445,10 @@ app.post('/survey/submit', (req, res) => {
             throw new Error('Failed to save participant data');
         }
         
-        console.log('Participant saved successfully:', participantId, eligible ? '(eligible)' : '(not eligible)');
+        console.log('Participant saved successfully:', participantId);
         
         res.json({
-            participantId,
-            eligible
+            participantId
         });
         
     } catch (error) {

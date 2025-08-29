@@ -304,12 +304,12 @@
         let generalError = null;
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user came from consent
-            if (!sessionStorage.getItem('consent_data')) {
-                alert('Please complete the consent form first.');
-                window.location.href = '/consent';
-                return;
-            }
+            // Check if user came from consent - COMMENTED OUT FOR TESTING
+            // if (!sessionStorage.getItem('consent_data')) {
+            //     alert('Please complete the consent form first.');
+            //     window.location.href = '/consent';
+            //     return;
+            // }
 
             // Initialize form validation
             initializeFormValidation();
@@ -584,9 +584,9 @@
                     // Clear any old survey data
                     sessionStorage.removeItem('survey_responses');
                     
-                    // Since views changed = Yes, proceed directly to chat
-                    console.log('Belief change confirmed - proceeding to chat');
-                    window.location.href = `/chat/${data.participantId}`;
+                    // Since views changed = Yes, proceed to "Before you begin" page
+                    console.log('Belief change confirmed - proceeding to before you begin page');
+                    window.location.href = '/before-you-begin.html';
                 } else {
                     console.error('Server error:', data);
                     alert(`Error submitting survey: ${data.error || 'Unknown error'}. Please try again.`);

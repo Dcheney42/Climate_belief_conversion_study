@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Before you begin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Before you begin</h1>
+            <p class="subtitle">Instructions for the conversation</p>
+        </div>
+        
+        <div class="content">
+            <p>You will now be participating in a conversation with an advanced AI about how your beliefs on climate change formed and changed over time. Please be open and honest in your responses, and remember that the AI is neutral and non-judgmental. It will not attempt to persuade you. Your participation is confidential. Thank you for contributing to this study on belief.</p>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-primary" id="continueBtn">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user has completed the survey
+            const participantId = sessionStorage.getItem('participant_id');
+            if (!participantId) {
+                alert('Please complete the survey first.');
+                window.location.href = '/survey';
+                return;
+            }
+        });
+
+        document.getElementById('continueBtn').addEventListener('click', function() {
+            const participantId = sessionStorage.getItem('participant_id');
+            if (participantId) {
+                // Redirect to the existing chatbot conversation page
+                window.location.href = `/chat/${participantId}`;
+            } else {
+                alert('Session expired. Please start again.');
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>

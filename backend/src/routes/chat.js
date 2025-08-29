@@ -43,12 +43,17 @@ router.post("/start", async (req, res) => {
     const userId = req.user?.id || req.body.userId;
     const conversationId = req.body.conversationId || crypto.randomUUID();
 
+    console.log("🔍 Chat start - userId:", userId);
     const profile = await getParticipantProfile(userId);
+    console.log("🔍 Retrieved profile:", JSON.stringify(profile, null, 2));
+    
     const systemPrompt = renderSystemPrompt(profile);
+    const openingLine = openingLineFrom(profile);
+    console.log("🔍 Generated opening line:", openingLine);
 
     const messages = [
       { role: "system", content: systemPrompt },
-      { role: "assistant", content: openingLineFrom(profile) }
+      { role: "assistant", content: openingLine }
     ];
 
     await saveConversation(userId, conversationId, messages);
