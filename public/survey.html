@@ -19,7 +19,7 @@
                 <div class="demo-field-card">
                     <h3 class="card-heading">Age:</h3>
                     <input type="number" id="age" name="age" min="16" max="120"
-                           class="field-input" placeholder="Enter your age (optional)">
+                           class="field-input" placeholder="Enter your age">
                     <div class="field-error" id="age-error"></div>
                 </div>
 
@@ -55,14 +55,14 @@
                 <div class="demo-field-card">
                     <h3 class="card-heading">Highest education:</h3>
                     <select id="education" name="education" class="field-input">
-                        <option value="">Select your highest education (optional)</option>
+                        <option value="">Select your highest education</option>
                         <option value="Less than high school">Less than high school</option>
-                        <option value="High school">High school</option>
-                        <option value="Vocational/TAFE">Vocational/TAFE</option>
-                        <option value="Bachelor">Bachelor</option>
-                        <option value="Honours">Honours</option>
-                        <option value="Masters">Masters</option>
-                        <option value="Doctorate">Doctorate</option>
+                        <option value="High school diploma or equivalent">High school diploma or equivalent</option>
+                        <option value="Some college, no degree">Some college, no degree</option>
+                        <option value="Associate degree">Associate degree</option>
+                        <option value="Bachelor's degree">Bachelor's degree</option>
+                        <option value="Master's degree">Master's degree</option>
+                        <option value="Doctoral degree">Doctoral degree</option>
                         <option value="Prefer not to say">Prefer not to say</option>
                     </select>
                     <div class="field-error" id="education-error"></div>
@@ -74,8 +74,8 @@
                     <h3 class="card-heading">Political affiliation:</h3>
                     <div class="likert-scale">
                         <div class="likert-anchors">
-                            <span class="anchor-left">Very liberal</span>
-                            <span class="anchor-right">Very conservative</span>
+                            <span class="anchor-left">Very conservative</span>
+                            <span class="anchor-right">Very liberal</span>
                         </div>
                         <div class="likert-options">
                             <label class="likert-option">
@@ -106,108 +106,42 @@
                                 <input type="radio" name="politicalAffiliation" value="7">
                                 <span class="likert-number">7</span>
                             </label>
-                            <label class="likert-option">
-                                <input type="radio" name="politicalAffiliation" value="prefer_not_to_say">
-                                <span class="likert-number">N/A</span>
-                            </label>
                         </div>
                     </div>
                     <small style="color: #666; font-style: italic;">Optional - leave blank if you prefer not to answer</small>
                     <div class="field-error" id="politicalAffiliation-error"></div>
                 </div>
 
-                <!-- Prior Belief about Climate Change -->
+                <!-- Views Changed Question - MANDATORY -->
                 <div class="demo-field-card">
-                    <h3 class="card-heading">Prior belief about climate change:</h3>
-                    <div class="likert-scale">
-                        <div class="likert-anchors">
-                            <span class="anchor-left">Definitely not caused by humans</span>
-                            <span class="anchor-right">Definitely caused by humans</span>
-                        </div>
-                        <div class="likert-options">
-                            <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="1">
-                                <span class="likert-number">1</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="2">
-                                <span class="likert-number">2</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="3">
-                                <span class="likert-number">3</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="4">
-                                <span class="likert-number">4</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="5">
-                                <span class="likert-number">5</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="6">
-                                <span class="likert-number">6</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="7">
-                                <span class="likert-number">7</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="priorClimateBelief" value="prefer_not_to_say">
-                                <span class="likert-number">N/A</span>
-                            </label>
-                        </div>
+                    <h3 class="card-heading">Have your views on climate change changed? <span class="required">*</span></h3>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="viewsChanged" value="Yes" required id="viewsChangedYes">
+                            <span class="radio-text">Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="viewsChanged" value="No" required id="viewsChangedNo">
+                            <span class="radio-text">No</span>
+                        </label>
                     </div>
-                    <small style="color: #666; font-style: italic;">Optional - leave blank if you prefer not to answer</small>
-                    <div class="field-error" id="priorClimateBelief-error"></div>
+                    <div class="field-error" id="viewsChanged-error"></div>
                 </div>
 
-                <!-- Current Belief about Climate Change -->
-                <div class="demo-field-card">
-                    <h3 class="card-heading">Current belief about climate change:</h3>
-                    <div class="likert-scale">
-                        <div class="likert-anchors">
-                            <span class="anchor-left">Definitely not caused by humans</span>
-                            <span class="anchor-right">Definitely caused by humans</span>
-                        </div>
-                        <div class="likert-options">
-                            <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="1">
-                                <span class="likert-number">1</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="2">
-                                <span class="likert-number">2</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="3">
-                                <span class="likert-number">3</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="4">
-                                <span class="likert-number">4</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="5">
-                                <span class="likert-number">5</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="6">
-                                <span class="likert-number">6</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="7">
-                                <span class="likert-number">7</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="currentClimateBelief" value="prefer_not_to_say">
-                                <span class="likert-number">N/A</span>
-                            </label>
-                        </div>
+                <!-- Follow-up Question for Change Direction - Conditional -->
+                <div class="demo-field-card" id="changeDirectionCard" style="display: none;">
+                    <h3 class="card-heading">Which best describes your change in belief? <span class="required">*</span></h3>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="changeDirection" value="From climate sceptic to climate believer" id="scepticToBeliever">
+                            <span class="radio-text">From climate sceptic to climate believer</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="changeDirection" value="From climate believer to climate sceptic" id="believerToSceptic">
+                            <span class="radio-text">From climate believer to climate sceptic</span>
+                        </label>
                     </div>
-                    <small style="color: #666; font-style: italic;">Optional - leave blank if you prefer not to answer</small>
-                    <div class="field-error" id="currentClimateBelief-error"></div>
+                    <div class="field-error" id="changeDirection-error"></div>
                 </div>
 
                 <!-- Confidence in Current Beliefs -->
@@ -248,46 +182,9 @@
                                 <span class="likert-number">7</span>
                             </label>
                         </div>
-                        <div class="likert-labels">
-                            <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
-                                1 = Not at all confident, 2 = Slightly confident, 3 = Somewhat confident, 4 = Moderately confident, 5 = Quite confident, 6 = Very confident, 7 = Extremely confident
-                            </small>
-                        </div>
                     </div>
                     <small style="color: #666; font-style: italic;">Optional - leave blank if you prefer not to answer</small>
                     <div class="field-error" id="confidenceLevel-error"></div>
-                </div>
-
-                <!-- Views Changed Question - MANDATORY -->
-                <div class="demo-field-card">
-                    <h3 class="card-heading">Have your views on climate change changed? <span class="required">*</span></h3>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="viewsChanged" value="Yes" required id="viewsChangedYes">
-                            <span class="radio-text">Yes</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="viewsChanged" value="No" required id="viewsChangedNo">
-                            <span class="radio-text">No</span>
-                        </label>
-                    </div>
-                    <div class="field-error" id="viewsChanged-error"></div>
-                </div>
-
-                <!-- Follow-up Question for Change Direction - Conditional -->
-                <div class="demo-field-card" id="changeDirectionCard" style="display: none;">
-                    <h3 class="card-heading">Which best describes your change in belief? <span class="required">*</span></h3>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="changeDirection" value="From climate sceptic to climate believer" id="scepticToBeliever">
-                            <span class="radio-text">From climate sceptic to climate believer</span>
-                        </label>
-                        <label class="radio-label">
-                            <input type="radio" name="changeDirection" value="From climate believer to climate sceptic" id="believerToSceptic">
-                            <span class="radio-text">From climate believer to climate sceptic</span>
-                        </label>
-                    </div>
-                    <div class="field-error" id="changeDirection-error"></div>
                 </div>
 
                 <div class="form-actions">
@@ -546,9 +443,7 @@
                 age: formData.get('age') ? parseInt(formData.get('age')) : null,
                 gender: formData.get('gender') || null,
                 education: formData.get('education') || null,
-                political_orientation: formData.get('politicalAffiliation') ? (formData.get('politicalAffiliation') === 'prefer_not_to_say' ? null : parseInt(formData.get('politicalAffiliation'))) : null,
-                prior_belief: formData.get('priorClimateBelief') ? (formData.get('priorClimateBelief') === 'prefer_not_to_say' ? null : parseInt(formData.get('priorClimateBelief'))) : null,
-                current_belief: formData.get('currentClimateBelief') ? (formData.get('currentClimateBelief') === 'prefer_not_to_say' ? null : parseInt(formData.get('currentClimateBelief'))) : null,
+                political_orientation: formData.get('politicalAffiliation') ? parseInt(formData.get('politicalAffiliation')) : null,
                 confidence_level: formData.get('confidenceLevel') ? parseInt(formData.get('confidenceLevel')) : null,
                 views_changed: viewsChanged,
                 change_direction: formData.get('changeDirection'), // Only populated if views_changed = Yes

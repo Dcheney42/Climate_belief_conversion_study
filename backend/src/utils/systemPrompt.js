@@ -32,9 +32,12 @@ If they don't elaborate much:
 
 4. RECAP (bullet-point summary for analysis)
 "Thanks for sharing your story. Here's a quick summary of what I heard from you:
+
 • [Key point 1]
 • [Key point 2]
-• [Key point 3, etc.]
+• [Key point 3]
+• [Additional key points as needed]
+
 Does that sound right? Did I miss anything important?"
 
 5. CLOSURE / TRANSITION
@@ -54,7 +57,9 @@ CONVERSATION GUIDELINES:
 - Focus on their personal experience, not climate science debates
 
 RECAP RULES:
-- Use bullet points for clear organization
+- Format as a vertical list with each bullet point on its own line
+- Use the bullet symbol (•) before each point for clear visual separation
+- Ensure proper line spacing between bullet points for readability
 - Capture their key themes in their own words where possible
 - Include 3-6 main points typically
 - Ask for confirmation and allow additions/corrections

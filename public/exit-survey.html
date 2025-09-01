@@ -10,205 +10,99 @@
     <div class="container">
         <!-- Header Box -->
         <div class="demo-field-card" style="text-align: center; margin-bottom: 24px;">
-            <h1 style="font-size: 2em; margin-bottom: 8px;">🎉 Thank you for participating!</h1>
-            <p style="color: #6b7280; margin: 0;">Your feedback helps improve this study.</p>
+            <h1 style="font-size: 2em; margin-bottom: 8px;">Final questions</h1>
+            <p style="color: #6b7280; margin: 0;">Please answer these final questions about your experience.</p>
         </div>
         
         <div class="content">
             <form id="exitSurveyForm" class="survey-form">
                 
-                <!-- Section 1 - Your Experience -->
-                <div class="demo-field-card">
-                    <h2 style="margin-bottom: 20px;">Your Experience</h2>
-                    
-                    <!-- Q1: Overall quality -->
-                    <div style="margin-bottom: 24px;">
-                        <label class="field-label">Overall quality of the conversation with the chatbot <span class="required">*</span></label>
-                        <div class="likert-scale">
-                            <div class="likert-anchors">
-                                <span class="anchor-left">Very poor</span>
-                                <span class="anchor-right">Excellent</span>
-                            </div>
-                            <div class="likert-options">
-                                <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="1">
-                                    <span class="likert-number">1</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="2">
-                                    <span class="likert-number">2</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="3">
-                                    <span class="likert-number">3</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="4">
-                                    <span class="likert-number">4</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="overallQuality" value="5">
-                                    <span class="likert-number">5</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="field-error" id="overallQuality-error"></div>
-                    </div>
-                    
-                    <!-- Q2: Views changed -->
-                    <div style="margin-bottom: 0;">
-                        <label class="field-label">Did the conversation with the chatbot change your views in any way? <span class="required">*</span></label>
-                        <div class="radio-group">
-                            <label class="radio-label">
-                                <input type="radio" name="viewsChangedHow" value="strengthened">
-                                <span class="radio-text">It strengthened my existing views</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="viewsChangedHow" value="weakened">
-                                <span class="radio-text">It weakened my existing views</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="viewsChangedHow" value="no_change">
-                                <span class="radio-text">It didn't change my views at all</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="viewsChangedHow" value="unsure">
-                                <span class="radio-text">I'm not sure</span>
-                            </label>
-                        </div>
-                        <div class="field-error" id="viewsChangedHow-error"></div>
-                    </div>
-                </div>
-
-                <!-- Section 2 - Climate Belief -->
-                <!-- Box A: Reminder + Binary change -->
+                <!-- Climate Belief -->
                 <div class="demo-field-card">
                     <h2 style="margin-bottom: 20px;">Climate Belief</h2>
                     
                     <div style="margin-bottom: 24px;">
                         <p style="color: #4a5568; margin-bottom: 8px;">Earlier you indicated…</p>
-                        <p style="font-weight: 500; color: #1a202c;">Your current belief about climate change was: <span id="earlierBeliefDisplay">Loading...</span>/7</p>
-                        <input type="hidden" id="earlierCurrentBelief" name="earlierCurrentBelief" value="">
+                        <p style="font-weight: 500; color: #1a202c;">Your confidence in your climate change beliefs was: <span id="earlierConfidenceDisplay">Loading...</span>/7</p>
+                        <input type="hidden" id="earlierConfidence" name="earlierConfidence" value="">
                     </div>
                     
                     <div style="margin-bottom: 0;">
-                        <label class="field-label">Has your belief changed after the conversation with the chatbot? <span class="required">*</span></label>
+                        <label class="field-label">Has your confidence changed after the conversation with the chatbot? <span class="required">*</span></label>
                         <div class="radio-group">
                             <label class="radio-label">
-                                <input type="radio" name="beliefChanged" value="no">
-                                <span class="radio-text">No, my belief has not changed</span>
+                                <input type="radio" name="confidenceChanged" value="no">
+                                <span class="radio-text">No, my confidence has not changed</span>
                             </label>
                             <label class="radio-label">
-                                <input type="radio" name="beliefChanged" value="yes">
-                                <span class="radio-text">Yes, my belief has changed</span>
+                                <input type="radio" name="confidenceChanged" value="yes">
+                                <span class="radio-text">Yes, my confidence has changed</span>
                             </label>
                         </div>
-                        <div class="field-error" id="beliefChanged-error"></div>
+                        <div class="field-error" id="confidenceChanged-error"></div>
                     </div>
                 </div>
 
-                <!-- Box B: Conditional new belief and reason -->
-                <div class="demo-field-card" id="newBeliefSection" style="display: none;">
+                <!-- Conditional new confidence level and reason -->
+                <div class="demo-field-card" id="newConfidenceSection" style="display: none;">
                     <div style="margin-bottom: 24px;">
-                        <label class="field-label">If your belief has changed, where would you now place yourself? <span class="required">*</span></label>
+                        <label class="field-label">If your confidence has changed, what is your new confidence level? <span class="required">*</span></label>
                         <div class="likert-scale">
                             <div class="likert-anchors">
-                                <span class="anchor-left">Definitely not caused by humans</span>
-                                <span class="anchor-right">Definitely caused by humans</span>
+                                <span class="anchor-left">Not at all confident</span>
+                                <span class="anchor-right">Extremely confident</span>
                             </div>
                             <div class="likert-options">
                                 <label class="likert-option">
-                                    <input type="radio" name="newBelief" value="1">
+                                    <input type="radio" name="newConfidence" value="1">
                                     <span class="likert-number">1</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="newBelief" value="2">
+                                    <input type="radio" name="newConfidence" value="2">
                                     <span class="likert-number">2</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="newBelief" value="3">
+                                    <input type="radio" name="newConfidence" value="3">
                                     <span class="likert-number">3</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="newBelief" value="4">
+                                    <input type="radio" name="newConfidence" value="4">
                                     <span class="likert-number">4</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="newBelief" value="5">
+                                    <input type="radio" name="newConfidence" value="5">
                                     <span class="likert-number">5</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="newBelief" value="6">
+                                    <input type="radio" name="newConfidence" value="6">
                                     <span class="likert-number">6</span>
                                 </label>
                                 <label class="likert-option">
-                                    <input type="radio" name="newBelief" value="7">
+                                    <input type="radio" name="newConfidence" value="7">
                                     <span class="likert-number">7</span>
                                 </label>
                             </div>
                         </div>
-                        <div class="field-error" id="newBelief-error"></div>
+                        <div class="field-error" id="newConfidence-error"></div>
                     </div>
                     
                     <div style="margin-bottom: 0;">
-                        <label class="field-label" for="changeReason">Please tell us why your position has changed <span class="required">*</span></label>
+                        <label class="field-label" for="changeReason">Please tell us why your confidence has changed <span class="required">*</span></label>
                         <textarea id="changeReason" name="changeReason" rows="4" class="field-input"
-                                  placeholder="Please explain what led to the change in your belief..."></textarea>
+                                  placeholder="Please explain what led to the change in your confidence..."></textarea>
                         <div class="field-error" id="changeReason-error"></div>
-                    </div>
-                </div>
-
-                <!-- Section 3 - Additional Feedback -->
-                <div class="demo-field-card">
-                    <h2 style="margin-bottom: 20px;">Additional Feedback</h2>
-                    
-                    <div style="margin-bottom: 24px;">
-                        <label class="field-label" for="mostUseful">What was most useful about this conversation?</label>
-                        <textarea id="mostUseful" name="mostUseful" rows="3" class="field-input"
-                                  placeholder="Share what you found most valuable or helpful..."></textarea>
-                    </div>
-                    
-                    <div style="margin-bottom: 24px;">
-                        <label class="field-label" for="leastUseful">What was least useful about this conversation?</label>
-                        <textarea id="leastUseful" name="leastUseful" rows="3" class="field-input"
-                                  placeholder="Share what you found least helpful or could be improved..."></textarea>
-                    </div>
-                    
-                    <div style="margin-bottom: 0;">
-                        <label class="field-label" for="otherComments">Any other comments?</label>
-                        <textarea id="otherComments" name="otherComments" rows="3" class="field-input"
-                                  placeholder="Share any other thoughts about your experience..."></textarea>
                     </div>
                 </div>
                 
                 <div class="form-actions">
                     <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
-                    <button type="submit" class="btn-primary" id="submitBtn">Submit Feedback</button>
+                    <button type="submit" class="btn-primary" id="submitBtn">Submit Survey</button>
                 </div>
             </form>
             
             <div id="completionMessage" class="completion-message" style="display: none;">
-                <h2>Study Complete!</h2>
-                <p>Thank you for your participation in this climate change conversation study. Your responses have been recorded and will contribute to important research on cross-ideological communication.</p>
-                
-                <div class="completion-details">
-                    <h3>What happens next?</h3>
-                    <ul>
-                        <li>Your data will be analyzed along with other participants</li>
-                        <li>All responses remain completely anonymous</li>
-                        <li>Results may be published in academic journals</li>
-                        <li>You may be contacted for follow-up studies (optional)</li>
-                    </ul>
-                </div>
-                
-                <div class="completion-contact">
-                    <h3>Questions or Concerns?</h3>
-                    <p>If you have any questions about this study or your participation, please contact:</p>
-                    <p><strong>Research Team:</strong> d.cheney@uq.edu.au</p>
-                </div>
-                
-                <div class="completion-message">
-                    <p>You may now close this browser tab.</p>
+                <div class="demo-field-card" style="text-align: center; margin-bottom: 24px;">
+                    <h1 style="font-size: 2em; margin-bottom: 8px;">Thank you for participating!</h1>
                 </div>
             </div>
         </div>
@@ -247,21 +141,21 @@
                 const response = await fetch(`/api/participant/${participantId}`);
                 if (response.ok) {
                     const data = await response.json();
-                    const earlierBelief = data.currentClimateBelief || 4; // fallback
-                    document.getElementById('earlierCurrentBelief').value = earlierBelief;
-                    document.getElementById('earlierBeliefDisplay').textContent = earlierBelief;
+                    const earlierConfidence = data.confidenceLevel || 4; // fallback
+                    document.getElementById('earlierConfidence').value = earlierConfidence;
+                    document.getElementById('earlierConfidenceDisplay').textContent = earlierConfidence;
                 } else {
                     // Fallback: try to get from form data if available
-                    const fallbackBelief = 4; // neutral fallback
-                    document.getElementById('earlierCurrentBelief').value = fallbackBelief;
-                    document.getElementById('earlierBeliefDisplay').textContent = fallbackBelief;
+                    const fallbackConfidence = 4; // neutral fallback
+                    document.getElementById('earlierConfidence').value = fallbackConfidence;
+                    document.getElementById('earlierConfidenceDisplay').textContent = fallbackConfidence;
                 }
             } catch (error) {
                 console.error('Error loading participant data:', error);
                 // Use fallback
-                const fallbackBelief = 4;
-                document.getElementById('earlierCurrentBelief').value = fallbackBelief;
-                document.getElementById('earlierBeliefDisplay').textContent = fallbackBelief;
+                const fallbackConfidence = 4;
+                document.getElementById('earlierConfidence').value = fallbackConfidence;
+                document.getElementById('earlierConfidenceDisplay').textContent = fallbackConfidence;
             }
         }
 
@@ -294,23 +188,23 @@
         }
 
         function setupBeliefChangeLogic() {
-            const beliefChangedRadios = document.querySelectorAll('input[name="beliefChanged"]');
-            const newBeliefSection = document.getElementById('newBeliefSection');
+            const confidenceChangedRadios = document.querySelectorAll('input[name="confidenceChanged"]');
+            const newConfidenceSection = document.getElementById('newConfidenceSection');
 
-            beliefChangedRadios.forEach(radio => {
+            confidenceChangedRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
                     if (this.value === 'yes') {
-                        newBeliefSection.style.display = 'block';
-                        // Mark newBelief and changeReason as required for validation
-                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.setAttribute('data-required', 'true'));
+                        newConfidenceSection.style.display = 'block';
+                        // Mark newConfidence and changeReason as required for validation
+                        document.querySelectorAll('input[name="newConfidence"]').forEach(r => r.setAttribute('data-required', 'true'));
                         document.getElementById('changeReason').setAttribute('data-required', 'true');
                     } else {
-                        newBeliefSection.style.display = 'none';
+                        newConfidenceSection.style.display = 'none';
                         // Remove required from conditional fields
-                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.removeAttribute('data-required'));
+                        document.querySelectorAll('input[name="newConfidence"]').forEach(r => r.removeAttribute('data-required'));
                         document.getElementById('changeReason').removeAttribute('data-required');
                         // Clear their values
-                        document.querySelectorAll('input[name="newBelief"]').forEach(r => r.checked = false);
+                        document.querySelectorAll('input[name="newConfidence"]').forEach(r => r.checked = false);
                         document.getElementById('changeReason').value = '';
                     }
                     validateForm();
@@ -337,34 +231,22 @@
         function validateFormFields() {
             const errors = {};
 
-            // Validate overall quality
-            const overallQuality = document.querySelector('input[name="overallQuality"]:checked');
-            if (!overallQuality) {
-                errors.overallQuality = 'Please rate the overall quality';
+            // Validate confidence changed
+            const confidenceChanged = document.querySelector('input[name="confidenceChanged"]:checked');
+            if (!confidenceChanged) {
+                errors.confidenceChanged = 'Please indicate if your confidence has changed';
             }
 
-            // Validate views changed
-            const viewsChanged = document.querySelector('input[name="viewsChangedHow"]:checked');
-            if (!viewsChanged) {
-                errors.viewsChangedHow = 'Please select how the conversation affected your views';
-            }
-
-            // Validate belief changed
-            const beliefChanged = document.querySelector('input[name="beliefChanged"]:checked');
-            if (!beliefChanged) {
-                errors.beliefChanged = 'Please indicate if your belief has changed';
-            }
-
-            // Conditional validation for belief change
-            if (beliefChanged && beliefChanged.value === 'yes') {
-                const newBelief = document.querySelector('input[name="newBelief"]:checked');
-                if (!newBelief) {
-                    errors.newBelief = 'Please indicate your new belief position';
+            // Conditional validation for confidence change
+            if (confidenceChanged && confidenceChanged.value === 'yes') {
+                const newConfidence = document.querySelector('input[name="newConfidence"]:checked');
+                if (!newConfidence) {
+                    errors.newConfidence = 'Please indicate your new confidence level';
                 }
 
                 const changeReason = document.getElementById('changeReason').value.trim();
                 if (!changeReason) {
-                    errors.changeReason = 'Please explain why your position has changed';
+                    errors.changeReason = 'Please explain why your confidence has changed';
                 }
             }
 
@@ -493,19 +375,14 @@
         
         function submitSurvey() {
             const formData = new FormData(document.getElementById('exitSurveyForm'));
-            const beliefChanged = formData.get('beliefChanged');
+            const confidenceChanged = formData.get('confidenceChanged');
             
             const surveyData = {
                 participant_id: sessionStorage.getItem('participant_id'),
-                overallQuality: parseInt(formData.get('overallQuality')),
-                viewsChangedHow: formData.get('viewsChangedHow'),
-                earlierCurrentBelief: parseInt(formData.get('earlierCurrentBelief')),
-                beliefChanged: beliefChanged,
-                newBelief: beliefChanged === 'yes' ? parseInt(formData.get('newBelief')) : null,
-                changeReason: beliefChanged === 'yes' ? formData.get('changeReason') : null,
-                mostUseful: formData.get('mostUseful') || null,
-                leastUseful: formData.get('leastUseful') || null,
-                otherComments: formData.get('otherComments') || null
+                earlierConfidence: parseInt(formData.get('earlierConfidence')),
+                confidenceChanged: confidenceChanged,
+                newConfidence: confidenceChanged === 'yes' ? parseInt(formData.get('newConfidence')) : null,
+                changeReason: confidenceChanged === 'yes' ? formData.get('changeReason') : null
             };
             
             console.log('Submitting exit survey:', surveyData);
@@ -530,14 +407,14 @@
                 } else {
                     alert('Error submitting survey. Please try again.');
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Feedback';
+                    submitBtn.textContent = 'Submit Survey';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error submitting survey. Please try again.');
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit Feedback';
+                submitBtn.textContent = 'Submit Survey';
             });
         }
         
