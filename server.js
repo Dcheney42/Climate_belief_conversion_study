@@ -709,15 +709,10 @@ app.post('/api/end-survey', (req, res) => {
     try {
         const {
             participant_id,
-            overallQuality,
-            viewsChangedHow,
-            earlierCurrentBelief,
-            beliefChanged,
-            newBelief,
-            changeReason,
-            mostUseful,
-            leastUseful,
-            otherComments
+            earlierConfidence,
+            confidenceChanged,
+            newConfidence,
+            changeReason
         } = req.body;
         
         console.log('Received end survey submission:', req.body);
@@ -727,55 +722,35 @@ app.post('/api/end-survey', (req, res) => {
             return res.status(400).json({ error: 'Participant ID is required' });
         }
         
-        if (!overallQuality || overallQuality < 1 || overallQuality > 5) {
-            return res.status(400).json({ error: 'Overall quality must be between 1 and 5' });
+        // All confidence-related fields are now optional - no validation required
+        // Optional validation for data integrity (only if provided)
+        if (earlierConfidence && (earlierConfidence < 1 || earlierConfidence > 7)) {
+            return res.status(400).json({ error: 'Earlier confidence must be between 1 and 7 if provided' });
         }
         
-        if (!viewsChangedHow || !['strengthened', 'weakened', 'no_change', 'unsure'].includes(viewsChangedHow)) {
-            return res.status(400).json({ error: 'Valid views changed selection is required' });
+        if (confidenceChanged && !['no', 'yes'].includes(confidenceChanged)) {
+            return res.status(400).json({ error: 'Confidence changed must be "no" or "yes" if provided' });
         }
         
-        if (!earlierCurrentBelief || earlierCurrentBelief < 1 || earlierCurrentBelief > 7) {
-            return res.status(400).json({ error: 'Earlier current belief must be between 1 and 7' });
-        }
-        
-        if (!beliefChanged || !['no', 'yes'].includes(beliefChanged)) {
-            return res.status(400).json({ error: 'Belief changed response is required' });
-        }
-        
-        // Conditional validation for belief change
-        if (beliefChanged === 'yes') {
-            if (!newBelief || newBelief < 1 || newBelief > 7) {
-                return res.status(400).json({ error: 'New belief must be between 1 and 7 when belief has changed' });
-            }
-            
-            if (!changeReason || !changeReason.trim()) {
-                return res.status(400).json({ error: 'Change reason is required when belief has changed' });
-            }
+        if (newConfidence && (newConfidence < 1 || newConfidence > 7)) {
+            return res.status(400).json({ error: 'New confidence must be between 1 and 7 if provided' });
         }
         
         // Generate survey ID
         const surveyId = uuidv4();
         const now = new Date().toISOString();
         
-        // Create end survey data
+        // Create end survey data with optional fields
         const endSurveyData = {
             id: surveyId,
             participantId: participant_id,
             createdAt: now,
             
-            // Survey responses
-            overallQuality: parseInt(overallQuality),
-            viewsChangedHow: viewsChangedHow,
-            earlierCurrentBelief: parseInt(earlierCurrentBelief),
-            beliefChanged: beliefChanged,
-            newBelief: beliefChanged === 'yes' ? parseInt(newBelief) : null,
-            changeReason: beliefChanged === 'yes' ? changeReason.trim() : null,
-            
-            // Optional feedback
-            mostUseful: mostUseful ? mostUseful.trim() : null,
-            leastUseful: leastUseful ? leastUseful.trim() : null,
-            otherComments: otherComments ? otherComments.trim() : null
+            // Optional survey responses
+            earlierConfidence: earlierConfidence ? parseInt(earlierConfidence) : null,
+            confidenceChanged: confidenceChanged || null,
+            newConfidence: (confidenceChanged === 'yes' && newConfidence) ? parseInt(newConfidence) : null,
+            changeReason: (confidenceChanged === 'yes' && changeReason) ? changeReason.trim() : null
         };
         
         // Save end survey data

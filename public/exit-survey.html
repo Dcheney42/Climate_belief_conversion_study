@@ -23,12 +23,12 @@
                     
                     <div style="margin-bottom: 24px;">
                         <p style="color: #4a5568; margin-bottom: 8px;">Earlier you indicated…</p>
-                        <p style="font-weight: 500; color: #1a202c;">Your confidence in your climate change beliefs was: <span id="earlierConfidenceDisplay">Loading...</span>/7</p>
+                        <p style="font-weight: 500; color: #1a202c;">Your confidence in your climate change beliefs was: <span id="earlierConfidenceDisplay">Loading...</span></p>
                         <input type="hidden" id="earlierConfidence" name="earlierConfidence" value="">
                     </div>
                     
                     <div style="margin-bottom: 0;">
-                        <label class="field-label">Has your confidence changed after the conversation with the chatbot? <span class="required">*</span></label>
+                        <label class="field-label">Has your confidence changed after the conversation with the chatbot?</label>
                         <div class="radio-group">
                             <label class="radio-label">
                                 <input type="radio" name="confidenceChanged" value="no">
@@ -46,7 +46,7 @@
                 <!-- Conditional new confidence level and reason -->
                 <div class="demo-field-card" id="newConfidenceSection" style="display: none;">
                     <div style="margin-bottom: 24px;">
-                        <label class="field-label">If your confidence has changed, what is your new confidence level? <span class="required">*</span></label>
+                        <label class="field-label">If your confidence has changed, what is your new confidence level?</label>
                         <div class="likert-scale">
                             <div class="likert-anchors">
                                 <span class="anchor-left">Not at all confident</span>
@@ -87,7 +87,7 @@
                     </div>
                     
                     <div style="margin-bottom: 0;">
-                        <label class="field-label" for="changeReason">Please tell us why your confidence has changed <span class="required">*</span></label>
+                        <label class="field-label" for="changeReason">Please tell us why your confidence has changed</label>
                         <textarea id="changeReason" name="changeReason" rows="4" class="field-input"
                                   placeholder="Please explain what led to the change in your confidence..."></textarea>
                         <div class="field-error" id="changeReason-error"></div>
@@ -134,6 +134,19 @@
             setupBeliefChangeLogic();
         }
 
+        function getConfidenceQualifier(level) {
+            const qualifiers = {
+                1: "Not at all confident",
+                2: "Slightly confident",
+                3: "Somewhat confident",
+                4: "Moderately confident",
+                5: "Fairly confident",
+                6: "Very confident",
+                7: "Extremely confident"
+            };
+            return qualifiers[level] || "Unknown";
+        }
+
         async function loadParticipantData(participantId) {
             try {
                 // In a real implementation, this would fetch from the server
@@ -143,19 +156,19 @@
                     const data = await response.json();
                     const earlierConfidence = data.confidenceLevel || 4; // fallback
                     document.getElementById('earlierConfidence').value = earlierConfidence;
-                    document.getElementById('earlierConfidenceDisplay').textContent = earlierConfidence;
+                    document.getElementById('earlierConfidenceDisplay').textContent = `${earlierConfidence}/7 (${getConfidenceQualifier(earlierConfidence)})`;
                 } else {
                     // Fallback: try to get from form data if available
                     const fallbackConfidence = 4; // neutral fallback
                     document.getElementById('earlierConfidence').value = fallbackConfidence;
-                    document.getElementById('earlierConfidenceDisplay').textContent = fallbackConfidence;
+                    document.getElementById('earlierConfidenceDisplay').textContent = `${fallbackConfidence}/7 (${getConfidenceQualifier(fallbackConfidence)})`;
                 }
             } catch (error) {
                 console.error('Error loading participant data:', error);
                 // Use fallback
                 const fallbackConfidence = 4;
                 document.getElementById('earlierConfidence').value = fallbackConfidence;
-                document.getElementById('earlierConfidenceDisplay').textContent = fallbackConfidence;
+                document.getElementById('earlierConfidenceDisplay').textContent = `${fallbackConfidence}/7 (${getConfidenceQualifier(fallbackConfidence)})`;
             }
         }
 
@@ -195,14 +208,9 @@
                 radio.addEventListener('change', function() {
                     if (this.value === 'yes') {
                         newConfidenceSection.style.display = 'block';
-                        // Mark newConfidence and changeReason as required for validation
-                        document.querySelectorAll('input[name="newConfidence"]').forEach(r => r.setAttribute('data-required', 'true'));
-                        document.getElementById('changeReason').setAttribute('data-required', 'true');
+                        // No longer marking fields as required - they are optional
                     } else {
                         newConfidenceSection.style.display = 'none';
-                        // Remove required from conditional fields
-                        document.querySelectorAll('input[name="newConfidence"]').forEach(r => r.removeAttribute('data-required'));
-                        document.getElementById('changeReason').removeAttribute('data-required');
                         // Clear their values
                         document.querySelectorAll('input[name="newConfidence"]').forEach(r => r.checked = false);
                         document.getElementById('changeReason').value = '';
@@ -231,24 +239,8 @@
         function validateFormFields() {
             const errors = {};
 
-            // Validate confidence changed
-            const confidenceChanged = document.querySelector('input[name="confidenceChanged"]:checked');
-            if (!confidenceChanged) {
-                errors.confidenceChanged = 'Please indicate if your confidence has changed';
-            }
-
-            // Conditional validation for confidence change
-            if (confidenceChanged && confidenceChanged.value === 'yes') {
-                const newConfidence = document.querySelector('input[name="newConfidence"]:checked');
-                if (!newConfidence) {
-                    errors.newConfidence = 'Please indicate your new confidence level';
-                }
-
-                const changeReason = document.getElementById('changeReason').value.trim();
-                if (!changeReason) {
-                    errors.changeReason = 'Please explain why your confidence has changed';
-                }
-            }
+            // All confidence-related fields are now optional - no validation required
+            // The form can be submitted without any of these fields being filled
 
             return errors;
         }

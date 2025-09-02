@@ -96,6 +96,18 @@ router.post("/reply", async (req, res) => {
     const next = await callModel([...history, { role: "user", content: userText }]);
     const modelReply = next?.content || "";
 
+    // Check for interview completion marker
+    if (modelReply.includes("##INTERVIEW_COMPLETE##")) {
+      // Remove the marker from the visible reply
+      const visibleReply = modelReply.replace("##INTERVIEW_COMPLETE##", "").trim();
+      
+      await appendMessage(conversationId, { role: "user", content: userText });
+      await appendMessage(conversationId, { role: "assistant", content: visibleReply });
+      
+      // Return with sessionEnded flag to trigger automatic redirection
+      return res.json({ reply: visibleReply, sessionEnded: true });
+    }
+
     const safeReply = enforceOnTopic(modelReply) ? modelReply : redirectLine();
 
     await appendMessage(conversationId, { role: "user", content: userText });
