@@ -16,7 +16,7 @@
             
             <div class="timer-display">
                 <div class="timer-circle">
-                    <span id="timeRemaining">5:00</span>
+                    <span id="timeRemaining">10:00</span>
                 </div>
                 <p>Time Remaining</p>
             </div>
@@ -25,12 +25,12 @@
         <div class="chat-main">
             <div class="chat-messages" id="chatMessages">
                 <div class="system-message">
-                    <div class="message-content">Conversation started. You have 5 minutes to chat.</div>
+                    <div class="message-content">Conversation started. You have 10 minutes to chat.</div>
                 </div>
             </div>
             
             <div class="chat-input-area">
-                <div class="input-helper">
+                <div class="input-helper" id="inputHelper" style="display: none;">
                     <small>Type "end the chat" to finish early.</small>
                 </div>
                 <div class="input-container">
@@ -51,7 +51,7 @@
     <div id="endModal" class="modal" style="display: none;">
         <div class="modal-content">
             <h2>Conversation Ended</h2>
-            <p id="endReason">Your 5-minute conversation has ended.</p>
+            <p id="endReason">Your 10-minute conversation has ended.</p>
             <p>Thank you for participating! You will now be redirected to a brief exit survey.</p>
             <button id="continueBtn" class="btn-primary">Continue to Exit Survey</button>
         </div>
@@ -61,7 +61,8 @@
         let conversationId = null;
         let participantId = null;
         let conversationActive = false;
-        let timeRemaining = 300; // 5 minutes in seconds
+        let timeRemaining = 600; // 10 minutes in seconds
+        let warningShown = false; // Track if 1-minute warning has been shown
         let timerInterval = null;
         
         // DOM elements
@@ -84,9 +85,20 @@
             return sessionStorage.getItem('participant_id');
         }
         
+        // Check if in testing mode
+        function isTestingMode() {
+            return window.location.search.includes('testing=true') ||
+                   localStorage.getItem('testing_mode') === 'true';
+        }
+        
         // Initialize conversation
         async function initializeConversation() {
             participantId = getParticipantId();
+            
+            // Show testing helper if in testing mode
+            if (isTestingMode()) {
+                document.getElementById('inputHelper').style.display = 'block';
+            }
             
             if (!participantId) {
                 alert('Invalid session. Please start the study again.');
@@ -148,14 +160,20 @@
                 return;
             }
             
+            // Show 1-minute warning at exactly 60 seconds remaining
+            if (timeRemaining === 60 && !warningShown && conversationActive) {
+                showOneMinuteWarning();
+                warningShown = true;
+            }
+            
             const minutes = Math.floor(timeRemaining / 60);
             const seconds = timeRemaining % 60;
             timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
             
-            // Warning colors
-            if (timeRemaining <= 30) {
+            // Warning colors (adjusted for 10 minutes)
+            if (timeRemaining <= 60) {
                 timeDisplay.style.color = '#ff4444';
-            } else if (timeRemaining <= 120) {
+            } else if (timeRemaining <= 180) {
                 timeDisplay.style.color = '#ff8800';
             }
             
@@ -177,10 +195,11 @@
         function addMessage(message) {
             const messageDiv = document.createElement('div');
             const isUser = message.role === 'user';
+            const isSystem = message.role === 'system';
             messageDiv.className = `message ${isUser ? 'own-message' : 'other-message'}`;
             
             const timestamp = new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            const senderName = isUser ? 'You' : 'Assistant';
+            const senderName = isUser ? 'You' : (isSystem ? 'System' : 'Assistant');
             
             messageDiv.innerHTML = `
                 <div class="message-header">
@@ -192,6 +211,67 @@
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Generate conversation summary for 1-minute warning
+        function generateConversationSummary() {
+            const messages = Array.from(chatMessages.querySelectorAll('.message'));
+            const userMessages = messages.filter(msg => msg.querySelector('.sender-name').textContent === 'You');
+            const assistantMessages = messages.filter(msg => msg.querySelector('.sender-name').textContent === 'Assistant');
+            
+            let summary = '';
+            const topics = [];
+            
+            // Extract key themes from user messages
+            userMessages.forEach(msg => {
+                const content = msg.querySelector('.message-content').textContent;
+                if (content.length > 20) { // Only meaningful messages
+                    // Simple keyword extraction
+                    if (content.toLowerCase().includes('change') || content.toLowerCase().includes('shift')) {
+                        topics.push('Discussed belief change process');
+                    }
+                    if (content.toLowerCase().includes('evidence') || content.toLowerCase().includes('research') || content.toLowerCase().includes('study')) {
+                        topics.push('Mentioned evidence or research');
+                    }
+                    if (content.toLowerCase().includes('people') || content.toLowerCase().includes('family') || content.toLowerCase().includes('friend')) {
+                        topics.push('Talked about social influences');
+                    }
+                    if (content.toLowerCase().includes('media') || content.toLowerCase().includes('news') || content.toLowerCase().includes('article')) {
+                        topics.push('Discussed media influences');
+                    }
+                    if (content.toLowerCase().includes('experience') || content.toLowerCase().includes('personal') || content.toLowerCase().includes('saw') || content.toLowerCase().includes('noticed')) {
+                        topics.push('Shared personal experiences');
+                    }
+                }
+            });
+            
+            // Remove duplicates and limit to 4-5 key points
+            const uniqueTopics = [...new Set(topics)].slice(0, 5);
+            
+            if (uniqueTopics.length === 0) {
+                summary = '• Shared initial thoughts about climate change belief change';
+            } else {
+                summary = uniqueTopics.map(topic => `• ${topic}`).join('\n\n');
+            }
+            
+            return summary;
+        }
+        
+        // Show 1-minute warning with summary
+        async function showOneMinuteWarning() {
+            const summary = generateConversationSummary();
+            const warningMessage = `We're almost out of time — about one minute left.
+
+${summary}
+
+Is there anything important you'd like to add before we finish?`;
+            
+            // Add system message
+            addMessage({
+                role: 'system',
+                content: warningMessage,
+                timestamp: new Date().toISOString()
+            });
         }
         
         function escapeHtml(text) {
@@ -340,7 +420,7 @@
             let reasonText;
             switch(reason) {
                 case 'time_limit':
-                    reasonText = 'Your 5-minute conversation has ended.';
+                    reasonText = 'Your 10-minute conversation has ended.';
                     break;
                 case 'user_ended':
                     reasonText = 'You ended the conversation early.';

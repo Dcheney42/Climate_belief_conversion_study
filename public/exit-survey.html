@@ -17,6 +17,75 @@
         <div class="content">
             <form id="exitSurveyForm" class="survey-form">
                 
+                <!-- Summary Confidence Section -->
+                <div class="demo-field-card" id="summarySection" style="display: none;">
+                    <h2 style="margin-bottom: 20px;">Summary Accuracy</h2>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <p style="color: #4a5568; margin-bottom: 12px;">Earlier, you described how you changed your mind on climate change. Here's a summary of what you shared:</p>
+                        <div style="background-color: #f7fafc; border-left: 4px solid #4299e1; padding: 16px; margin: 16px 0; border-radius: 4px;">
+                            <p id="generatedSummary" style="font-style: italic; color: #2d3748; margin: 0;">Loading summary...</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 0;">
+                        <label class="field-label">How confident are you that this summary accurately represents what you wrote earlier?</label>
+                        <div class="likert-scale">
+                            <div class="likert-anchors">
+                                <span class="anchor-left">0 = definitely false</span>
+                                <span class="anchor-right">10 = definitely true</span>
+                            </div>
+                            <div class="likert-options">
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="0">
+                                    <span class="likert-number">0</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="1">
+                                    <span class="likert-number">1</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="2">
+                                    <span class="likert-number">2</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="3">
+                                    <span class="likert-number">3</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="4">
+                                    <span class="likert-number">4</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="5">
+                                    <span class="likert-number">5</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="6">
+                                    <span class="likert-number">6</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="7">
+                                    <span class="likert-number">7</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="8">
+                                    <span class="likert-number">8</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="9">
+                                    <span class="likert-number">9</span>
+                                </label>
+                                <label class="likert-option">
+                                    <input type="radio" name="summaryConfidence" value="10">
+                                    <span class="likert-number">10</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field-error" id="summaryConfidence-error"></div>
+                    </div>
+                </div>
+                
                 <!-- Climate Belief -->
                 <div class="demo-field-card">
                     <h2 style="margin-bottom: 20px;">Climate Belief</h2>
@@ -117,6 +186,40 @@
             initializeExitSurvey();
         });
 
+        function generateSummary(text) {
+            if (!text || text.trim().length === 0) {
+                return null;
+            }
+            
+            // Simple summarization logic - extract key themes and create 1-2 sentences
+            const words = text.toLowerCase().split(/\s+/);
+            const commonWords = ['the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'up', 'about', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'between', 'among', 'within', 'without', 'under', 'over', 'around', 'near', 'far', 'beyond', 'across', 'along', 'through', 'throughout', 'within', 'onto', 'upon', 'off', 'down', 'out', 'away', 'back', 'around', 'towards', 'against', 'beside', 'beneath', 'behind', 'ahead', 'inside', 'outside', 'upward', 'downward', 'forward', 'backward', 'inward', 'outward', 'sideways', 'clockwise', 'counterclockwise', 'is', 'was', 'are', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'can', 'must', 'shall', 'a', 'an', 'this', 'that', 'these', 'those', 'my', 'your', 'his', 'her', 'its', 'our', 'their', 'i', 'me', 'we', 'us', 'you', 'he', 'him', 'she', 'it', 'they', 'them'];
+            
+            // Get key phrases and words
+            const keyWords = words.filter(word =>
+                word.length > 3 &&
+                !commonWords.includes(word) &&
+                !word.match(/^\d+$/)
+            );
+            
+            // Simple summary based on text length and key themes
+            const textLength = text.trim().length;
+            
+            if (textLength < 50) {
+                return `You mentioned ${text.toLowerCase().replace(/\.$/, '')}.`;
+            } else if (textLength < 150) {
+                return `You described how ${text.toLowerCase().charAt(0) + text.slice(1, -1).replace(/\.$/, '')}.`;
+            } else {
+                // For longer texts, try to extract main theme
+                const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+                if (sentences.length > 0) {
+                    const firstSentence = sentences[0].trim();
+                    return `You shared that ${firstSentence.toLowerCase().charAt(0) + firstSentence.slice(1)}.`;
+                }
+                return `You provided a detailed account of your experience changing your mind about climate change.`;
+            }
+        }
+
         function initializeExitSurvey() {
             const participantId = sessionStorage.getItem('participant_id');
             if (!participantId) {
@@ -157,6 +260,15 @@
                     const earlierConfidence = data.confidenceLevel || 4; // fallback
                     document.getElementById('earlierConfidence').value = earlierConfidence;
                     document.getElementById('earlierConfidenceDisplay').textContent = `${earlierConfidence}/7 (${getConfidenceQualifier(earlierConfidence)})`;
+                    
+                    // Handle summary section
+                    if (data.change_description && data.change_description.trim().length > 0) {
+                        const summary = generateSummary(data.change_description.trim());
+                        if (summary) {
+                            document.getElementById('generatedSummary').textContent = summary;
+                            document.getElementById('summarySection').style.display = 'block';
+                        }
+                    }
                 } else {
                     // Fallback: try to get from form data if available
                     const fallbackConfidence = 4; // neutral fallback
@@ -368,13 +480,15 @@
         function submitSurvey() {
             const formData = new FormData(document.getElementById('exitSurveyForm'));
             const confidenceChanged = formData.get('confidenceChanged');
+            const summaryConfidence = formData.get('summaryConfidence');
             
             const surveyData = {
                 participant_id: sessionStorage.getItem('participant_id'),
                 earlierConfidence: parseInt(formData.get('earlierConfidence')),
                 confidenceChanged: confidenceChanged,
                 newConfidence: confidenceChanged === 'yes' ? parseInt(formData.get('newConfidence')) : null,
-                changeReason: confidenceChanged === 'yes' ? formData.get('changeReason') : null
+                changeReason: confidenceChanged === 'yes' ? formData.get('changeReason') : null,
+                summaryConfidence: summaryConfidence ? parseInt(summaryConfidence) : null
             };
             
             console.log('Submitting exit survey:', surveyData);

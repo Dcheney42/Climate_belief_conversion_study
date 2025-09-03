@@ -380,29 +380,17 @@ app.post('/survey/submit', (req, res) => {
             return res.status(400).json({ error: 'Valid gender identity is required' });
         }
         
-        if (education && !['Less than high school', 'High school', 'Vocational/TAFE', 'Bachelor', 'Honours', 'Masters', 'Doctorate', 'Prefer not to say'].includes(education)) {
+        if (education && !['Less than high school', 'High school diploma or equivalent', 'Some college, no degree', 'Associate degree', 'Bachelor\'s degree', 'Master\'s degree', 'Doctoral degree', 'Prefer not to say'].includes(education)) {
             return res.status(400).json({ error: 'Valid education level is required' });
         }
         
-        if (political_orientation && (political_orientation === 'prefer_not_to_say' || (political_orientation >= 1 && political_orientation <= 7))) {
-            // Valid - either prefer_not_to_say or 1-7
-        } else if (political_orientation && (political_orientation < 1 || political_orientation > 7)) {
-            return res.status(400).json({ error: 'Political affiliation must be between 1 and 7 or prefer not to say' });
+        if (political_orientation !== null && political_orientation !== undefined && (political_orientation < 1 || political_orientation > 7)) {
+            return res.status(400).json({ error: 'Political affiliation must be between 1 and 7' });
         }
         
-        if (prior_belief && (prior_belief === 'prefer_not_to_say' || (prior_belief >= 1 && prior_belief <= 7))) {
-            // Valid - either prefer_not_to_say or 1-7
-        } else if (prior_belief && (prior_belief < 1 || prior_belief > 7)) {
-            return res.status(400).json({ error: 'Prior climate belief must be between 1 and 7 or prefer not to say' });
-        }
+        // prior_belief and current_belief are not sent by frontend, so skip validation
         
-        if (current_belief && (current_belief === 'prefer_not_to_say' || (current_belief >= 1 && current_belief <= 7))) {
-            // Valid - either prefer_not_to_say or 1-7
-        } else if (current_belief && (current_belief < 1 || current_belief > 7)) {
-            return res.status(400).json({ error: 'Current climate belief must be between 1 and 7 or prefer not to say' });
-        }
-        
-        if (confidence_level && (confidence_level < 1 || confidence_level > 7)) {
+        if (confidence_level !== null && confidence_level !== undefined && (confidence_level < 1 || confidence_level > 7)) {
             return res.status(400).json({ error: 'Confidence level must be between 1 and 7' });
         }
         
@@ -422,9 +410,9 @@ app.post('/survey/submit', (req, res) => {
             education: education || null,
             
             // Attitudinal measures (1-7 scale, optional)
-            politicalAffiliation: political_orientation ? (political_orientation === 'prefer_not_to_say' ? null : parseInt(political_orientation)) : null,
-            priorClimateBelief: prior_belief ? (prior_belief === 'prefer_not_to_say' ? null : parseInt(prior_belief)) : null,
-            currentClimateBelief: current_belief ? (current_belief === 'prefer_not_to_say' ? null : parseInt(current_belief)) : null,
+            politicalAffiliation: political_orientation ? parseInt(political_orientation) : null,
+            priorClimateBelief: null, // Not collected in current form
+            currentClimateBelief: null, // Not collected in current form
             confidenceLevel: confidence_level ? parseInt(confidence_level) : null,
             
             // Required belief change questions
