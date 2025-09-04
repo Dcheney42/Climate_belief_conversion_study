@@ -17,6 +17,47 @@
         <div class="content">
             <form id="exitSurveyForm" class="survey-form">
                 
+                <!-- AI Summary Display Section -->
+                <div class="demo-field-card" id="aiSummarySection" style="display: none;">
+                    <h2 style="margin-bottom: 20px;">Your Perspective Summary</h2>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <p style="color: #4a5568; margin-bottom: 12px;">Earlier, the AI summarized your perspective as:</p>
+                        <div class="ai-summary-container">
+                            <div id="savedAiSummary" class="ai-summary">
+                                (No summary available)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Confidence Scale Section -->
+                <div class="demo-field-card" id="finalConfidenceSection" style="display: none;">
+                    <h2 style="margin-bottom: 20px;">Final Confidence</h2>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <p style="color: #4a5568; margin-bottom: 12px;">On a scale of 0% to 100%, please indicate your current level of confidence that the summarized statement is true.</p>
+                        
+                        <!-- Final Confidence Slider -->
+                        <div class="slider-container">
+                            <div class="slider-labels">
+                                <span class="slider-label-left">0 = Definitely false</span>
+                                <span class="slider-label-center">50 = Uncertain</span>
+                                <span class="slider-label-right">100 = Definitely true</span>
+                            </div>
+                            <div class="slider-wrapper">
+                                <input type="range" id="finalConfidenceSlider" name="finalConfidenceLevel"
+                                       min="0" max="100" value="50" class="confidence-slider">
+                                <div class="slider-value" id="finalSliderValue">50%</div>
+                            </div>
+                        </div>
+                        
+                        <p class="note-text">
+                            <strong>NOTE:</strong> This question is about your current view, not the quality of the summary.
+                        </p>
+                    </div>
+                </div>
+                
                 <!-- Summary Confidence Section -->
                 <div class="demo-field-card" id="summarySection" style="display: none;">
                     <h2 style="margin-bottom: 20px;">Summary Accuracy</h2>
@@ -86,82 +127,6 @@
                     </div>
                 </div>
                 
-                <!-- Climate Belief -->
-                <div class="demo-field-card">
-                    <h2 style="margin-bottom: 20px;">Climate Belief</h2>
-                    
-                    <div style="margin-bottom: 24px;">
-                        <p style="color: #4a5568; margin-bottom: 8px;">Earlier you indicated…</p>
-                        <p style="font-weight: 500; color: #1a202c;">Your confidence in your climate change beliefs was: <span id="earlierConfidenceDisplay">Loading...</span></p>
-                        <input type="hidden" id="earlierConfidence" name="earlierConfidence" value="">
-                    </div>
-                    
-                    <div style="margin-bottom: 0;">
-                        <label class="field-label">Has your confidence changed after the conversation with the chatbot?</label>
-                        <div class="radio-group">
-                            <label class="radio-label">
-                                <input type="radio" name="confidenceChanged" value="no">
-                                <span class="radio-text">No, my confidence has not changed</span>
-                            </label>
-                            <label class="radio-label">
-                                <input type="radio" name="confidenceChanged" value="yes">
-                                <span class="radio-text">Yes, my confidence has changed</span>
-                            </label>
-                        </div>
-                        <div class="field-error" id="confidenceChanged-error"></div>
-                    </div>
-                </div>
-
-                <!-- Conditional new confidence level and reason -->
-                <div class="demo-field-card" id="newConfidenceSection" style="display: none;">
-                    <div style="margin-bottom: 24px;">
-                        <label class="field-label">If your confidence has changed, what is your new confidence level?</label>
-                        <div class="likert-scale">
-                            <div class="likert-anchors">
-                                <span class="anchor-left">Not at all confident</span>
-                                <span class="anchor-right">Extremely confident</span>
-                            </div>
-                            <div class="likert-options">
-                                <label class="likert-option">
-                                    <input type="radio" name="newConfidence" value="1">
-                                    <span class="likert-number">1</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="newConfidence" value="2">
-                                    <span class="likert-number">2</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="newConfidence" value="3">
-                                    <span class="likert-number">3</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="newConfidence" value="4">
-                                    <span class="likert-number">4</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="newConfidence" value="5">
-                                    <span class="likert-number">5</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="newConfidence" value="6">
-                                    <span class="likert-number">6</span>
-                                </label>
-                                <label class="likert-option">
-                                    <input type="radio" name="newConfidence" value="7">
-                                    <span class="likert-number">7</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="field-error" id="newConfidence-error"></div>
-                    </div>
-                    
-                    <div style="margin-bottom: 0;">
-                        <label class="field-label" for="changeReason">Please tell us why your confidence has changed</label>
-                        <textarea id="changeReason" name="changeReason" rows="4" class="field-input"
-                                  placeholder="Please explain what led to the change in your confidence..."></textarea>
-                        <div class="field-error" id="changeReason-error"></div>
-                    </div>
-                </div>
                 
                 <div class="form-actions">
                     <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
@@ -233,8 +198,66 @@
             // Initialize form validation
             initializeFormValidation();
 
-            // Set up conditional display for belief change
-            setupBeliefChangeLogic();
+            
+            // Initialize final confidence slider
+            initializeFinalConfidenceSlider();
+        }
+        
+        function initializeFinalConfidenceSlider() {
+            const finalConfidenceSlider = document.getElementById('finalConfidenceSlider');
+            const finalSliderValue = document.getElementById('finalSliderValue');
+            
+            if (finalConfidenceSlider && finalSliderValue) {
+                finalConfidenceSlider.addEventListener('input', function() {
+                    const value = parseInt(this.value);
+                    finalSliderValue.textContent = value + '%';
+                    // Update tooltip position
+                    updateFinalTooltipPosition();
+                });
+
+                // Show tooltip when dragging starts
+                finalConfidenceSlider.addEventListener('mousedown', function() {
+                    finalSliderValue.classList.add('show');
+                });
+
+                finalConfidenceSlider.addEventListener('touchstart', function() {
+                    finalSliderValue.classList.add('show');
+                });
+
+                // Hide tooltip when dragging ends
+                finalConfidenceSlider.addEventListener('mouseup', function() {
+                    setTimeout(() => {
+                        finalSliderValue.classList.remove('show');
+                    }, 150); // Small delay to ensure smooth interaction
+                });
+
+                finalConfidenceSlider.addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        finalSliderValue.classList.remove('show');
+                    }, 150); // Small delay to ensure smooth interaction
+                });
+
+                // Also hide tooltip if mouse leaves while dragging
+                finalConfidenceSlider.addEventListener('mouseleave', function() {
+                    setTimeout(() => {
+                        finalSliderValue.classList.remove('show');
+                    }, 150);
+                });
+            }
+        }
+
+        function updateFinalTooltipPosition() {
+            const finalConfidenceSlider = document.getElementById('finalConfidenceSlider');
+            const finalSliderValue = document.getElementById('finalSliderValue');
+            const value = finalConfidenceSlider.value;
+            const min = finalConfidenceSlider.min ? finalConfidenceSlider.min : 0;
+            const max = finalConfidenceSlider.max ? finalConfidenceSlider.max : 100;
+            
+            // Calculate percentage position
+            const percentage = ((value - min) / (max - min)) * 100;
+            
+            // Position tooltip above the thumb
+            finalSliderValue.style.left = percentage + '%';
         }
 
         function getConfidenceQualifier(level) {
@@ -257,11 +280,19 @@
                 const response = await fetch(`/api/participant/${participantId}`);
                 if (response.ok) {
                     const data = await response.json();
-                    const earlierConfidence = data.confidenceLevel || 4; // fallback
-                    document.getElementById('earlierConfidence').value = earlierConfidence;
-                    document.getElementById('earlierConfidenceDisplay').textContent = `${earlierConfidence}/7 (${getConfidenceQualifier(earlierConfidence)})`;
+                    // Handle AI summary section
+                    if (data.AI_Summary_Views && data.AI_Summary_Views.trim().length > 0) {
+                        document.getElementById('savedAiSummary').textContent = data.AI_Summary_Views;
+                        document.getElementById('aiSummarySection').style.display = 'block';
+                        document.getElementById('finalConfidenceSection').style.display = 'block';
+                    } else {
+                        // Fallback if no AI summary available
+                        document.getElementById('savedAiSummary').textContent = '(No summary available)';
+                        document.getElementById('aiSummarySection').style.display = 'block';
+                        document.getElementById('finalConfidenceSection').style.display = 'block';
+                    }
                     
-                    // Handle summary section
+                    // Handle summary section (legacy)
                     if (data.change_description && data.change_description.trim().length > 0) {
                         const summary = generateSummary(data.change_description.trim());
                         if (summary) {
@@ -270,17 +301,17 @@
                         }
                     }
                 } else {
-                    // Fallback: try to get from form data if available
-                    const fallbackConfidence = 4; // neutral fallback
-                    document.getElementById('earlierConfidence').value = fallbackConfidence;
-                    document.getElementById('earlierConfidenceDisplay').textContent = `${fallbackConfidence}/7 (${getConfidenceQualifier(fallbackConfidence)})`;
+                    // Always show AI summary and final confidence sections with fallback
+                    document.getElementById('savedAiSummary').textContent = '(No summary available)';
+                    document.getElementById('aiSummarySection').style.display = 'block';
+                    document.getElementById('finalConfidenceSection').style.display = 'block';
                 }
             } catch (error) {
                 console.error('Error loading participant data:', error);
-                // Use fallback
-                const fallbackConfidence = 4;
-                document.getElementById('earlierConfidence').value = fallbackConfidence;
-                document.getElementById('earlierConfidenceDisplay').textContent = `${fallbackConfidence}/7 (${getConfidenceQualifier(fallbackConfidence)})`;
+                // Always show AI summary and final confidence sections with fallback
+                document.getElementById('savedAiSummary').textContent = '(No summary available)';
+                document.getElementById('aiSummarySection').style.display = 'block';
+                document.getElementById('finalConfidenceSection').style.display = 'block';
             }
         }
 
@@ -312,25 +343,6 @@
             checkFormCompleteness();
         }
 
-        function setupBeliefChangeLogic() {
-            const confidenceChangedRadios = document.querySelectorAll('input[name="confidenceChanged"]');
-            const newConfidenceSection = document.getElementById('newConfidenceSection');
-
-            confidenceChangedRadios.forEach(radio => {
-                radio.addEventListener('change', function() {
-                    if (this.value === 'yes') {
-                        newConfidenceSection.style.display = 'block';
-                        // No longer marking fields as required - they are optional
-                    } else {
-                        newConfidenceSection.style.display = 'none';
-                        // Clear their values
-                        document.querySelectorAll('input[name="newConfidence"]').forEach(r => r.checked = false);
-                        document.getElementById('changeReason').value = '';
-                    }
-                    validateForm();
-                });
-            });
-        }
 
         function checkFormCompleteness() {
             const submitBtn = document.getElementById('submitBtn');
@@ -479,16 +491,13 @@
         
         function submitSurvey() {
             const formData = new FormData(document.getElementById('exitSurveyForm'));
-            const confidenceChanged = formData.get('confidenceChanged');
             const summaryConfidence = formData.get('summaryConfidence');
+            const finalConfidenceLevel = formData.get('finalConfidenceLevel');
             
             const surveyData = {
                 participant_id: sessionStorage.getItem('participant_id'),
-                earlierConfidence: parseInt(formData.get('earlierConfidence')),
-                confidenceChanged: confidenceChanged,
-                newConfidence: confidenceChanged === 'yes' ? parseInt(formData.get('newConfidence')) : null,
-                changeReason: confidenceChanged === 'yes' ? formData.get('changeReason') : null,
-                summaryConfidence: summaryConfidence ? parseInt(summaryConfidence) : null
+                summaryConfidence: summaryConfidence ? parseInt(summaryConfidence) : null,
+                finalConfidenceLevel: finalConfidenceLevel ? parseInt(finalConfidenceLevel) : null
             };
             
             console.log('Submitting exit survey:', surveyData);
@@ -557,5 +566,98 @@
             });
         });
     </script>
+
+    <style>
+        /* AI Summary Styling - consistent with belief-confidence.html */
+        .ai-summary-container {
+            margin: 1.5rem 0;
+        }
+
+        .ai-summary {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* Final Confidence Slider Styling - consistent with belief-confidence.html */
+        .slider-container {
+            margin: 1.5rem 0;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .slider-label-center {
+            text-align: center;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .confidence-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .confidence-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+        }
+
+        .confidence-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .slider-value.show {
+            opacity: 1;
+        }
+
+        .note-text {
+            margin-top: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+    </style>
 </body>
 </html>
