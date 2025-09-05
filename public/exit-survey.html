@@ -534,11 +534,9 @@
         }
         
         function showCompletion() {
-            document.getElementById('exitSurveyForm').style.display = 'none';
-            document.getElementById('completionMessage').style.display = 'block';
-            
-            // Clear session storage
-            sessionStorage.clear();
+            // Redirect to debrief sheet instead of showing completion message here
+            console.log('Exit survey completed - redirecting to debrief sheet');
+            window.location.href = '/debrief';
         }
 
         function showError(message) {

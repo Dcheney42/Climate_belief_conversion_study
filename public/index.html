@@ -57,13 +57,6 @@
                         <div class="error-message" id="idError" style="display: none; color: #e74c3c; font-size: 14px; margin-top: 5px;"></div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="consent" name="consent" required>
-                            <span class="checkbox-text">I consent to the use of my anonymised responses.</span>
-                        </label>
-                        <div class="error-message" id="consentError" style="display: none; color: #e74c3c; font-size: 14px; margin-top: 5px;"></div>
-                    </div>
                     
                     <button type="submit" class="btn-primary" id="beginBtn" disabled>Begin Study</button>
                 </form>
@@ -75,14 +68,12 @@
         // Check form validity and enable/disable button
         function checkFormValidity() {
             const prolificId = document.getElementById('prolificId').value.trim();
-            const consent = document.getElementById('consent').checked;
             const beginBtn = document.getElementById('beginBtn');
             
             const idPattern = /^[A-Za-z0-9]{6,32}$/;
             const isIdValid = prolificId && idPattern.test(prolificId);
-            const isFormValid = isIdValid && consent;
             
-            beginBtn.disabled = !isFormValid;
+            beginBtn.disabled = !isIdValid;
         }
 
         // Handle Participant ID form submission
@@ -90,7 +81,6 @@
             e.preventDefault();
             
             const prolificId = document.getElementById('prolificId').value.trim();
-            const consent = document.getElementById('consent').checked;
             
             // Validate Participant ID
             if (!prolificId) {
@@ -105,27 +95,14 @@
                 return;
             }
             
-            // Validate consent
-            if (!consent) {
-                showError('consentError', 'You must consent to participate in the study');
-                return;
-            }
-            
             // Clear any previous errors
             hideError('idError');
-            hideError('consentError');
             
-            // Store Participant ID and consent information
+            // Store Participant ID
             sessionStorage.setItem('prolific_id', prolificId);
-            const consentData = {
-                timestamp: new Date().toISOString(),
-                consent_given: true,
-                prolific_id: prolificId
-            };
-            sessionStorage.setItem('consent_data', JSON.stringify(consentData));
             
-            // Redirect to survey
-            window.location.href = '/survey';
+            // Redirect to participant information sheet
+            window.location.href = '/participant-information';
         });
 
         // Error handling functions
@@ -154,10 +131,6 @@
             checkFormValidity();
         });
 
-        document.getElementById('consent').addEventListener('change', function() {
-            hideError('consentError');
-            checkFormValidity();
-        });
 
         // Initial form validity check
         document.addEventListener('DOMContentLoaded', function() {

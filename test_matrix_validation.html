@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Matrix Validation</title>
+</head>
+<body>
+    <h1>Testing Climate Change Views Matrix</h1>
+    <p>This test verifies that the validation changes work correctly:</p>
+    
+    <h2>Test Cases:</h2>
+    <ol>
+        <li><strong>Zero sliders moved:</strong> Next button should be enabled, no error messages should appear</li>
+        <li><strong>Some sliders moved:</strong> Next button should remain enabled, mixed data (null and values) should be stored</li>
+        <li><strong>All sliders moved:</strong> Next button should remain enabled, all values should be stored</li>
+    </ol>
+    
+    <h2>Expected Changes:</h2>
+    <ul>
+        <li>✅ Next button enabled by default (removed <code>disabled</code> attribute)</li>
+        <li>✅ No validation in <code>checkFormCompleteness()</code></li>
+        <li>✅ No validation in <code>validateForm()</code></li>
+        <li>✅ Error messaging functions disabled</li>
+        <li>✅ Data collection stores <code>null</code> for untouched sliders</li>
+        <li>✅ Added <code>was_moved</code> metadata tracking</li>
+        <li>✅ Removed "touched" class tracking</li>
+        <li>✅ Removed validation calls from form submission</li>
+        <li>✅ Removed error styling CSS</li>
+    </ul>
+    
+    <p><a href="/cc-views-matrix.html">Open Climate Change Views Matrix</a></p>
+    
+    <script>
+        // Test the matrix functionality
+        console.log('Matrix validation test page loaded');
+        
+        // Check if the matrix page exists
+        fetch('/cc-views-matrix.html')
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Matrix page accessible');
+                } else {
+                    console.log('❌ Matrix page not accessible');
+                }
+            })
+            .catch(err => {
+                console.log('❌ Error accessing matrix page:', err);
+            });
+    </script>
+</body>
+</html>

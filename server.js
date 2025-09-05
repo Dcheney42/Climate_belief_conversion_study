@@ -276,8 +276,16 @@ app.get('/consent', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'consent.html'));
 });
 
+app.get('/participant-information', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'participant-information.html'));
+});
+
 app.get('/survey', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'survey.html'));
+});
+
+app.get('/debrief', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'debrief.html'));
 });
 
 app.get('/chat/:id', (req, res) => {

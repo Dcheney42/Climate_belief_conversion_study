@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participant Information Sheet</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .info-content {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 1rem;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            background-color: #fafafa;
+        }
+        
+        .info-content h2 {
+            color: #1a73e8;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        .info-content h1 {
+            color: #1a73e8;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .info-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .info-content ul {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+        
+        .info-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .consent-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border: 2px solid #1a73e8;
+            border-radius: 8px;
+            background-color: #f8f9ff;
+        }
+        
+        .consent-checkbox {
+            margin: 1rem 0;
+        }
+        
+        .consent-checkbox label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .consent-checkbox input[type="checkbox"] {
+            margin-top: 0.25rem;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+        
+        .consent-message {
+            display: none;
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #ffebee;
+            border-radius: 4px;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .no-consent-link {
+            color: #d32f2f;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+        
+        .no-consent-link:hover {
+            color: #b71c1c;
+        }
+        
+        .download-link {
+            color: #1a73e8;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        
+        .download-link:hover {
+            color: #0d47a1;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        
+        .researchers {
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+        
+        .ethics-highlight {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Climate Belief Conversion Narratives Study</h1>
+            <p class="subtitle">Participant Information Sheet</p>
+        </div>
+        
+        <div class="content">
+            <a href="#" class="download-link" id="downloadPdf">📄 Download this information as PDF</a>
+            
+            <div class="info-content" id="infoContent">
+                <h1>Participant Information Sheet</h1>
+                
+                <p><strong>Research Title:</strong> AI Methods to Investigate Climate Change Belief Change Narratives</p>
+                
+                <p class="researchers"><strong>Researcher(s):</strong> David Cheney, Thomas Felesina, Samuel Pearson, Matthew Hornsey.</p>
+                
+                <p>Thank you for your interest in participating in this research project. Please read the following information about the project so that you can decide whether you would like to take part in this research. Please feel free to ask any questions you might have about our involvement in the project.</p>
+                
+                <p>If you decide to participate in this research, please keep in mind that your participation is voluntary. If you do not wish to take part, you do not have to. If you decide to take part and later change your mind, you are free to stop at any time, and you do not need to give any explanation for your decision to stop participating. If you choose to stop participating, your data will not be used in the research. Please note that as your participation is completely anonymous, your data will not be able to be withdrawn after you have completed the survey.</p>
+                
+                <h2>What is this research about?</h2>
+                
+                <p>This research aims to investigate people's narratives about why they changed their minds about climate change. This study is being conducted by researchers at the University of Queensland Business School.</p>
+                
+                <h2>What will I need to do?</h2>
+                
+                <p>If you agree to participate, you will be asked to: (a) complete a brief survey about your views on climate change and related topics and (b) engage in a 10-minute (maximum) conversation with an AI chatbot that will perform a semi-structured interview. The total time commitment is approximately 10-20 minutes. All participation will be online through the Prolific platform and our survey website.</p>
+                
+                <h2>What are the possible benefits of taking part?</h2>
+                
+                <p>While there may be no direct benefits to you, your participation will contribute to our understanding of people's attitudes towards topics relating to technology and science.</p>
+                
+                <h2>What are the possible risks and disadvantages of taking part?</h2>
+                
+                <p>The risks associated with this study are minimal. You may experience mild discomfort when discussing how your views on climate changed shifted with the chatbot. If you feel uncomfortable at any point, you can choose to stop participating.</p>
+                
+                <h2>What will happen to the information about me?</h2>
+                
+                <p>All information collected about you will remain confidential and anonymous. Your responses will be stored securely on university servers. Only the research team will have access to the data. The data will be retained after the completion of the study.</p>
+                
+                <p>It is anticipated that the results of this research project will be published in academic journals and presented at conferences. In any publication and/or presentation, your information will remain confidential.</p>
+                
+                <h2>What will happen if I decide to withdraw?</h2>
+                
+                <p>Your participation in this research is voluntary and you are free to withdraw from the research anytime without needing to provide any explanation, and you would not receive any penalty or bias as a result of your withdrawal. Should you decide to withdraw during the study, all the information collected from/about you will be destroyed and will not be used in the research. However, please note that once you have completed the final survey, it will not be possible to withdraw your data as it will be anonymized and we will not be able to identify which responses are yours.</p>
+                
+                <h2>Can I hear about the results of this research?</h2>
+                
+                <p>If you would like to receive a summary of the research findings, please email the lead researcher at d.cheney@uq.edu.au after completing the study. We expect to have results available approximately 6 months after data collection is complete.</p>
+                
+                <h2>Who can I contact if I have any concerns about the project?</h2>
+                
+                <p>This study adheres to the Guidelines of the ethical review process of The University of Queensland and the National Statement on Ethical Conduct in Human Research. Whilst you are free to discuss your participation in this study with the researcher contactable on samuel.pearson@uq.edu.au if you would like to speak to an officer of the University not involved in the study, you may contact the Ethics Coordinator on +617 3365 3924 / +617 3443 1656 or email humanethics@research.uq.edu.au.</p>
+                
+                <div class="ethics-highlight">
+                    <strong>This research Ethics ID number:</strong> INSERT ETHICS ID HERE
+                </div>
+                
+                <h2>By proceeding, you agree to the following:</h2>
+                
+                <ul>
+                    <li>I consent to participate in the project named above.</li>
+                    <li>I consent to the researchers collecting, recording and analyzing the responses that I provide/my performance on the task. I acknowledge that:
+                        <ul>
+                            <li>I have been informed that involvement in the project is voluntary;</li>
+                            <li>I have been informed that I am free to withdraw from the project at any time without explanation or prejudice and to withdraw any unprocessed data previously supplied;</li>
+                            <li>I have been informed that the project is for research purposes only. I have also been informed that the information I provide will be stored in an anonymous format digitally, and will only be handled by the researchers named above, protecting its confidentiality.</li>
+                            <li>I have been informed that the de-identified (confidential) data may be shared online for research purposes only, and that the de-identified data may be used in future research that is closely related to this project.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="consent-section">
+                <form id="consentForm">
+                    <div class="consent-checkbox">
+                        <label for="consentCheckbox">
+                            <input type="checkbox" id="consentCheckbox" name="consent" required>
+                            <span>I have read the Participant Information Sheet and I consent to participate.</span>
+                        </label>
+                    </div>
+                    
+                    <div class="consent-message" id="consentMessage">
+                        To continue, please confirm your consent or choose 'I do not consent' to exit.
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="#" class="no-consent-link" id="noConsentLink">I do not consent</a>
+                        <button type="submit" class="btn-primary" id="continueBtn" disabled>Next</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user came from the first page
+            const prolificId = sessionStorage.getItem('prolific_id');
+            if (!prolificId) {
+                alert('Please start from the beginning of the study.');
+                window.location.href = '/';
+                return;
+            }
+            
+            initializeConsentForm();
+            initializePdfDownload();
+        });
+        
+        function initializeConsentForm() {
+            const consentCheckbox = document.getElementById('consentCheckbox');
+            const continueBtn = document.getElementById('continueBtn');
+            const consentMessage = document.getElementById('consentMessage');
+            const noConsentLink = document.getElementById('noConsentLink');
+            const consentForm = document.getElementById('consentForm');
+            
+            // Enable/disable continue button based on consent checkbox
+            consentCheckbox.addEventListener('change', function() {
+                continueBtn.disabled = !this.checked;
+                if (this.checked) {
+                    consentMessage.style.display = 'none';
+                }
+            });
+            
+            // Handle form submission (consent given)
+            consentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!consentCheckbox.checked) {
+                    consentMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Store consent data
+                const consentData = {
+                    consent_given: true,
+                    consent_timestamp: new Date().toISOString(),
+                    ethics_id_displayed: "INSERT ETHICS ID HERE",
+                    prolific_id: sessionStorage.getItem('prolific_id')
+                };
+                
+                sessionStorage.setItem('consent_data', JSON.stringify(consentData));
+                
+                console.log('Consent given - proceeding to Background & Views');
+                window.location.href = '/survey';
+            });
+            
+            // Handle "I do not consent" link
+            noConsentLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Store consent refusal data
+                const consentData = {
+                    consent_given: false,
+                    consent_timestamp: new Date().toISOString(),
+                    ethics_id_displayed: "INSERT ETHICS ID HERE",
+                    prolific_id: sessionStorage.getItem('prolific_id')
+                };
+                
+                sessionStorage.setItem('consent_data', JSON.stringify(consentData));
+                
+                console.log('Consent refused - redirecting to exit page');
+                window.location.href = '/disqualified';
+            });
+        }
+        
+        function initializePdfDownload() {
+            const downloadLink = document.getElementById('downloadPdf');
+            
+            downloadLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                generatePDF();
+            });
+        }
+        
+        function generatePDF() {
+            try {
+                // Get the information content
+                const content = document.getElementById('infoContent').innerText;
+                
+                // Create a blob with the content
+                const blob = new Blob([content], { type: 'text/plain' });
+                
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Participant_Information_Sheet.txt';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                console.log('Information sheet downloaded as text file');
+            } catch (error) {
+                console.error('Error generating download:', error);
+                alert('Download feature is currently unavailable. Please copy the text if needed.');
+            }
+        }
+        
+        // Keyboard accessibility for checkbox
+        document.getElementById('consentCheckbox').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.checked = !this.checked;
+                this.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+</body>
+</html>

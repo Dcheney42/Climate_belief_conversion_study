@@ -28,7 +28,7 @@
                     <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
                     <div class="navigation-buttons">
                         <button type="button" class="btn-secondary" id="previousBtn">Previous</button>
-                        <button type="submit" class="btn-primary" id="nextBtn" disabled>Next</button>
+                        <button type="submit" class="btn-primary" id="nextBtn">Next</button>
                     </div>
                 </div>
             </form>
@@ -216,7 +216,6 @@
                     const value = this.value;
                     valueDisplay.textContent = value;
                     updateTooltipPosition(this, valueDisplay);
-                    checkFormCompleteness();
                 });
 
                 // Show tooltip when dragging starts
@@ -253,10 +252,9 @@
                     }, 150);
                 });
 
-                // Mark slider as touched when interacted with
+                // Track that slider was moved for metadata
                 slider.addEventListener('change', function() {
-                    this.classList.add('touched');
-                    checkFormCompleteness();
+                    this.setAttribute('data-moved', 'true');
                 });
             });
 
@@ -268,8 +266,7 @@
             // Form submission
             form.addEventListener('submit', handleFormSubmit);
 
-            // Initial validation check
-            checkFormCompleteness();
+            // No initial validation needed
 
             // Handle responsive layout changes
             window.addEventListener('resize', handleResize);
@@ -309,7 +306,7 @@
                 if (slider && valueDisplay) {
                     slider.value = currentValues[itemId];
                     valueDisplay.textContent = currentValues[itemId];
-                    slider.classList.add('touched');
+                    slider.setAttribute('data-moved', 'true');
                     updateTooltipPosition(slider, valueDisplay);
                 }
             });
@@ -319,44 +316,11 @@
         }
 
         function checkFormCompleteness() {
-            const sliders = document.querySelectorAll('.matrix-slider');
-            const nextBtn = document.getElementById('nextBtn');
-            
-            // Check if all sliders have been touched (interacted with)
-            let allTouched = true;
-            sliders.forEach(slider => {
-                if (!slider.classList.contains('touched')) {
-                    allTouched = false;
-                }
-            });
-            
-            nextBtn.disabled = !allTouched;
-            
-            // Clear general error if form becomes complete
-            if (allTouched && hasTriedSubmit) {
-                clearGeneralError();
-                clearHighlightedRows();
-            }
+            // No validation required - Next button is always enabled
         }
 
         function validateForm() {
-            const sliders = document.querySelectorAll('.matrix-slider');
-            const untouchedSliders = [];
-            
-            sliders.forEach(slider => {
-                if (!slider.classList.contains('touched')) {
-                    untouchedSliders.push(slider);
-                }
-            });
-            
-            if (untouchedSliders.length > 0) {
-                showGeneralError('Please respond to all items above.');
-                highlightMissingRows(untouchedSliders);
-                return false;
-            }
-            
-            clearGeneralError();
-            clearHighlightedRows();
+            // No validation required - always return true
             return true;
         }
 
@@ -381,31 +345,36 @@
 
         function handleFormSubmit(e) {
             e.preventDefault();
-            hasTriedSubmit = true;
-            
-            if (!validateForm()) {
-                return;
-            }
             
             // Collect all slider values
             const sliders = document.querySelectorAll('.matrix-slider');
             const rawData = {};
             const scoredData = {};
+            const metaData = {};
             const allScoredValues = [];
             
             sliders.forEach(slider => {
                 const itemId = slider.getAttribute('data-item-id');
                 const isReverse = slider.getAttribute('data-reverse') === 'true';
-                const rawValue = parseInt(slider.value);
-                const scoredValue = isReverse ? (100 - rawValue) : rawValue;
+                const wasMoved = slider.getAttribute('data-moved') === 'true';
+                
+                // Store null for untouched sliders, actual value for moved sliders
+                const rawValue = wasMoved ? parseInt(slider.value) : null;
+                const scoredValue = wasMoved ? (isReverse ? (100 - rawValue) : rawValue) : null;
                 
                 rawData[itemId + '_raw'] = rawValue;
                 scoredData[itemId + '_scored'] = scoredValue;
-                allScoredValues.push(scoredValue);
+                metaData[itemId + '_was_moved'] = wasMoved;
+                
+                // Only include moved sliders in mean calculation
+                if (wasMoved) {
+                    allScoredValues.push(scoredValue);
+                }
             });
             
-            // Calculate mean scores
-            const ccs_mean_scored = allScoredValues.reduce((a, b) => a + b, 0) / allScoredValues.length;
+            // Calculate mean scores only for moved sliders
+            const ccs_mean_scored = allScoredValues.length > 0 ?
+                allScoredValues.reduce((a, b) => a + b, 0) / allScoredValues.length : null;
             
             // Calculate subscale means
             const subscales = calculateSubscaleMeans(scoredData);
@@ -421,6 +390,8 @@
                 ...rawData,
                 // Scored values
                 ...scoredData,
+                // Metadata
+                ...metaData,
                 // Mean scores
                 ccs_mean_scored: ccs_mean_scored,
                 ...subscales,
@@ -438,25 +409,31 @@
         }
 
         function calculateSubscaleMeans(scoredData) {
+            // Helper function to calculate mean of non-null values
+            function calculateMean(items) {
+                const validItems = items.filter(item => item !== null);
+                return validItems.length > 0 ? validItems.reduce((a, b) => a + b, 0) / validItems.length : null;
+            }
+            
             // Occurrence subscale (items 3, 7R)
             const occurrenceItems = [scoredData.ccs_03_scored, scoredData.ccs_07_scored];
-            const ccs_occurrence_mean = occurrenceItems.reduce((a, b) => a + b, 0) / occurrenceItems.length;
+            const ccs_occurrence_mean = calculateMean(occurrenceItems);
             
             // Causation subscale (items 4, 5R, 6, 12)
             const causationItems = [scoredData.ccs_04_scored, scoredData.ccs_05_scored, scoredData.ccs_06_scored, scoredData.ccs_12_scored];
-            const ccs_causation_mean = causationItems.reduce((a, b) => a + b, 0) / causationItems.length;
+            const ccs_causation_mean = calculateMean(causationItems);
             
             // Seriousness subscale (items 7R, 9R, 8)
             const seriousnessItems = [scoredData.ccs_07_scored, scoredData.ccs_09_scored, scoredData.ccs_08_scored];
-            const ccs_seriousness_mean = seriousnessItems.reduce((a, b) => a + b, 0) / seriousnessItems.length;
+            const ccs_seriousness_mean = calculateMean(seriousnessItems);
             
             // Efficacy subscale (items 10, 11)
             const efficacyItems = [scoredData.ccs_10_scored, scoredData.ccs_11_scored];
-            const ccs_efficacy_mean = efficacyItems.reduce((a, b) => a + b, 0) / efficacyItems.length;
+            const ccs_efficacy_mean = calculateMean(efficacyItems);
             
             // Trust subscale (items 1, 2R)
             const trustItems = [scoredData.ccs_01_scored, scoredData.ccs_02_scored];
-            const ccs_trust_mean = trustItems.reduce((a, b) => a + b, 0) / trustItems.length;
+            const ccs_trust_mean = calculateMean(trustItems);
             
             return {
                 ccs_occurrence_mean,
@@ -468,19 +445,19 @@
         }
 
         function showGeneralError(message) {
-            const generalErrorElement = document.getElementById('generalError');
-            if (generalErrorElement) {
-                generalErrorElement.textContent = message;
-                generalErrorElement.style.display = 'block';
-            }
+            // Error messaging disabled - no validation required
         }
 
         function clearGeneralError() {
-            const generalErrorElement = document.getElementById('generalError');
-            if (generalErrorElement) {
-                generalErrorElement.textContent = '';
-                generalErrorElement.style.display = 'none';
-            }
+            // Error messaging disabled - no validation required
+        }
+
+        function highlightMissingRows(untouchedSliders) {
+            // Row highlighting disabled - no validation required
+        }
+
+        function clearHighlightedRows() {
+            // Row highlighting disabled - no validation required
         }
     </script>
 
@@ -513,10 +490,6 @@
             transition: background-color 0.3s ease;
         }
 
-        .matrix-row.missing-response {
-            background-color: #ffebee;
-            border: 1px solid #ffcdd2;
-        }
 
         .matrix-statement {
             flex: 1;
@@ -626,15 +599,6 @@
             background-color: #545b62;
         }
 
-        .general-error {
-            color: #d32f2f;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            background-color: #ffebee;
-            border-radius: 4px;
-            border: 1px solid #ffcdd2;
-        }
 
         /* Mobile styles */
         @media (max-width: 768px) {
