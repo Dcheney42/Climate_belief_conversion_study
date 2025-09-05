@@ -38,15 +38,8 @@ export function openingLineFrom(profile) {
   const { views_changed, change_description } = profile || {};
 
   if (views_changed === 'Yes') {
-    if (change_description && change_description.trim().length > 0) {
-      // Generate summary of their description
-      const summary = generateSummary(change_description.trim());
-      
-      return `Here's what you shared about how your views changed: ${summary} Did I capture that correctly, or would you like to add or clarify anything before we continue?`;
-    } else {
-      // Text box was left blank
-      return "To start, could you briefly describe how your views on climate change changed, in your own words?";
-    }
+    // Use the new friendly, conversational opening message
+    return "Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?";
   } else {
     return "Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?";
   }

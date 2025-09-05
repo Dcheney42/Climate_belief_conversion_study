@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Views on Climate Change</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Views on climate change</h1>
+            <p class="subtitle">Please share your perspective on climate change</p>
+        </div>
+        
+        <div class="content">
+            <!-- First Question: Current Views -->
+            <div id="currentViewsSection" class="section">
+                <form id="currentViewsForm" class="survey-form">
+                    <div class="demo-field-card">
+                        <h3 class="card-heading">Current Views</h3>
+                        <p class="question-text">
+                            We'd like you to share your overall perspective on climate change in a few sentences. 
+                            Consider the following points in your response: how do you generally view climate change? 
+                            Do you believe humans have a significant impact on the environment? There are no right 
+                            or wrong answers — we're interested in your honest thoughts and opinions.
+                        </p>
+                        <textarea id="currentViews" name="currentViews"
+                                  class="field-input"
+                                  placeholder="Please share your perspective on climate change..."
+                                  rows="6"
+                                  required></textarea>
+                        <div class="field-error" id="currentViews-error"></div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <div class="general-error" id="currentViewsGeneralError" role="alert" style="display: none;"></div>
+                        <button type="submit" class="btn-primary" id="currentViewsSubmitBtn" disabled>Submit</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Second Question: Elaboration (initially hidden) -->
+            <div id="elaborationSection" class="section" style="display: none;">
+                <form id="elaborationForm" class="survey-form">
+                    <div class="demo-field-card">
+                        <h3 class="card-heading">Elaboration</h3>
+                        <p class="question-text">On the previous question, you wrote:</p>
+                        
+                        <!-- Original Response Display -->
+                        <div id="originalResponseContainer" class="original-response-container">
+                            <div id="originalResponse" class="original-response" readonly>
+                                <!-- Original user response will be inserted here -->
+                            </div>
+                        </div>
+                        
+                        <p class="question-text">
+                            Could you share more about what led you to this opinion? For instance, are there specific
+                            pieces of evidence, events, sources of information, or personal experiences that have
+                            particularly influenced your perspective? Please describe these in as much detail as you
+                            feel comfortable.
+                        </p>
+                        
+                        <textarea id="elaboration" name="elaboration"
+                                  class="field-input"
+                                  placeholder="Please elaborate on what influenced your perspective..."
+                                  rows="6"
+                                  required></textarea>
+                        <div class="field-error" id="elaboration-error"></div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <div class="general-error" id="elaborationGeneralError" role="alert" style="display: none;"></div>
+                        <button type="submit" class="btn-primary" id="elaborationSubmitBtn" disabled>Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let hasTriedSubmit = false;
+        let currentViewsText = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user came from matrix page
+            const demographicsData = sessionStorage.getItem('demographics_data');
+            if (!demographicsData) {
+                alert('Please complete the previous pages first.');
+                window.location.href = '/survey.html';
+                return;
+            }
+
+            // Initialize form validation
+            initializeFormValidation();
+        });
+
+        function initializeFormValidation() {
+            // Initialize current views form
+            const currentViewsForm = document.getElementById('currentViewsForm');
+            const currentViewsInput = document.getElementById('currentViews');
+            const currentViewsSubmitBtn = document.getElementById('currentViewsSubmitBtn');
+            
+            // Add event listeners for current views
+            currentViewsInput.addEventListener('input', function() {
+                checkCurrentViewsCompleteness();
+                if (hasTriedSubmit) {
+                    validateCurrentViews();
+                }
+            });
+
+            currentViewsForm.addEventListener('submit', handleCurrentViewsSubmit);
+
+            // Initialize elaboration form
+            const elaborationForm = document.getElementById('elaborationForm');
+            const elaborationInput = document.getElementById('elaboration');
+            const elaborationSubmitBtn = document.getElementById('elaborationSubmitBtn');
+            
+            // Add event listeners for elaboration
+            elaborationInput.addEventListener('input', function() {
+                checkElaborationCompleteness();
+                if (hasTriedSubmit) {
+                    validateElaboration();
+                }
+            });
+
+            elaborationForm.addEventListener('submit', handleElaborationSubmit);
+
+            // Initial validation check
+            checkCurrentViewsCompleteness();
+        }
+
+        function checkCurrentViewsCompleteness() {
+            const currentViewsInput = document.getElementById('currentViews');
+            const currentViewsSubmitBtn = document.getElementById('currentViewsSubmitBtn');
+            const isValid = currentViewsInput.value.trim().length > 0;
+            currentViewsSubmitBtn.disabled = !isValid;
+        }
+
+        function checkElaborationCompleteness() {
+            const elaborationInput = document.getElementById('elaboration');
+            const elaborationSubmitBtn = document.getElementById('elaborationSubmitBtn');
+            const isValid = elaborationInput.value.trim().length > 0;
+            elaborationSubmitBtn.disabled = !isValid;
+        }
+
+        function validateCurrentViews() {
+            const currentViewsInput = document.getElementById('currentViews');
+            
+            if (!currentViewsInput.value.trim()) {
+                showFieldError('currentViews', 'Please share your perspective on climate change.');
+                showGeneralError('currentViewsGeneralError', 'Please share your perspective on climate change.');
+                return false;
+            }
+            
+            clearFieldError('currentViews');
+            clearGeneralError('currentViewsGeneralError');
+            return true;
+        }
+
+        function validateElaboration() {
+            const elaborationInput = document.getElementById('elaboration');
+            
+            if (!elaborationInput.value.trim()) {
+                showFieldError('elaboration', 'Please elaborate on what influenced your perspective.');
+                showGeneralError('elaborationGeneralError', 'Please elaborate on what influenced your perspective.');
+                return false;
+            }
+            
+            clearFieldError('elaboration');
+            clearGeneralError('elaborationGeneralError');
+            return true;
+        }
+
+        function handleCurrentViewsSubmit(e) {
+            e.preventDefault();
+            hasTriedSubmit = true;
+            
+            if (!validateCurrentViews()) {
+                return;
+            }
+            
+            const currentViewsInput = document.getElementById('currentViews');
+            currentViewsText = currentViewsInput.value.trim();
+            
+            // Display original response in the elaboration section
+            displayOriginalResponse(currentViewsText);
+            
+            // Hide current views section and show elaboration section
+            document.getElementById('currentViewsSection').style.display = 'none';
+            document.getElementById('elaborationSection').style.display = 'block';
+            
+            // Scroll to top of elaboration section
+            document.getElementById('elaborationSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayOriginalResponse(text) {
+            const originalResponseElement = document.getElementById('originalResponse');
+            originalResponseElement.textContent = text;
+        }
+
+        function handleElaborationSubmit(e) {
+            e.preventDefault();
+            hasTriedSubmit = true;
+            
+            if (!validateElaboration()) {
+                return;
+            }
+            
+            const elaborationInput = document.getElementById('elaboration');
+            const elaborationText = elaborationInput.value.trim();
+            
+            try {
+                // Get demographics data from session storage
+                const demographicsData = JSON.parse(sessionStorage.getItem('demographics_data'));
+                
+                // Combine all survey data (not submitting yet, just storing for next page)
+                const surveyData = {
+                    ...demographicsData,
+                    current_views: currentViewsText,
+                    elaboration: elaborationText
+                };
+                
+                console.log('Storing survey data for belief confidence page:', surveyData);
+                
+                // Store complete survey data for the belief confidence page
+                sessionStorage.setItem('survey_data', JSON.stringify(surveyData));
+                // Clear demographics data as it's now in survey_data
+                sessionStorage.removeItem('demographics_data');
+                
+                // Proceed to belief confidence page
+                console.log('Views survey completed - proceeding to belief confidence page');
+                window.location.href = '/belief-confidence.html';
+                
+            } catch (error) {
+                console.error('Error storing survey data:', error);
+                showGeneralError('elaborationGeneralError', `Error processing survey data: ${error.message}. Please try again.`);
+            }
+        }
+
+        function showFieldError(fieldName, message) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            const inputElement = document.getElementById(fieldName);
+            
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+            }
+            
+            if (inputElement) {
+                inputElement.classList.add('error');
+                inputElement.setAttribute('aria-invalid', 'true');
+            }
+        }
+
+        function clearFieldError(fieldName) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            const inputElement = document.getElementById(fieldName);
+            
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+            
+            if (inputElement) {
+                inputElement.classList.remove('error');
+                inputElement.removeAttribute('aria-invalid');
+            }
+        }
+
+        function showGeneralError(elementId, message) {
+            const generalErrorElement = document.getElementById(elementId);
+            if (generalErrorElement) {
+                generalErrorElement.textContent = message;
+                generalErrorElement.style.display = 'block';
+            }
+        }
+
+        function clearGeneralError(elementId) {
+            const generalErrorElement = document.getElementById(elementId);
+            if (generalErrorElement) {
+                generalErrorElement.textContent = '';
+                generalErrorElement.style.display = 'none';
+            }
+        }
+    </script>
+
+    <style>
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .question-text {
+            margin-bottom: 1rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .original-response-container {
+            margin: 1rem 0;
+        }
+
+        .original-response {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            cursor: default;
+            user-select: text;
+        }
+
+        .field-input {
+            width: 100%;
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .field-error.show {
+            display: block;
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .field-input.error {
+            border-color: #d32f2f;
+        }
+
+        .general-error {
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #ffebee;
+            border-radius: 4px;
+            border: 1px solid #ffcdd2;
+        }
+    </style>
+</body>
+</html>

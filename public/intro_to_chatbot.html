@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Before We Begin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Before We Begin</h1>
+            <p class="subtitle">Preparing for your conversation with AI</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <div class="demo-field-card">
+                    <div class="intro-text">
+                        <p>
+                            You will now be participating in a conversation with an advanced AI about how your beliefs on climate change formed and changed over time. Please be open and honest in your responses, and remember that the AI is neutral and non-judgmental. It will not attempt to persuade you. Your participation is confidential. Thank you for contributing to this study on belief.
+                        </p>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary" id="continueBtn">Continue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user has completed previous steps
+            const participantId = sessionStorage.getItem('participant_id');
+            if (!participantId) {
+                alert('Please complete the previous surveys first.');
+                window.location.href = '/survey.html';
+                return;
+            }
+
+            // Set focus on the page heading for accessibility
+            const heading = document.querySelector('h1');
+            if (heading) {
+                heading.setAttribute('tabindex', '-1');
+                heading.focus();
+            }
+
+            // Handle continue button click
+            const continueBtn = document.getElementById('continueBtn');
+            continueBtn.addEventListener('click', function() {
+                // Proceed to chat conversation
+                window.location.href = `/chat/${participantId}`;
+            });
+
+            // Handle keyboard navigation
+            continueBtn.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .intro-text {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .intro-text p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-actions {
+            text-align: center;
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .btn-primary {
+            font-size: 1.1rem;
+            padding: 15px 30px;
+            min-width: 150px;
+        }
+
+        /* Ensure proper focus styling for accessibility */
+        h1:focus {
+            outline: 2px solid #3498db;
+            outline-offset: 2px;
+        }
+
+        .btn-primary:focus {
+            outline: 2px solid #2980b9;
+            outline-offset: 2px;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .intro-text p {
+                font-size: 1rem;
+                padding: 0 10px;
+            }
+            
+            .btn-primary {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Ensure no scrolling traps on mobile */
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .demo-field-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belief Confidence Check</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Belief Confidence Check</h1>
+            <p class="subtitle">Please review and assess your climate change perspective</p>
+        </div>
+        
+        <div class="content">
+            <!-- Combined Form -->
+            <div class="section">
+                <form id="beliefConfidenceForm" class="survey-form">
+                    <div class="demo-field-card">
+                        <p class="question-text">
+                            On the previous question, you wrote about your views on climate change in greater detail.
+                            We used an artificial intelligence tool to summarize your statement as follows:
+                        </p>
+                        
+                        <!-- AI Summary Display -->
+                        <div id="aiSummaryContainer" class="ai-summary-container">
+                            <div id="aiSummary" class="ai-summary">
+                                <!-- AI-generated summary will be inserted here -->
+                                <div class="loading-summary">Generating summary...</div>
+                            </div>
+                        </div>
+                        
+                        <p class="question-text">
+                            On a scale of 0% to 100%, please indicate your level of confidence that this statement is true.
+                        </p>
+                        
+                        <!-- Confidence Slider -->
+                        <div class="slider-container">
+                            <div class="slider-labels">
+                                <span class="slider-label-left">0 = Definitely false</span>
+                                <span class="slider-label-center">50 = Uncertain</span>
+                                <span class="slider-label-right">100 = Definitely true</span>
+                            </div>
+                            <div class="slider-wrapper">
+                                <input type="range" id="confidenceSlider" name="confidenceLevel"
+                                       min="0" max="100" value="50" class="confidence-slider">
+                                <div class="slider-value" id="sliderValue">50%</div>
+                            </div>
+                        </div>
+                        
+                        <p class="note-text">
+                            <strong>NOTE:</strong> This question is not about the quality of the summary but rather about your overall take on climate change.
+                        </p>
+                        
+                        <!-- AI Check Question -->
+                        <div class="ai-check-section">
+                            <p class="question-text">
+                                Did the AI accurately summarize your perspective?
+                            </p>
+                            
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="aiAccurate" value="Yes" required>
+                                    <span class="radio-text">Yes</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="aiAccurate" value="No" required>
+                                    <span class="radio-text">No</span>
+                                </label>
+                            </div>
+                            <div class="field-error" id="aiAccurate-error"></div>
+                            
+                            <!-- Conditional follow-up text box -->
+                            <div id="missingInfoSection" class="missing-info-section" style="display: none;">
+                                <p class="question-text">
+                                    Please add any information missing from the AI summary.
+                                </p>
+                                <textarea id="missingInfo" name="missingInfo"
+                                          class="field-input"
+                                          placeholder="Please describe what was missing from the summary..."
+                                          rows="4"></textarea>
+                                <div class="field-error" id="missingInfo-error"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
+                        <button type="submit" class="btn-primary" id="submitBtn" disabled>Continue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let hasTriedSubmit = false;
+        let confidenceLevel = 50;
+        let aiSummaryText = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user came from views page
+            const surveyData = sessionStorage.getItem('survey_data');
+            if (!surveyData) {
+                alert('Please complete the previous surveys first.');
+                window.location.href = '/survey.html';
+                return;
+            }
+
+            // Generate AI summary
+            generateAISummary();
+
+            // Initialize form validation
+            initializeFormValidation();
+        });
+
+        async function generateAISummary() {
+            try {
+                const surveyData = JSON.parse(sessionStorage.getItem('survey_data'));
+                const currentViews = surveyData.current_views || '';
+                const elaboration = surveyData.elaboration || '';
+                
+                if (!currentViews && !elaboration) {
+                    throw new Error('No views or elaboration text found');
+                }
+
+                console.log('Generating AI summary for current views:', currentViews);
+                console.log('Generating AI summary for elaboration:', elaboration);
+
+                // Call the AI summary endpoint with both fields
+                const response = await fetch('/api/generate-summary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        currentViews: currentViews,
+                        elaboration: elaboration
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                aiSummaryText = data.summary;
+
+                // Display the summary
+                const summaryElement = document.getElementById('aiSummary');
+                summaryElement.innerHTML = `<p>${aiSummaryText}</p>`;
+
+            } catch (error) {
+                console.error('Error generating AI summary:', error);
+                // Fallback summary
+                const summaryElement = document.getElementById('aiSummary');
+                aiSummaryText = 'The participant shared their perspective on climate change and the factors that influenced their viewpoint.';
+                summaryElement.innerHTML = `<p>${aiSummaryText}</p>`;
+            }
+        }
+
+        function initializeFormValidation() {
+            // Initialize confidence slider
+            const confidenceSlider = document.getElementById('confidenceSlider');
+            const sliderValue = document.getElementById('sliderValue');
+            const form = document.getElementById('beliefConfidenceForm');
+            
+            confidenceSlider.addEventListener('input', function() {
+                confidenceLevel = parseInt(this.value);
+                sliderValue.textContent = confidenceLevel + '%';
+                // Update tooltip position
+                updateTooltipPosition();
+                checkFormCompleteness();
+            });
+
+            // Show tooltip when dragging starts
+            confidenceSlider.addEventListener('mousedown', function() {
+                sliderValue.classList.add('show');
+            });
+
+            confidenceSlider.addEventListener('touchstart', function() {
+                sliderValue.classList.add('show');
+            });
+
+            // Hide tooltip when dragging ends
+            confidenceSlider.addEventListener('mouseup', function() {
+                setTimeout(() => {
+                    sliderValue.classList.remove('show');
+                }, 150); // Small delay to ensure smooth interaction
+            });
+
+            confidenceSlider.addEventListener('touchend', function() {
+                setTimeout(() => {
+                    sliderValue.classList.remove('show');
+                }, 150); // Small delay to ensure smooth interaction
+            });
+
+            // Also hide tooltip if mouse leaves while dragging
+            confidenceSlider.addEventListener('mouseleave', function() {
+                setTimeout(() => {
+                    sliderValue.classList.remove('show');
+                }, 150);
+            });
+
+            // Add event listeners for AI accuracy question
+            const aiAccurateInputs = document.querySelectorAll('input[name="aiAccurate"]');
+            aiAccurateInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    handleAiAccurateChange();
+                    checkFormCompleteness();
+                });
+            });
+
+            form.addEventListener('submit', handleFormSubmit);
+            
+            // Initial check
+            checkFormCompleteness();
+        }
+
+        function updateTooltipPosition() {
+            const confidenceSlider = document.getElementById('confidenceSlider');
+            const sliderValue = document.getElementById('sliderValue');
+            const value = confidenceSlider.value;
+            const min = confidenceSlider.min ? confidenceSlider.min : 0;
+            const max = confidenceSlider.max ? confidenceSlider.max : 100;
+            
+            // Calculate percentage position
+            const percentage = ((value - min) / (max - min)) * 100;
+            
+            // Position tooltip above the thumb
+            sliderValue.style.left = percentage + '%';
+        }
+
+        function handleAiAccurateChange() {
+            const selectedValue = document.querySelector('input[name="aiAccurate"]:checked')?.value;
+            const missingInfoSection = document.getElementById('missingInfoSection');
+            
+            if (selectedValue === 'No') {
+                missingInfoSection.style.display = 'block';
+                // Add input listener for missing info text
+                const missingInfoInput = document.getElementById('missingInfo');
+                missingInfoInput.addEventListener('input', checkFormCompleteness);
+            } else {
+                missingInfoSection.style.display = 'none';
+                // Clear any text in the missing info field
+                document.getElementById('missingInfo').value = '';
+            }
+        }
+
+        function checkFormCompleteness() {
+            const selectedValue = document.querySelector('input[name="aiAccurate"]:checked')?.value;
+            const missingInfo = document.getElementById('missingInfo').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            
+            let isValid = selectedValue !== undefined;
+            
+            // If they selected "No", they must provide missing info
+            if (selectedValue === 'No') {
+                isValid = isValid && missingInfo.length > 0;
+            }
+            
+            submitBtn.disabled = !isValid;
+        }
+
+        let isSubmitting = false; // Add submission flag
+        
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // Prevent duplicate submissions
+            if (isSubmitting) {
+                console.log('Submission already in progress, ignoring duplicate request');
+                return;
+            }
+            
+            hasTriedSubmit = true;
+            isSubmitting = true;
+            
+            const selectedValue = document.querySelector('input[name="aiAccurate"]:checked')?.value;
+            const missingInfo = document.getElementById('missingInfo').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Validate
+            if (!selectedValue) {
+                showGeneralError('Please indicate whether the AI accurately summarized your perspective.');
+                isSubmitting = false;
+                return;
+            }
+            
+            if (selectedValue === 'No' && !missingInfo) {
+                showGeneralError('Please add any information missing from the AI summary.');
+                isSubmitting = false;
+                return;
+            }
+            
+            // Disable submit button during submission
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                // Get existing survey data
+                const surveyData = JSON.parse(sessionStorage.getItem('survey_data'));
+                
+                // Add new data
+                const beliefConfidenceData = {
+                    ...surveyData,
+                    ai_summary_generated: aiSummaryText,
+                    AI_Summary_Views: aiSummaryText, // Store for reuse on final page
+                    confidence_level: confidenceLevel,
+                    ai_accurate: selectedValue,
+                    missing_info: selectedValue === 'No' ? missingInfo : null
+                };
+                
+                console.log('Submitting belief confidence data:', beliefConfidenceData);
+                
+                // Submit to server
+                const response = await fetch('/survey/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(beliefConfidenceData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.participantId) {
+                    // Store participant ID
+                    sessionStorage.setItem('participant_id', data.participantId);
+                    // Clear survey data
+                    sessionStorage.removeItem('survey_data');
+                    
+                    // Proceed to intro page before chat conversation
+                    console.log('Belief confidence survey completed - proceeding to intro page');
+                    window.location.href = '/intro_to_chatbot';
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+                
+            } catch (error) {
+                console.error('Error submitting belief confidence survey:', error);
+                showGeneralError(`Error submitting survey: ${error.message}. Please try again.`);
+                
+                // Re-enable submit button and reset submission flag
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Continue';
+                isSubmitting = false;
+            }
+        }
+
+        function showGeneralError(message) {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = message;
+                generalErrorElement.style.display = 'block';
+            }
+        }
+
+        function clearGeneralError() {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = '';
+                generalErrorElement.style.display = 'none';
+            }
+        }
+    </script>
+
+    <style>
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .question-text {
+            margin-bottom: 1rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .note-text {
+            margin-top: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .ai-summary-container {
+            margin: 1.5rem 0;
+        }
+
+        .ai-summary {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .loading-summary {
+            color: #666;
+            font-style: italic;
+        }
+
+        .slider-container {
+            margin: 1.5rem 0;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .slider-label-center {
+            text-align: center;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .confidence-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .confidence-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+        }
+
+        .confidence-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .slider-value.show {
+            opacity: 1;
+        }
+
+        .ai-check-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .missing-info-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .field-input {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .field-error.show {
+            display: block;
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .field-input.error {
+            border-color: #d32f2f;
+        }
+
+        .general-error {
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #ffebee;
+            border-radius: 4px;
+            border: 1px solid #ffcdd2;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .radio-label:hover {
+            background-color: #f8f9fa;
+        }
+
+        .radio-label input[type="radio"] {
+            margin-right: 0.75rem;
+        }
+
+        .radio-text {
+            font-size: 1rem;
+            color: #333;
+        }
+    </style>
+</body>
+</html>

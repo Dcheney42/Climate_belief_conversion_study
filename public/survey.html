@@ -113,7 +113,7 @@
 
                 <!-- Views Changed Question - MANDATORY -->
                 <div class="demo-field-card">
-                    <h3 class="card-heading">Have you ever changed your mind on climate change? <span class="required">*</span></h3>
+                    <h3 class="card-heading">Have you ever changed your mind about climate change? <span class="required">*</span></h3>
                     <div class="radio-group">
                         <label class="radio-label">
                             <input type="radio" name="viewsChanged" value="Yes" required id="viewsChangedYes">
@@ -125,75 +125,6 @@
                         </label>
                     </div>
                     <div class="field-error" id="viewsChanged-error"></div>
-                </div>
-
-                <!-- Follow-up Question for Change Description - Conditional -->
-                <div class="demo-field-card" id="changeDescriptionCard" style="display: none;">
-                    <h3 class="card-heading">Please describe how you changed your mind on climate change: <span class="required">*</span></h3>
-                    <textarea id="changeDescription" name="changeDescription"
-                              class="field-input"
-                              placeholder="Please describe your experience of changing your mind about climate change..."
-                              rows="4"
-                              required></textarea>
-                    <div class="field-error" id="changeDescription-error"></div>
-                </div>
-
-                <!-- Confidence Rating for Change Description - Conditional -->
-                <div class="demo-field-card" id="changeConfidenceCard" style="display: none;">
-                    <h3 class="card-heading">How confident are you that your statement is true? <span class="required">*</span></h3>
-                    <div class="likert-scale">
-                        <div class="likert-anchors">
-                            <span class="anchor-left">0 = definitely false</span>
-                            <span class="anchor-right">10 = definitely true</span>
-                        </div>
-                        <div class="likert-options">
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="0" required>
-                                <span class="likert-number">0</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="1">
-                                <span class="likert-number">1</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="2">
-                                <span class="likert-number">2</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="3">
-                                <span class="likert-number">3</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="4">
-                                <span class="likert-number">4</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="5">
-                                <span class="likert-number">5</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="6">
-                                <span class="likert-number">6</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="7">
-                                <span class="likert-number">7</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="8">
-                                <span class="likert-number">8</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="9">
-                                <span class="likert-number">9</span>
-                            </label>
-                            <label class="likert-option">
-                                <input type="radio" name="changeConfidence" value="10">
-                                <span class="likert-number">10</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="field-error" id="changeConfidence-error"></div>
                 </div>
 
 
@@ -256,36 +187,7 @@
         }
 
         function handleViewsChangedSelection() {
-            const viewsChangedYes = document.getElementById('viewsChangedYes');
-            const viewsChangedNo = document.getElementById('viewsChangedNo');
-            const changeDescriptionCard = document.getElementById('changeDescriptionCard');
-            const changeConfidenceCard = document.getElementById('changeConfidenceCard');
-            const changeDescriptionInput = document.getElementById('changeDescription');
-            const changeConfidenceInputs = document.querySelectorAll('input[name="changeConfidence"]');
-            
-            if (viewsChangedYes.checked) {
-                // Show follow-up questions
-                changeDescriptionCard.style.display = 'block';
-                changeConfidenceCard.style.display = 'block';
-                // Make follow-up questions required
-                changeDescriptionInput.setAttribute('required', 'required');
-                changeConfidenceInputs.forEach(input => {
-                    input.setAttribute('required', 'required');
-                });
-            } else if (viewsChangedNo.checked) {
-                // Hide follow-up questions
-                changeDescriptionCard.style.display = 'none';
-                changeConfidenceCard.style.display = 'none';
-                // Clear and remove required from follow-up questions
-                changeDescriptionInput.value = '';
-                changeDescriptionInput.removeAttribute('required');
-                changeConfidenceInputs.forEach(input => {
-                    input.checked = false;
-                    input.removeAttribute('required');
-                });
-                clearFieldError('changeDescription');
-                clearFieldError('changeConfidence');
-            }
+            // No longer needed - we handle this in form submission
         }
 
         function checkFormCompleteness() {
@@ -310,18 +212,7 @@
             // Validate the mandatory "views changed" question
             const viewsChanged = document.querySelector('input[name="viewsChanged"]:checked');
             if (!viewsChanged) {
-                errors.viewsChanged = 'Please indicate whether you have ever changed your mind on climate change';
-            } else if (viewsChanged.value === 'Yes') {
-                // If Yes is selected, validate the follow-up questions
-                const changeDescription = document.getElementById('changeDescription').value.trim();
-                if (!changeDescription) {
-                    errors.changeDescription = 'Please describe how you changed your mind on climate change';
-                }
-                
-                const changeConfidence = document.querySelector('input[name="changeConfidence"]:checked');
-                if (!changeConfidence) {
-                    errors.changeConfidence = 'Please rate how confident you are that your statement is true';
-                }
+                errors.viewsChanged = 'Please indicate whether you have ever changed your mind about climate change';
             }
 
             return errors;
@@ -431,15 +322,7 @@
                 // Show general error message
                 const viewsChanged = document.querySelector('input[name="viewsChanged"]:checked');
                 if (!viewsChanged) {
-                    showGeneralError('Please indicate whether you have ever changed your mind on climate change.');
-                } else if (viewsChanged.value === 'Yes') {
-                    const changeDescription = document.getElementById('changeDescription').value.trim();
-                    const changeConfidence = document.querySelector('input[name="changeConfidence"]:checked');
-                    if (!changeDescription) {
-                        showGeneralError('Please describe how you changed your mind on climate change.');
-                    } else if (!changeConfidence) {
-                        showGeneralError('Please rate how confident you are that your statement is true.');
-                    }
+                    showGeneralError('Please indicate whether you have ever changed your mind about climate change.');
                 }
                 
                 // Show field-specific errors
@@ -460,72 +343,28 @@
             
             // Check routing logic based on views changed response
             if (viewsChanged === 'No') {
-                // If no change, redirect to exit survey immediately
-                console.log('No belief change - redirecting to exit survey');
-                window.location.href = '/exit-survey.html';
+                // If no change, redirect to disqualification page immediately
+                console.log('No belief change - redirecting to disqualification page');
+                window.location.href = '/disqualified.html';
                 return;
             }
             
-            // If views changed = Yes, continue with full survey submission
-            const surveyData = {
+            // If views changed = Yes, store demographics and proceed to views page
+            const demographicsData = {
                 prolific_id: sessionStorage.getItem('prolific_id') || null,
                 age: formData.get('age') ? parseInt(formData.get('age')) : null,
                 gender: formData.get('gender') || null,
                 education: formData.get('education') || null,
                 political_orientation: formData.get('politicalAffiliation') ? parseInt(formData.get('politicalAffiliation')) : null,
                 views_changed: viewsChanged,
-                change_description: formData.get('changeDescription') || null, // Free text description
-                change_confidence: formData.get('changeConfidence') ? parseInt(formData.get('changeConfidence')) : null, // 0-10 scale
                 consent: true
             };
             
-            console.log('Submitting survey data:', surveyData);
+            // Store demographics data in session storage for later submission
+            sessionStorage.setItem('demographics_data', JSON.stringify(demographicsData));
             
-            // Disable submit button during submission
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-            
-            // Submit to server
-            fetch('/survey/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(surveyData)
-            })
-            .then(response => {
-                console.log('Received response:', response);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.participantId) {
-                    // Store participant ID
-                    sessionStorage.setItem('participant_id', data.participantId);
-                    // Clear any old survey data
-                    sessionStorage.removeItem('survey_responses');
-                    
-                    // Since views changed = Yes, proceed to "Before you begin" page
-                    console.log('Belief change confirmed - proceeding to before you begin page');
-                    window.location.href = '/before-you-begin.html';
-                } else {
-                    console.error('Server error:', data);
-                    alert(`Error submitting survey: ${data.error || 'Unknown error'}. Please try again.`);
-                    // Re-enable submit button
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Continue';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert(`Error submitting survey: ${error.message}. Please try again.`);
-                // Re-enable submit button
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Continue';
-            });
+            console.log('Belief change confirmed - proceeding to matrix page');
+            window.location.href = '/cc-views-matrix.html';
         });
 
         // Add keyboard navigation for Likert scales

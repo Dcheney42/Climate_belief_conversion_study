@@ -54,10 +54,9 @@ global.db = global.db || {
       // Map existing fields to expected structure for chat system
       return {
         views_changed: participant.viewsChanged || "unspecified",
-        change_direction: participant.changeDirection || "unspecified",
-        prior_belief_cc_happening: participant.priorClimateBelief,
+        prior_belief_cc_happening: null,
         prior_belief_human_cause: "unspecified", // Not collected yet
-        current_belief_cc_happening: participant.currentClimateBelief,
+        current_belief_cc_happening: null,
         current_belief_human_cause: "unspecified", // Not collected yet
         changed_belief_flag: participant.viewsChanged === 'Yes'
       };
@@ -289,6 +288,18 @@ app.get('/exit-survey', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'exit-survey.html'));
 });
 
+app.get('/cc-views-matrix', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'cc-views-matrix.html'));
+});
+
+app.get('/belief-confidence', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'belief-confidence.html'));
+});
+
+app.get('/intro_to_chatbot', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'intro_to_chatbot.html'));
+});
+
 app.get('/disqualified', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'disqualified.html'));
 });
@@ -342,7 +353,11 @@ app.post('/survey/submit', (req, res) => {
             current_belief,
             confidence_level,
             views_changed,
-            change_direction,
+            current_views,
+            elaboration,
+            ai_summary_generated,
+            ai_accurate,
+            missing_info,
             consent
         } = req.body;
         
@@ -356,49 +371,15 @@ app.post('/survey/submit', (req, res) => {
         }
         console.log('DEBUG: views_changed validation PASSED');
         
-        // If views changed = Yes, validate change_direction
-        if (views_changed === 'Yes') {
-            if (!change_direction || !['From climate sceptic to climate believer', 'From climate believer to climate sceptic'].includes(change_direction)) {
-                console.log('DEBUG: change_direction validation FAILED - change_direction:', change_direction);
-                return res.status(400).json({ error: 'Please indicate which best describes your change in belief' });
-            }
-            console.log('DEBUG: change_direction validation PASSED');
-        }
-        
-        // Validate consent
-        if (!consent) {
-            return res.status(400).json({ error: 'Consent is required' });
-        }
-        
-        // Optional field validations (only validate if provided)
-        if (age && (age < 16 || age > 120)) {
-            console.log('DEBUG: Age validation FAILED - age:', age);
-            return res.status(400).json({ error: 'Age must be between 16 and 120' });
-        }
-        
-        if (gender && !['Woman', 'Man', 'Non-binary', 'Other', 'Prefer not to say'].includes(gender)) {
-            return res.status(400).json({ error: 'Valid gender identity is required' });
-        }
-        
-        if (education && !['Less than high school', 'High school diploma or equivalent', 'Some college, no degree', 'Associate degree', 'Bachelor\'s degree', 'Master\'s degree', 'Doctoral degree', 'Prefer not to say'].includes(education)) {
-            return res.status(400).json({ error: 'Valid education level is required' });
-        }
-        
-        if (political_orientation !== null && political_orientation !== undefined && (political_orientation < 1 || political_orientation > 7)) {
-            return res.status(400).json({ error: 'Political affiliation must be between 1 and 7' });
-        }
-        
-        // prior_belief and current_belief are not sent by frontend, so skip validation
-        
-        if (confidence_level !== null && confidence_level !== undefined && (confidence_level < 1 || confidence_level > 7)) {
-            return res.status(400).json({ error: 'Confidence level must be between 1 and 7' });
-        }
+        console.log('DEBUG: All validation passed, creating participant...');
         
         // Generate participant ID
         const participantId = uuidv4();
         const now = new Date().toISOString();
+        console.log('DEBUG: Generated participant ID:', participantId);
         
         // Create participant data with new structure
+        console.log('DEBUG: Creating participant data object...');
         const participantData = {
             id: participantId,
             createdAt: now,
@@ -411,13 +392,21 @@ app.post('/survey/submit', (req, res) => {
             
             // Attitudinal measures (1-7 scale, optional)
             politicalAffiliation: political_orientation ? parseInt(political_orientation) : null,
-            priorClimateBelief: null, // Not collected in current form
-            currentClimateBelief: null, // Not collected in current form
             confidenceLevel: confidence_level ? parseInt(confidence_level) : null,
             
             // Required belief change questions
             viewsChanged: views_changed,
-            changeDirection: views_changed === 'Yes' ? change_direction : null,
+            // changeDirection field removed from survey
+            
+            // New views questions (from views.html page)
+            currentViews: current_views || null,
+            elaboration: elaboration || null,
+            
+            // Belief confidence data (from belief-confidence.html page)
+            aiSummaryGenerated: ai_summary_generated || null,
+            AI_Summary_Views: req.body.AI_Summary_Views || null, // Store for reuse on final page
+            aiAccurate: ai_accurate || null,
+            missingInfo: missing_info || null,
             
             // Consent
             consentAnonymised: Boolean(consent),
@@ -427,17 +416,28 @@ app.post('/survey/submit', (req, res) => {
             consentGiven: Boolean(consent)
         };
         
+        console.log('DEBUG: Participant data object created');
+        
         // Save participant data (always save regardless of eligibility)
+        console.log('DEBUG: About to save participant data...');
         const filename = path.join(participantsDir, `${participantId}.json`);
+        console.log('DEBUG: Filename:', filename);
+        console.log('DEBUG: participantsDir exists:', fs.existsSync(participantsDir));
+        
         if (!writeJson(filename, participantData)) {
+            console.log('DEBUG: writeJson failed');
             throw new Error('Failed to save participant data');
         }
         
+        console.log('DEBUG: writeJson succeeded');
         console.log('Participant saved successfully:', participantId);
+        console.log('DEBUG: Sending response with participantId:', participantId);
         
         res.json({
             participantId
         });
+        
+        console.log('DEBUG: Response sent successfully');
         
     } catch (error) {
         console.error('Error processing survey:', error);
@@ -446,6 +446,126 @@ app.post('/survey/submit', (req, res) => {
         });
     }
 });
+
+// AI Summary generation endpoint
+app.post('/api/generate-summary', async (req, res) => {
+    try {
+        const { text, currentViews, elaboration } = req.body;
+        
+        // Handle legacy single text field or new separate fields
+        const inputCurrentViews = (currentViews || '').trim();
+        const inputElaboration = (elaboration || '').trim();
+        const combinedText = text || `${inputCurrentViews} ${inputElaboration}`.trim();
+        
+        // If both boxes are empty, do not generate a summary
+        if (!combinedText) {
+            return res.json({ summary: '' });
+        }
+        
+        // If the participant only writes a very short answer, use that directly as the summary
+        if (combinedText.length <= 50) {
+            return res.json({ summary: combinedText });
+        }
+        
+        console.log('Generating AI summary for text:', combinedText.substring(0, 100) + '...');
+        
+        // Check if OpenAI API key is configured
+        if (!process.env.OPENAI_API_KEY) {
+            console.log('OpenAI API key not configured. Using fallback summary.');
+            const fallbackSummary = generateFallbackSummary(combinedText);
+            return res.json({ summary: fallbackSummary });
+        }
+        
+        try {
+            // Prepare content description for the prompt
+            let contentDescription = '';
+            if (inputCurrentViews && inputElaboration) {
+                contentDescription = `current views: "${inputCurrentViews}" and elaboration: "${inputElaboration}"`;
+            } else if (inputCurrentViews) {
+                contentDescription = `current views: "${inputCurrentViews}"`;
+            } else if (inputElaboration) {
+                contentDescription = `elaboration: "${inputElaboration}"`;
+            } else {
+                contentDescription = `text: "${combinedText}"`;
+            }
+            
+            // Call OpenAI API to generate summary
+            const completion = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: [
+                    {
+                        role: "system",
+                        content: "Summarize the following passage, which describes a belief, in a single sentence. Do not provide any normative judgment. Accurately describe the content in a way the person who wrote it would agree with. Frame it as an assertion. If the statement is already short, do not change it much. If it is long and detailed, capture the core, high-level points. Do not focus on any evidence the participant gives; only focus on the belief itself. The passage comes from answers to two questions in an academic survey: the 'Current views' question and the 'Elaboration' question. Your output must be exactly one sentence, with no preamble, no bullet points, and no quotation marks."
+                    },
+                    {
+                        role: "user",
+                        content: `${combinedText}`
+                    }
+                ],
+                max_tokens: 100,
+                temperature: 0.1
+            });
+            
+            const summary = completion.choices[0]?.message?.content?.trim();
+            
+            if (!summary) {
+                throw new Error('No summary received from OpenAI');
+            }
+            
+            console.log('AI summary generated:', summary);
+            res.json({ summary });
+            
+        } catch (error) {
+            console.error('OpenAI API error:', error.message);
+            // Use fallback summary if OpenAI fails
+            const fallbackSummary = generateFallbackSummary(combinedText);
+            console.log('Using fallback summary:', fallbackSummary);
+            res.json({ summary: fallbackSummary });
+        }
+        
+    } catch (error) {
+        console.error('Error generating summary:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+// Fallback summary generator
+function generateFallbackSummary(text) {
+    if (!text || text.trim().length === 0) {
+        return "";
+    }
+    
+    const trimmed = text.trim();
+    
+    // If short, return as-is
+    if (trimmed.length <= 50) {
+        return trimmed;
+    }
+    
+    // For longer text, try to create a single sentence assertion
+    // Remove common phrases that indicate uncertainty or hedging
+    let cleaned = trimmed.replace(/^(I think|I believe|I feel|In my opinion|I guess|Maybe|Perhaps),?\s*/i, '');
+    
+    // Try to get the first complete sentence
+    const sentences = cleaned.split(/[.!?]+/);
+    if (sentences.length > 0 && sentences[0].trim().length > 10) {
+        let firstSentence = sentences[0].trim();
+        
+        // Ensure it ends with a period
+        if (!firstSentence.match(/[.!?]$/)) {
+            firstSentence += '.';
+        }
+        
+        return firstSentence;
+    }
+    
+    // If no clear sentence structure, truncate at a reasonable length
+    if (trimmed.length > 100) {
+        return trimmed.substring(0, 97) + '...';
+    }
+    
+    return trimmed;
+}
 
 // Start a new conversation
 app.post('/api/conversations/start', (req, res) => {
@@ -697,10 +817,8 @@ app.post('/api/end-survey', (req, res) => {
     try {
         const {
             participant_id,
-            earlierConfidence,
-            confidenceChanged,
-            newConfidence,
-            changeReason
+            summaryConfidence,
+            finalConfidenceLevel
         } = req.body;
         
         console.log('Received end survey submission:', req.body);
@@ -708,20 +826,6 @@ app.post('/api/end-survey', (req, res) => {
         // Validate required fields
         if (!participant_id) {
             return res.status(400).json({ error: 'Participant ID is required' });
-        }
-        
-        // All confidence-related fields are now optional - no validation required
-        // Optional validation for data integrity (only if provided)
-        if (earlierConfidence && (earlierConfidence < 1 || earlierConfidence > 7)) {
-            return res.status(400).json({ error: 'Earlier confidence must be between 1 and 7 if provided' });
-        }
-        
-        if (confidenceChanged && !['no', 'yes'].includes(confidenceChanged)) {
-            return res.status(400).json({ error: 'Confidence changed must be "no" or "yes" if provided' });
-        }
-        
-        if (newConfidence && (newConfidence < 1 || newConfidence > 7)) {
-            return res.status(400).json({ error: 'New confidence must be between 1 and 7 if provided' });
         }
         
         // Generate survey ID
@@ -735,10 +839,8 @@ app.post('/api/end-survey', (req, res) => {
             createdAt: now,
             
             // Optional survey responses
-            earlierConfidence: earlierConfidence ? parseInt(earlierConfidence) : null,
-            confidenceChanged: confidenceChanged || null,
-            newConfidence: (confidenceChanged === 'yes' && newConfidence) ? parseInt(newConfidence) : null,
-            changeReason: (confidenceChanged === 'yes' && changeReason) ? changeReason.trim() : null
+            summaryConfidence: summaryConfidence ? parseInt(summaryConfidence) : null,
+            finalConfidenceLevel: finalConfidenceLevel ? parseInt(finalConfidenceLevel) : null
         };
         
         // Save end survey data

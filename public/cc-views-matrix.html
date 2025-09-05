@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Change Views – Matrix</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Climate Change Views – Matrix</h1>
+            <p class="subtitle">Question <span id="currentQuestion">2</span> of <span id="totalQuestions">4</span></p>
+        </div>
+        
+        <div class="content">
+            <form id="matrixForm" class="survey-form">
+                <div class="demo-field-card">
+                    <p class="instruction-text">Please indicate your level of agreement with each statement.</p>
+                    <p class="legend-text">0 = Strongly Disagree · 100 = Strongly Agree</p>
+                    
+                    <div id="matrixContainer" class="matrix-container">
+                        <!-- Matrix rows will be dynamically generated here -->
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn-secondary" id="previousBtn">Previous</button>
+                        <button type="submit" class="btn-primary" id="nextBtn" disabled>Next</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Climate change skepticism items with reverse coding flags
+        const matrixItems = [
+            { id: 'ccs_01', text: 'I am hesitant to believe that climate change scientists tell the whole story.', reverse: false },
+            { id: 'ccs_02', text: 'I believe that most claims about climate change are true.', reverse: true },
+            { id: 'ccs_03', text: 'I am not sure that climate change is actually occurring.', reverse: false },
+            { id: 'ccs_04', text: 'The climate change we are observing is just a natural process.', reverse: false },
+            { id: 'ccs_05', text: 'Humans are largely responsible for climate change.', reverse: true },
+            { id: 'ccs_06', text: 'I doubt that human activities cause climate change.', reverse: false },
+            { id: 'ccs_07', text: 'I think climate change is a serious problem.', reverse: true },
+            { id: 'ccs_08', text: 'I believe that most of the concerns about climate change have been exaggerated.', reverse: false },
+            { id: 'ccs_09', text: 'I am concerned about the consequences of climate change.', reverse: true },
+            { id: 'ccs_10', text: 'There is not much we can do that will help solve environmental problems.', reverse: false },
+            { id: 'ccs_11', text: 'Trying to solve environmental problems is a waste of time.', reverse: false },
+            { id: 'ccs_12', text: 'Human behavior has little effect on climate change.', reverse: false }
+        ];
+
+        // State management
+        let hasTriedSubmit = false;
+        let displayOrder = [];
+        let participantId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user came from demographics page
+            const demographicsData = sessionStorage.getItem('demographics_data');
+            if (!demographicsData) {
+                alert('Please complete the demographics form first.');
+                window.location.href = '/survey.html';
+                return;
+            }
+
+            // Initialize participant ID for randomization
+            participantId = generateParticipantId();
+            
+            // Generate randomized order
+            displayOrder = generateRandomizedOrder();
+            
+            // Store display order for data analysis
+            sessionStorage.setItem('ccs_row_order', JSON.stringify(displayOrder));
+
+            // Initialize the matrix
+            initializeMatrix();
+            
+            // Initialize form validation
+            initializeFormValidation();
+        });
+
+        function generateParticipantId() {
+            // Use existing participant data or generate temporary ID for randomization
+            const demographics = JSON.parse(sessionStorage.getItem('demographics_data') || '{}');
+            return demographics.participantId || 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function generateRandomizedOrder() {
+            // Create array of indices
+            const indices = Array.from({ length: matrixItems.length }, (_, i) => i);
+            
+            // Simple seeded shuffle based on participant ID
+            const seed = hashCode(participantId);
+            const rng = seededRandom(seed);
+            
+            // Fisher-Yates shuffle with seeded random
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(rng() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+            }
+            
+            return indices;
+        }
+
+        function hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return Math.abs(hash);
+        }
+
+        function seededRandom(seed) {
+            let m = 0x80000000; // 2**31
+            let a = 1103515245;
+            let c = 12345;
+            
+            return function() {
+                seed = (a * seed + c) % m;
+                return seed / (m - 1);
+            };
+        }
+
+        function initializeMatrix() {
+            const container = document.getElementById('matrixContainer');
+            
+            displayOrder.forEach((itemIndex, displayIndex) => {
+                const item = matrixItems[itemIndex];
+                const row = createMatrixRow(item, displayIndex);
+                container.appendChild(row);
+            });
+        }
+
+        function createMatrixRow(item, displayIndex) {
+            const row = document.createElement('div');
+            row.className = 'matrix-row';
+            row.setAttribute('data-item-id', item.id);
+            
+            // Check if mobile
+            const isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Mobile layout: statement above slider
+                row.innerHTML = `
+                    <div class="matrix-statement-mobile">${item.text}</div>
+                    <div class="matrix-slider-mobile">
+                        <div class="slider-labels-mobile">
+                            <span>0</span>
+                            <span>25</span>
+                            <span>50</span>
+                            <span>75</span>
+                            <span>100</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" 
+                                   id="${item.id}_slider" 
+                                   name="${item.id}" 
+                                   min="0" 
+                                   max="100" 
+                                   step="1" 
+                                   class="matrix-slider"
+                                   data-item-id="${item.id}"
+                                   data-reverse="${item.reverse}">
+                            <div class="slider-value" id="${item.id}_value">50</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Desktop layout: statement and slider side by side
+                row.innerHTML = `
+                    <div class="matrix-statement">${item.text}</div>
+                    <div class="matrix-slider-container">
+                        <div class="slider-labels">
+                            <span>0</span>
+                            <span>25</span>
+                            <span>50</span>
+                            <span>75</span>
+                            <span>100</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <input type="range" 
+                                   id="${item.id}_slider" 
+                                   name="${item.id}" 
+                                   min="0" 
+                                   max="100" 
+                                   step="1" 
+                                   class="matrix-slider"
+                                   data-item-id="${item.id}"
+                                   data-reverse="${item.reverse}">
+                            <div class="slider-value" id="${item.id}_value">50</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return row;
+        }
+
+        function initializeFormValidation() {
+            const form = document.getElementById('matrixForm');
+            const sliders = document.querySelectorAll('.matrix-slider');
+            const previousBtn = document.getElementById('previousBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // Add event listeners to sliders
+            sliders.forEach(slider => {
+                const valueDisplay = document.getElementById(slider.id.replace('_slider', '_value'));
+                
+                // Update value display and position during drag
+                slider.addEventListener('input', function() {
+                    const value = this.value;
+                    valueDisplay.textContent = value;
+                    updateTooltipPosition(this, valueDisplay);
+                    checkFormCompleteness();
+                });
+
+                // Show tooltip when dragging starts
+                slider.addEventListener('mousedown', function() {
+                    const valueDisplay = document.getElementById(this.id.replace('_slider', '_value'));
+                    valueDisplay.classList.add('show');
+                });
+
+                slider.addEventListener('touchstart', function() {
+                    const valueDisplay = document.getElementById(this.id.replace('_slider', '_value'));
+                    valueDisplay.classList.add('show');
+                });
+
+                // Hide tooltip when dragging ends
+                slider.addEventListener('mouseup', function() {
+                    const valueDisplay = document.getElementById(this.id.replace('_slider', '_value'));
+                    setTimeout(() => {
+                        valueDisplay.classList.remove('show');
+                    }, 150);
+                });
+
+                slider.addEventListener('touchend', function() {
+                    const valueDisplay = document.getElementById(this.id.replace('_slider', '_value'));
+                    setTimeout(() => {
+                        valueDisplay.classList.remove('show');
+                    }, 150);
+                });
+
+                // Also hide tooltip if mouse leaves while dragging
+                slider.addEventListener('mouseleave', function() {
+                    const valueDisplay = document.getElementById(this.id.replace('_slider', '_value'));
+                    setTimeout(() => {
+                        valueDisplay.classList.remove('show');
+                    }, 150);
+                });
+
+                // Mark slider as touched when interacted with
+                slider.addEventListener('change', function() {
+                    this.classList.add('touched');
+                    checkFormCompleteness();
+                });
+            });
+
+            // Previous button navigation
+            previousBtn.addEventListener('click', function() {
+                window.location.href = '/survey.html';
+            });
+
+            // Form submission
+            form.addEventListener('submit', handleFormSubmit);
+
+            // Initial validation check
+            checkFormCompleteness();
+
+            // Handle responsive layout changes
+            window.addEventListener('resize', handleResize);
+        }
+
+        function updateTooltipPosition(slider, valueDisplay) {
+            const value = slider.value;
+            const min = slider.min ? slider.min : 0;
+            const max = slider.max ? slider.max : 100;
+            
+            // Calculate percentage position
+            const percentage = ((value - min) / (max - min)) * 100;
+            
+            // Position tooltip above the thumb
+            valueDisplay.style.left = percentage + '%';
+        }
+
+        function handleResize() {
+            // Rebuild matrix for responsive layout
+            const container = document.getElementById('matrixContainer');
+            const currentValues = {};
+            
+            // Save current values
+            const sliders = document.querySelectorAll('.matrix-slider');
+            sliders.forEach(slider => {
+                currentValues[slider.getAttribute('data-item-id')] = slider.value;
+            });
+            
+            // Clear and rebuild
+            container.innerHTML = '';
+            initializeMatrix();
+            
+            // Restore values
+            Object.keys(currentValues).forEach(itemId => {
+                const slider = document.getElementById(itemId + '_slider');
+                const valueDisplay = document.getElementById(itemId + '_value');
+                if (slider && valueDisplay) {
+                    slider.value = currentValues[itemId];
+                    valueDisplay.textContent = currentValues[itemId];
+                    slider.classList.add('touched');
+                    updateTooltipPosition(slider, valueDisplay);
+                }
+            });
+            
+            // Re-initialize event listeners
+            initializeFormValidation();
+        }
+
+        function checkFormCompleteness() {
+            const sliders = document.querySelectorAll('.matrix-slider');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            // Check if all sliders have been touched (interacted with)
+            let allTouched = true;
+            sliders.forEach(slider => {
+                if (!slider.classList.contains('touched')) {
+                    allTouched = false;
+                }
+            });
+            
+            nextBtn.disabled = !allTouched;
+            
+            // Clear general error if form becomes complete
+            if (allTouched && hasTriedSubmit) {
+                clearGeneralError();
+                clearHighlightedRows();
+            }
+        }
+
+        function validateForm() {
+            const sliders = document.querySelectorAll('.matrix-slider');
+            const untouchedSliders = [];
+            
+            sliders.forEach(slider => {
+                if (!slider.classList.contains('touched')) {
+                    untouchedSliders.push(slider);
+                }
+            });
+            
+            if (untouchedSliders.length > 0) {
+                showGeneralError('Please respond to all items above.');
+                highlightMissingRows(untouchedSliders);
+                return false;
+            }
+            
+            clearGeneralError();
+            clearHighlightedRows();
+            return true;
+        }
+
+        function highlightMissingRows(untouchedSliders) {
+            // Clear previous highlights
+            clearHighlightedRows();
+            
+            untouchedSliders.forEach(slider => {
+                const row = slider.closest('.matrix-row');
+                if (row) {
+                    row.classList.add('missing-response');
+                }
+            });
+        }
+
+        function clearHighlightedRows() {
+            const rows = document.querySelectorAll('.matrix-row');
+            rows.forEach(row => {
+                row.classList.remove('missing-response');
+            });
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            hasTriedSubmit = true;
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Collect all slider values
+            const sliders = document.querySelectorAll('.matrix-slider');
+            const rawData = {};
+            const scoredData = {};
+            const allScoredValues = [];
+            
+            sliders.forEach(slider => {
+                const itemId = slider.getAttribute('data-item-id');
+                const isReverse = slider.getAttribute('data-reverse') === 'true';
+                const rawValue = parseInt(slider.value);
+                const scoredValue = isReverse ? (100 - rawValue) : rawValue;
+                
+                rawData[itemId + '_raw'] = rawValue;
+                scoredData[itemId + '_scored'] = scoredValue;
+                allScoredValues.push(scoredValue);
+            });
+            
+            // Calculate mean scores
+            const ccs_mean_scored = allScoredValues.reduce((a, b) => a + b, 0) / allScoredValues.length;
+            
+            // Calculate subscale means
+            const subscales = calculateSubscaleMeans(scoredData);
+            
+            // Get existing demographics data
+            const demographicsData = JSON.parse(sessionStorage.getItem('demographics_data'));
+            const displayOrder = JSON.parse(sessionStorage.getItem('ccs_row_order'));
+            
+            // Combine all data
+            const matrixData = {
+                ...demographicsData,
+                // Raw values
+                ...rawData,
+                // Scored values
+                ...scoredData,
+                // Mean scores
+                ccs_mean_scored: ccs_mean_scored,
+                ...subscales,
+                // Display order for analysis
+                ccs_row_order: displayOrder
+            };
+            
+            console.log('Matrix survey completed, storing data:', matrixData);
+            
+            // Store updated data for next page
+            sessionStorage.setItem('demographics_data', JSON.stringify(matrixData));
+            
+            // Proceed to Views on Climate Change page
+            window.location.href = '/views.html';
+        }
+
+        function calculateSubscaleMeans(scoredData) {
+            // Occurrence subscale (items 3, 7R)
+            const occurrenceItems = [scoredData.ccs_03_scored, scoredData.ccs_07_scored];
+            const ccs_occurrence_mean = occurrenceItems.reduce((a, b) => a + b, 0) / occurrenceItems.length;
+            
+            // Causation subscale (items 4, 5R, 6, 12)
+            const causationItems = [scoredData.ccs_04_scored, scoredData.ccs_05_scored, scoredData.ccs_06_scored, scoredData.ccs_12_scored];
+            const ccs_causation_mean = causationItems.reduce((a, b) => a + b, 0) / causationItems.length;
+            
+            // Seriousness subscale (items 7R, 9R, 8)
+            const seriousnessItems = [scoredData.ccs_07_scored, scoredData.ccs_09_scored, scoredData.ccs_08_scored];
+            const ccs_seriousness_mean = seriousnessItems.reduce((a, b) => a + b, 0) / seriousnessItems.length;
+            
+            // Efficacy subscale (items 10, 11)
+            const efficacyItems = [scoredData.ccs_10_scored, scoredData.ccs_11_scored];
+            const ccs_efficacy_mean = efficacyItems.reduce((a, b) => a + b, 0) / efficacyItems.length;
+            
+            // Trust subscale (items 1, 2R)
+            const trustItems = [scoredData.ccs_01_scored, scoredData.ccs_02_scored];
+            const ccs_trust_mean = trustItems.reduce((a, b) => a + b, 0) / trustItems.length;
+            
+            return {
+                ccs_occurrence_mean,
+                ccs_causation_mean,
+                ccs_seriousness_mean,
+                ccs_efficacy_mean,
+                ccs_trust_mean
+            };
+        }
+
+        function showGeneralError(message) {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = message;
+                generalErrorElement.style.display = 'block';
+            }
+        }
+
+        function clearGeneralError() {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = '';
+                generalErrorElement.style.display = 'none';
+            }
+        }
+    </script>
+
+    <style>
+        .instruction-text {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .legend-text {
+            margin-bottom: 2rem;
+            color: #666;
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .matrix-container {
+            margin-bottom: 2rem;
+        }
+
+        .matrix-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .matrix-row.missing-response {
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+        }
+
+        .matrix-statement {
+            flex: 1;
+            margin-right: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        .matrix-slider-container {
+            flex-shrink: 0;
+            width: 300px;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        .matrix-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        .matrix-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .matrix-slider::-webkit-slider-thumb:hover {
+            background: #0056b3;
+        }
+
+        .matrix-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .matrix-slider::-moz-range-thumb:hover {
+            background: #0056b3;
+        }
+
+        .slider-value {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .slider-value.show {
+            opacity: 1;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .general-error {
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #ffebee;
+            border-radius: 4px;
+            border: 1px solid #ffcdd2;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .matrix-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .matrix-statement {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+
+            .matrix-statement-mobile {
+                margin-bottom: 1rem;
+                font-size: 0.95rem;
+                line-height: 1.4;
+                color: #333;
+            }
+
+            .matrix-slider-container,
+            .matrix-slider-mobile {
+                width: 100%;
+            }
+
+            .slider-labels-mobile {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 0.5rem;
+                font-size: 0.75rem;
+                color: #666;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+
+        /* Ensure proper spacing and layout */
+        .demo-field-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .form-actions {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</body>
+</html>

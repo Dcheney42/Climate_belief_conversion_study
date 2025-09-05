@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belief Confidence Check</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Belief Confidence Check</h1>
+            <p class="subtitle">Please review and assess your climate change perspective</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <form id="beliefConfidenceForm" class="survey-form">
+                    <div class="demo-field-card">
+                        <p class="question-text">
+                            Please share your views on climate change in a few sentences:
+                        </p>
+                        
+                        <textarea id="climateViews" name="climateViews"
+                                  class="field-input"
+                                  placeholder="Please describe your perspective on climate change..."
+                                  rows="4"
+                                  required></textarea>
+                        
+                        <!-- AI Summary Display -->
+                        <div id="aiSummaryContainer" class="ai-summary-container" style="display: none;">
+                            <p class="question-text">
+                                AI Summary of your perspective:
+                            </p>
+                            <div id="aiSummary" class="ai-summary">
+                                <!-- AI-generated summary will be inserted here -->
+                            </div>
+                        </div>
+                        
+                        <p class="question-text">
+                            On a scale of 0% to 100%, please indicate your level of confidence that your climate change perspective is accurate.
+                        </p>
+                        
+                        <!-- Confidence Slider -->
+                        <div class="slider-container">
+                            <div class="slider-labels">
+                                <span class="slider-label-left">0 = Not confident</span>
+                                <span class="slider-label-center">50 = Moderately confident</span>
+                                <span class="slider-label-right">100 = Very confident</span>
+                            </div>
+                            <div class="slider-wrapper">
+                                <input type="range" id="confidenceSlider" name="confidenceLevel"
+                                       min="0" max="100" value="50" class="confidence-slider">
+                                <div class="slider-value" id="sliderValue">50%</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Have views changed question -->
+                        <div class="views-changed-section">
+                            <p class="question-text">
+                                Have you ever changed your mind about climate change?
+                            </p>
+                            
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="viewsChanged" value="Yes" required>
+                                    <span class="radio-text">Yes</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="viewsChanged" value="No" required>
+                                    <span class="radio-text">No</span>
+                                </label>
+                            </div>
+                            <div class="field-error" id="viewsChanged-error"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
+                        <button type="submit" class="btn-primary" id="submitBtn" disabled>Continue to Chat</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simplified state management
+        let confidenceLevel = 50;
+        let aiSummaryText = '';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFormValidation();
+        });
+
+        async function generateAISummary(text) {
+            try {
+                console.log('Generating AI summary for:', text);
+
+                const response = await fetch('/api/generate-summary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                aiSummaryText = data.summary;
+
+                // Display the summary
+                const summaryContainer = document.getElementById('aiSummaryContainer');
+                const summaryElement = document.getElementById('aiSummary');
+                summaryElement.innerHTML = `<p>${aiSummaryText}</p>`;
+                summaryContainer.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error generating AI summary:', error);
+                // Use fallback summary
+                aiSummaryText = 'The participant shared their perspective on climate change and the factors that influenced their viewpoint.';
+                const summaryContainer = document.getElementById('aiSummaryContainer');
+                const summaryElement = document.getElementById('aiSummary');
+                summaryElement.innerHTML = `<p>${aiSummaryText}</p>`;
+                summaryContainer.style.display = 'block';
+            }
+        }
+
+        function initializeFormValidation() {
+            const confidenceSlider = document.getElementById('confidenceSlider');
+            const sliderValue = document.getElementById('sliderValue');
+            const form = document.getElementById('beliefConfidenceForm');
+            const climateViewsInput = document.getElementById('climateViews');
+            
+            confidenceSlider.addEventListener('input', function() {
+                confidenceLevel = parseInt(this.value);
+                sliderValue.textContent = confidenceLevel + '%';
+                checkFormCompleteness();
+            });
+
+            // Generate summary when user types their views
+            let summaryTimeout;
+            climateViewsInput.addEventListener('input', function() {
+                clearTimeout(summaryTimeout);
+                summaryTimeout = setTimeout(() => {
+                    const text = this.value.trim();
+                    if (text.length > 20) {
+                        generateAISummary(text);
+                    }
+                }, 1000); // Wait 1 second after user stops typing
+                checkFormCompleteness();
+            });
+
+            // Add event listeners for views changed question
+            const viewsChangedInputs = document.querySelectorAll('input[name="viewsChanged"]');
+            viewsChangedInputs.forEach(input => {
+                input.addEventListener('change', checkFormCompleteness);
+            });
+
+            form.addEventListener('submit', handleFormSubmit);
+            
+            // Initial check
+            checkFormCompleteness();
+        }
+
+        function checkFormCompleteness() {
+            const climateViews = document.getElementById('climateViews').value.trim();
+            const viewsChanged = document.querySelector('input[name="viewsChanged"]:checked')?.value;
+            const submitBtn = document.getElementById('submitBtn');
+            
+            const isValid = climateViews.length > 0 && viewsChanged;
+            submitBtn.disabled = !isValid;
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const climateViews = document.getElementById('climateViews').value.trim();
+            const viewsChanged = document.querySelector('input[name="viewsChanged"]:checked')?.value;
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Validate
+            if (!climateViews) {
+                showGeneralError('Please share your views on climate change.');
+                return;
+            }
+            
+            if (!viewsChanged) {
+                showGeneralError('Please indicate whether you have changed your mind about climate change.');
+                return;
+            }
+            
+            // Disable submit button during submission
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                // Create simplified survey data
+                const surveyData = {
+                    views_changed: viewsChanged,
+                    current_views: climateViews,
+                    elaboration: climateViews,
+                    ai_summary_generated: aiSummaryText,
+                    confidence_level: confidenceLevel,
+                    consent: true
+                };
+                
+                console.log('Submitting survey data:', surveyData);
+                
+                // Submit to server
+                const response = await fetch('/survey/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(surveyData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.participantId) {
+                    console.log('Survey completed - proceeding to chat');
+                    window.location.href = `/chat/${data.participantId}`;
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+                
+            } catch (error) {
+                console.error('Error submitting survey:', error);
+                showGeneralError(`Error submitting survey: ${error.message}. Please try again.`);
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Continue to Chat';
+            }
+        }
+
+        function showGeneralError(message) {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = message;
+                generalErrorElement.style.display = 'block';
+            }
+        }
+    </script>
+
+    <style>
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .question-text {
+            margin-bottom: 1rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .ai-summary-container {
+            margin: 1.5rem 0;
+        }
+
+        .ai-summary {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .slider-container {
+            margin: 1.5rem 0;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .confidence-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .confidence-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+
+        .views-changed-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .field-input {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .general-error {
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #ffebee;
+            border-radius: 4px;
+            border: 1px solid #ffcdd2;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .radio-label:hover {
+            background-color: #f8f9fa;
+        }
+
+        .radio-label input[type="radio"] {
+            margin-right: 0.75rem;
+        }
+    </style>
+</body>
+</html>
