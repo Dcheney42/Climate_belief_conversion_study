@@ -10,7 +10,7 @@
     <div class="container">
         <div class="header">
             <h1>Views on climate change</h1>
-            <p class="subtitle">Please share your perspective on climate change</p>
+            <p class="subtitle">Question <span id="currentQuestion">4</span> of <span id="totalQuestions">5</span></p>
         </div>
         
         <div class="content">
@@ -84,11 +84,19 @@
         let currentViewsText = '';
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user came from matrix page
+            // Check if user came from political views page
             const demographicsData = sessionStorage.getItem('demographics_data');
             if (!demographicsData) {
                 alert('Please complete the previous pages first.');
                 window.location.href = '/survey.html';
+                return;
+            }
+
+            // Verify political views data exists
+            const data = JSON.parse(demographicsData);
+            if (!data.hasOwnProperty('economic_issues') && !data.hasOwnProperty('social_issues')) {
+                alert('Please complete the political views questions first.');
+                window.location.href = '/political-views.html';
                 return;
             }
 

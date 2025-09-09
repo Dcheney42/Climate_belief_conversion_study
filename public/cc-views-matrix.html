@@ -10,7 +10,7 @@
     <div class="container">
         <div class="header">
             <h1>Climate Change Views – Matrix</h1>
-            <p class="subtitle">Question <span id="currentQuestion">2</span> of <span id="totalQuestions">4</span></p>
+            <p class="subtitle">Question <span id="currentQuestion">2</span> of <span id="totalQuestions">5</span></p>
         </div>
         
         <div class="content">
@@ -404,8 +404,8 @@
             // Store updated data for next page
             sessionStorage.setItem('demographics_data', JSON.stringify(matrixData));
             
-            // Proceed to Views on Climate Change page
-            window.location.href = '/views.html';
+            // Proceed to Political Views page
+            window.location.href = '/political-views.html';
         }
 
         function calculateSubscaleMeans(scoredData) {

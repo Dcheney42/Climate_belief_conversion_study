@@ -10,7 +10,7 @@
     <div class="container">
         <div class="header">
             <h1>Background & Views</h1>
-            <p class="subtitle">Please answer the following questions about your background and views</p>
+            <p class="subtitle">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">5</span></p>
         </div>
         
         <div class="content">
@@ -114,6 +114,7 @@
                 <!-- Views Changed Question - MANDATORY -->
                 <div class="demo-field-card">
                     <h3 class="card-heading">Have you ever changed your mind about climate change? <span class="required">*</span></h3>
+                    <p class="question-subtext">E.g., moving from thinking climate change was not real to believing it is, believing it is mostly natural to thinking human activity plays a major role, seeing it as a distant issue to recognizing it as an immediate concern etc.</p>
                     <div class="radio-group">
                         <label class="radio-label">
                             <input type="radio" name="viewsChanged" value="Yes" required id="viewsChangedYes">
@@ -387,5 +388,15 @@
             });
         });
     </script>
+    
+    <style>
+        .question-subtext {
+            font-size: 0.875rem;
+            color: #666;
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.4;
+            font-style: italic;
+        }
+    </style>
 </body>
 </html>
