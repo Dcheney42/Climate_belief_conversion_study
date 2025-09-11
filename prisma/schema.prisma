@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id            String    @id @default(cuid())
+  participantId String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  appVersion    String?
+  raw           Json      // Stores the complete session JSON
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  messages              Message[]
+  individualDifferences IndividualDifferences?
+  
+  @@map("sessions")
+}
+
+model Message {
+  id        String    @id @default(cuid())
+  sessionId String
+  turn      Int?
+  role      String?   // "user", "assistant", "system"
+  content   String?
+  timestamp DateTime?
+  tokensIn  Int?
+  tokensOut Int?
+  
+  // Relations
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@index([sessionId])
+  @@map("messages")
+}
+
+model IndividualDifferences {
+  id                String  @id @default(cuid())
+  sessionId         String  @unique
+  raw               Json    // Stores the original nested participant object
+  
+  // Denormalized columns for common queries
+  political7        Int?    // Political orientation (1-7 scale)
+  confidence0_100   Int?    // Confidence level (0-100)
+  age               Int?
+  gender            String?
+  education         String?
+  viewsChanged      String? // "Yes", "No"
+  
+  // Relations
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  @@map("individual_differences")
+}

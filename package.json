@@ -4,9 +4,15 @@
   "description": "An experimental platform for climate change conversations between participants with opposing views",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "build": "npm run lint --if-present && npx prisma generate",
+    "start": "node scripts/migrate-and-start.js",
     "dev": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:migrate": "npx prisma migrate deploy",
+    "db:migrate:dev": "npx prisma migrate dev",
+    "db:generate": "npx prisma generate",
+    "db:studio": "npx prisma studio",
+    "analysis:flatten": "Rscript analysis/01_flatten_json.R"
   },
   "keywords": [
     "climate-change",
@@ -18,12 +24,14 @@
   "author": "Research Team",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^6.16.0",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "moment": "^2.30.1",
     "openai": "^5.15.0",
+    "prisma": "^6.16.0",
     "socket.io": "^4.8.1",
     "uuid": "^11.1.0"
   }

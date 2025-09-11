@@ -4,6 +4,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const OpenAI = require('openai');
+const { dataAccess } = require('./lib/dataAccess');
 require('dotenv').config();
 
 // Enhanced chat router will be imported and mounted below
@@ -14,7 +15,52 @@ const CHAT_DURATION_MS = Number(process.env.CHAT_DURATION_MS ?? 5 * 60 * 1000);
 const app = express();
 
 // Middleware
-app.use(cors());
+// Configure CORS based on environment
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // In development, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    // In production, check WEB_ORIGIN environment variable
+    const allowedOrigins = process.env.WEB_ORIGIN ? process.env.WEB_ORIGIN.split(',') : [];
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      return callback(new Error('Not allowed by CORS'), false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token'],
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
+app.use(cors(corsOptions));
+
+// Production logging middleware for chat endpoints
+function chatLogger(req, res, next) {
+  if (process.env.NODE_ENV === 'production' && req.path.startsWith('/api/conversations')) {
+    const start = Date.now();
+    const originalSend = res.send;
+    
+    res.send = function(data) {
+      const duration = Date.now() - start;
+      const responseSize = Buffer.byteLength(data, 'utf8');
+      console.log(`[CHAT] ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms - ${responseSize}b - IP: ${req.ip}`);
+      return originalSend.call(this, data);
+    };
+  }
+  next();
+}
+
+app.use(chatLogger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -86,8 +132,9 @@ global.db = global.db || {
         durationSeconds: null,
         messages: messages
       };
-      const filename = path.join(conversationsDir, `${conversationId}.json`);
-      writeJson(filename, conversationData);
+      
+      // Use data access layer for dual-write
+      await dataAccess.saveSession(conversationData);
     },
     async load(conversationId) {
       const filename = path.join(conversationsDir, `${conversationId}.json`);
@@ -101,7 +148,10 @@ global.db = global.db || {
       
       const newMsgs = [...(c.messages || []), message];
       c.messages = newMsgs;
-      writeJson(filename, c);
+      
+      // Update with data access layer
+      const updatedConversation = { ...c, messages: newMsgs };
+      await dataAccess.saveSession(updatedConversation);
     }
   }
 };
@@ -188,8 +238,8 @@ function readJson(filePath) {
           messages: []
         };
 
-        const filename = path.join(conversationsDir, `${conversationId}.json`);
-        writeJson(filename, initial);
+        // Use data access layer for dual-write
+        await dataAccess.saveSession(initial);
 
         activeConversations.set(conversationId, { startedAt: now });
 
@@ -199,7 +249,7 @@ function readJson(filePath) {
         const opening = openingLineFrom(profile);
         
         initial.messages.push({ role: "assistant", content: opening });
-        writeJson(filename, initial);
+        await dataAccess.saveSession(initial);
 
         res.json({ conversationId, messages: initial.messages });
       } catch (err) {
@@ -239,7 +289,7 @@ function readJson(filePath) {
           conv.messages.push({ role: "assistant", content: finalReply });
           conv.endedAt = now.toISOString();
           conv.durationSeconds = Math.floor((now - startTime) / 1000);
-          writeJson(filename, conv);
+          await dataAccess.saveSession(conv);
           activeConversations.delete(conversationId);
           return res.json({ reply: finalReply, sessionEnded: true });
         }
@@ -257,7 +307,7 @@ function readJson(filePath) {
 
         const aiReply = await generateAIResponse(conv.messages, enhancedSystemPrompt);
         conv.messages.push({ role: "assistant", content: aiReply });
-        writeJson(filename, conv);
+        await dataAccess.saveSession(conv);
 
         res.json({ reply: aiReply });
       } catch (err) {
@@ -312,6 +362,24 @@ app.get('/disqualified', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'disqualified.html'));
 });
 
+// Simple console logger for development endpoints
+function logEndpoint(req, res, next) {
+  if (process.env.NODE_ENV !== 'production') {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
+    });
+  }
+  next();
+}
+
+// Health check endpoint - always returns OK
+app.get('/health', logEndpoint, (req, res) => {
+  res.json({ ok: true });
+});
+
+// Legacy health endpoint (keeping for backwards compatibility)
 app.get('/healthz', (req, res) => {
   res.json({
     ok: true,
@@ -319,6 +387,29 @@ app.get('/healthz', (req, res) => {
     chatRouterMounted: Boolean(chatRouter),
     activeConversations: activeConversations.size
   });
+});
+
+// Debug endpoint for last session (development only)
+app.get('/debug/last-session', logEndpoint, async (req, res) => {
+  // Only available in development
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
+  try {
+    // Use data access layer which prefers Postgres over files
+    const latestSession = await dataAccess.getLatestCompletedSession();
+    
+    if (!latestSession) {
+      return res.json({ message: "No sessions found" });
+    }
+
+    res.json(latestSession);
+
+  } catch (error) {
+    console.error('Error fetching last session:', error);
+    res.status(500).json({ error: 'Failed to fetch last session' });
+  }
 });
 
 // Debug endpoint to check data files
@@ -576,19 +667,27 @@ function generateFallbackSummary(text) {
 }
 
 // Start a new conversation
-app.post('/api/conversations/start', (req, res) => {
+app.post('/api/conversations/start', async (req, res) => {
+    const requestStart = Date.now();
+    
     try {
         const { participantId } = req.body;
         
         if (!participantId) {
-            return res.status(400).json({ error: 'participantId is required' });
+            return res.status(400).json({
+                error: 'participantId is required',
+                type: 'validation_error'
+            });
         }
         
         // Check if participant exists
         const participantFile = path.join(participantsDir, `${participantId}.json`);
         const participant = readJson(participantFile);
         if (!participant) {
-            return res.status(404).json({ error: 'Participant not found' });
+            return res.status(404).json({
+                error: 'Participant not found',
+                type: 'participant_not_found'
+            });
         }
         
         // Generate conversation ID
@@ -609,11 +708,8 @@ app.post('/api/conversations/start', (req, res) => {
             messages: []
         };
         
-        // Save conversation data
-        const filename = path.join(conversationsDir, `${conversationId}.json`);
-        if (!writeJson(filename, conversationData)) {
-            throw new Error('Failed to create conversation');
-        }
+        // Save conversation data using data access layer
+        await dataAccess.saveSession(conversationData);
         
         // Track in memory
         activeConversations.set(conversationId, {
@@ -622,13 +718,20 @@ app.post('/api/conversations/start', (req, res) => {
             lastActivity: now
         });
         
-        console.log('Conversation started:', conversationId, 'for participant:', participantId);
+        const requestDuration = Date.now() - requestStart;
+        console.log(`Conversation started (${requestDuration}ms):`, conversationId, 'for participant:', participantId);
         
         res.json({ conversationId });
         
     } catch (error) {
-        console.error('Error starting conversation:', error);
-        res.status(500).json({ error: error.message || 'Internal server error' });
+        const requestDuration = Date.now() - requestStart;
+        console.error(`Error starting conversation (${requestDuration}ms):`, error);
+        
+        res.status(500).json({
+            error: 'Unable to start conversation. Please try again.',
+            type: 'server_error',
+            technical_error: process.env.NODE_ENV !== 'production' ? error.message : undefined
+        });
     }
 });
 
@@ -641,18 +744,26 @@ function shouldEndNow(text) {
 
 // Send a message in a conversation
 app.post('/api/conversations/:id/message', async (req, res) => {
+    const requestStart = Date.now();
+    
     try {
         const conversationId = req.params.id;
         const { content } = req.body;
         
         if (!content || !content.trim()) {
-            return res.status(400).json({ error: 'Message content is required' });
+            return res.status(400).json({
+                error: 'Message content is required',
+                type: 'validation_error'
+            });
         }
         
         // Check if conversation is active
         const activeConv = activeConversations.get(conversationId);
         if (!activeConv) {
-            return res.status(404).json({ error: 'Conversation not found or ended' });
+            return res.status(404).json({
+                error: 'Conversation not found or ended',
+                type: 'conversation_not_found'
+            });
         }
         
         // Check 5-minute time limit (300 seconds)
@@ -663,7 +774,10 @@ app.post('/api/conversations/:id/message', async (req, res) => {
         if (elapsedSeconds >= (CHAT_DURATION_MS / 1000)) {
             // End conversation due to time limit
             activeConversations.delete(conversationId);
-            return res.status(410).json({ error: 'Conversation time limit exceeded' });
+            return res.status(410).json({
+                error: 'Conversation time limit exceeded',
+                type: 'timeout'
+            });
         }
         
         // Check for early-end phrase
@@ -672,7 +786,10 @@ app.post('/api/conversations/:id/message', async (req, res) => {
             const filename = path.join(conversationsDir, `${conversationId}.json`);
             const conversationData = readJson(filename);
             if (!conversationData) {
-                return res.status(404).json({ error: 'Conversation data not found' });
+                return res.status(404).json({
+                    error: 'Conversation data not found',
+                    type: 'data_error'
+                });
             }
             
             // Add user message
@@ -696,10 +813,8 @@ app.post('/api/conversations/:id/message', async (req, res) => {
             conversationData.endedAt = now.toISOString();
             conversationData.durationSeconds = durationSeconds;
             
-            // Save conversation
-            if (!writeJson(filename, conversationData)) {
-                throw new Error('Failed to save conversation');
-            }
+            // Save conversation using data access layer
+            await dataAccess.saveSession(conversationData);
             
             // Remove from active conversations
             activeConversations.delete(conversationId);
@@ -716,7 +831,10 @@ app.post('/api/conversations/:id/message', async (req, res) => {
         const filename = path.join(conversationsDir, `${conversationId}.json`);
         const conversationData = readJson(filename);
         if (!conversationData) {
-            return res.status(404).json({ error: 'Conversation data not found' });
+            return res.status(404).json({
+                error: 'Conversation data not found',
+                type: 'data_error'
+            });
         }
         
         // Add user message
@@ -727,7 +845,7 @@ app.post('/api/conversations/:id/message', async (req, res) => {
         };
         conversationData.messages.push(userMessage);
         
-        // Call OpenAI API (mock implementation for now - replace with actual OpenAI call)
+        // Call OpenAI API with timeout handling
         const assistantReply = await generateAIResponse(conversationData.messages, conversationData.systemPrompt);
         
         // Add assistant message
@@ -741,35 +859,65 @@ app.post('/api/conversations/:id/message', async (req, res) => {
         // Update last activity
         activeConv.lastActivity = now.toISOString();
         
-        // Save updated conversation
-        if (!writeJson(filename, conversationData)) {
-            throw new Error('Failed to save conversation');
-        }
+        // Save updated conversation using data access layer
+        await dataAccess.saveSession(conversationData);
+        
+        const requestDuration = Date.now() - requestStart;
+        console.log(`Chat message processed in ${requestDuration}ms`);
         
         res.json({ reply: assistantReply });
         
     } catch (error) {
-        console.error('Error processing message:', error);
-        res.status(500).json({ error: error.message || 'Internal server error' });
+        const requestDuration = Date.now() - requestStart;
+        console.error(`Error processing message (${requestDuration}ms):`, error);
+        
+        // Provide user-friendly error messages based on error type
+        let userMessage = 'We encountered a technical issue. Please try sending your message again.';
+        let errorType = 'server_error';
+        
+        if (error.message.includes('timeout') || error.message.includes('ECONNRESET')) {
+            userMessage = 'The connection timed out. Please try sending your message again.';
+            errorType = 'connection_timeout';
+        } else if (error.message.includes('ENOTFOUND') || error.message.includes('network')) {
+            userMessage = 'Unable to connect to our services. Please check your connection and try again.';
+            errorType = 'network_error';
+        } else if (error.message.includes('rate limit')) {
+            userMessage = 'Too many requests. Please wait a moment and try again.';
+            errorType = 'rate_limit';
+        }
+        
+        res.status(500).json({
+            error: userMessage,
+            type: errorType,
+            technical_error: process.env.NODE_ENV !== 'production' ? error.message : undefined
+        });
     }
 });
 
 // End a conversation
-app.post('/api/conversations/:id/end', (req, res) => {
+app.post('/api/conversations/:id/end', async (req, res) => {
+    const requestStart = Date.now();
+    
     try {
         const conversationId = req.params.id;
         
         // Check if conversation is active
         const activeConv = activeConversations.get(conversationId);
         if (!activeConv) {
-            return res.status(404).json({ error: 'Conversation not found or already ended' });
+            return res.status(404).json({
+                error: 'Conversation not found or already ended',
+                type: 'conversation_not_found'
+            });
         }
         
         // Load conversation data
         const filename = path.join(conversationsDir, `${conversationId}.json`);
         const conversationData = readJson(filename);
         if (!conversationData) {
-            return res.status(404).json({ error: 'Conversation data not found' });
+            return res.status(404).json({
+                error: 'Conversation data not found',
+                type: 'data_error'
+            });
         }
         
         // Calculate duration
@@ -781,21 +929,26 @@ app.post('/api/conversations/:id/end', (req, res) => {
         conversationData.endedAt = now.toISOString();
         conversationData.durationSeconds = durationSeconds;
         
-        // Save updated conversation
-        if (!writeJson(filename, conversationData)) {
-            throw new Error('Failed to save conversation end data');
-        }
+        // Save updated conversation using data access layer
+        await dataAccess.saveSession(conversationData);
         
         // Remove from active conversations
         activeConversations.delete(conversationId);
         
-        console.log('Conversation ended:', conversationId, 'Duration:', durationSeconds, 'seconds');
+        const requestDuration = Date.now() - requestStart;
+        console.log(`Conversation ended (${requestDuration}ms):`, conversationId, 'Duration:', durationSeconds, 'seconds');
         
         res.json({ ok: true });
         
     } catch (error) {
-        console.error('Error ending conversation:', error);
-        res.status(500).json({ error: error.message || 'Internal server error' });
+        const requestDuration = Date.now() - requestStart;
+        console.error(`Error ending conversation (${requestDuration}ms):`, error);
+        
+        res.status(500).json({
+            error: 'Unable to end conversation properly. Your data has been saved.',
+            type: 'server_error',
+            technical_error: process.env.NODE_ENV !== 'production' ? error.message : undefined
+        });
     }
 });
 
@@ -1009,8 +1162,10 @@ const openai = new OpenAI({
         : 'https://api.openai.com/v1'
 });
 
-// Real OpenAI API integration
+// Real OpenAI API integration with timeout handling
 async function generateAIResponse(messages, systemPrompt) {
+    const API_TIMEOUT = 25000; // 25 seconds - well under typical PaaS 30s timeout
+    
     try {
         // Check if OpenAI API key is configured
         if (!process.env.OPENAI_API_KEY) {
@@ -1037,9 +1192,15 @@ async function generateAIResponse(messages, systemPrompt) {
         }
 
         console.log('Sending request to OpenAI with', openaiMessages.length, 'messages');
+        const startTime = Date.now();
 
-        // Call OpenAI API
-        const completion = await openai.chat.completions.create({
+        // Create timeout promise
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('OpenAI API timeout')), API_TIMEOUT)
+        );
+
+        // Call OpenAI API with timeout
+        const apiPromise = openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: openaiMessages,
             max_tokens: 150,
@@ -1049,17 +1210,26 @@ async function generateAIResponse(messages, systemPrompt) {
             presence_penalty: 0
         });
 
+        const completion = await Promise.race([apiPromise, timeoutPromise]);
+        const duration = Date.now() - startTime;
+
         const response = completion.choices[0]?.message?.content?.trim();
         
         if (!response) {
             throw new Error('No response received from OpenAI');
         }
 
-        console.log('OpenAI response received:', response.substring(0, 100) + '...');
+        console.log(`OpenAI response received (${duration}ms):`, response.substring(0, 100) + '...');
         return response;
 
     } catch (error) {
-        console.error('Error calling OpenAI API:', error.message);
+        const duration = Date.now() - (Date.now() - API_TIMEOUT);
+        console.error(`Error calling OpenAI API (${duration}ms):`, error.message);
+        
+        // Specific error handling for timeouts and connection issues
+        if (error.message.includes('timeout') || error.message.includes('ECONNRESET') || error.message.includes('ENOTFOUND')) {
+            console.warn('OpenAI API connection issue detected, using fallback');
+        }
         
         // Intelligent fallback response system
         console.log('Using fallback response due to OpenAI error');
@@ -1155,4 +1325,10 @@ function isConversationControl(input) {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server on http://localhost:${PORT}`);
+    console.log('✅ Health endpoint mounted at GET /health');
+    
+    if (process.env.NODE_ENV !== 'production') {
+        console.log('🔧 Debug endpoint mounted at GET /debug/last-session (development only)');
+        console.log('📝 Development logging enabled for debug endpoints');
+    }
 });

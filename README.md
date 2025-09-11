@@ -2,6 +2,60 @@
 
 A research platform for studying AI-assisted conversations about climate change. Participants engage in conversations with an AI assistant that helps them explore their views on climate change.
 
+## 👩‍🏫 Supervisor Checklist
+
+Quick setup and verification guide for supervisors and researchers:
+
+### 📋 Local Development Setup
+```bash
+# 1. Set up environment
+cp .env.example .env
+# Edit .env with your OPENAI_API_KEY
+
+# 2. Install dependencies
+npm i
+
+# 3. Set up database (optional - will fallback to files)
+npx prisma migrate dev
+
+# 4. Start development server
+npm run dev
+```
+
+### ✅ Development Verification
+```bash
+# 1. Check health endpoint
+curl http://localhost:3000/health
+# Expected: {"ok":true}
+
+# 2. Check debug endpoint (development only)
+curl http://localhost:3000/debug/last-session
+# Expected: {"message":"No sessions found"} or session data
+```
+
+### 🚀 Render Production Deploy
+1. **Connect Repository**: Link GitHub repo to Render
+2. **Set Environment Variables**:
+   - `NODE_ENV=production`
+   - `DATABASE_URL=<render-postgres-internal-url>`
+   - `OPENAI_API_KEY=<your-openai-key>`
+   - `WEB_ORIGIN=<https://your-frontend-url>`
+   - `ADMIN_TOKEN=<secure-random-string>`
+3. **Verify Deployment**: Check `https://your-app.onrender.com/health` returns 200
+
+### 📊 Data Export & Analysis
+```bash
+# Export from JSON files (development/local)
+npm run analysis:flatten
+
+# Export from live Postgres database (production)
+DATABASE_URL="postgresql://..." Rscript analysis/02_flatten_from_postgres.R
+
+# Output: analysis_exports/conversations.csv & individual_differences.csv
+```
+
+---
+
 ## 🎯 Purpose
 
 This platform facilitates research on how people discuss and reflect on their climate change perspectives through AI-guided conversations. It's designed for use with Prolific participants and provides a controlled environment for studying attitude exploration and reflection.
@@ -123,6 +177,74 @@ git push heroku main
 1. Connect repository
 2. Configure environment variables
 3. Deploy
+
+**Render**
+1. Connect your GitHub repository
+2. Configure environment variables in Render dashboard
+3. Deploy automatically with built-in migration
+
+## 🚀 Render Deploy
+
+This project is optimized for deployment on Render with automatic migrations and health checks.
+
+### Required Environment Variables
+
+Configure these environment variables in your Render service dashboard:
+
+```env
+NODE_ENV=production
+OPENAI_API_KEY=<your-openai-api-key>
+WEB_ORIGIN=<https://your-frontend.onrender.com>
+ADMIN_TOKEN=<your-secure-admin-token>
+PORT=<auto-assigned-by-render>
+```
+
+### Optional Environment Variables
+
+```env
+CHAT_DURATION_MS=<milliseconds-for-chat-duration>
+```
+
+### Deployment Options
+
+#### Option 1: Infrastructure as Code (Recommended)
+Use the included `render.yaml` for standardized deployments:
+
+1. **Connect Repository**: Link your GitHub repository to Render
+2. **Auto-Configuration**: Render will automatically read `render.yaml` configuration
+3. **Create Postgres Database**: Add a PostgreSQL database via Render dashboard
+4. **Set Environment Variables**: Configure the following in Render dashboard:
+   - `DATABASE_URL` (auto-generated from your Postgres database)
+   - `OPENAI_API_KEY` (your OpenAI API key)
+   - `WEB_ORIGIN` (your frontend URL, e.g., `https://your-app.onrender.com`)
+   - `ADMIN_TOKEN` (secure token for admin endpoints)
+5. **Deploy**: Push to main branch for automatic deployment
+
+#### Option 2: Manual Configuration
+1. **Connect Repository**: Link your GitHub repository to Render
+2. **Configure Build Command**: `npm run build` (automatically configured)
+3. **Configure Start Command**: `npm start` (uses migration script)
+4. **Set Environment Variables**: Add all required variables listed above
+5. **Deploy**: Render will automatically build and deploy
+
+The deployment process includes:
+- ✅ Environment variable validation
+- ✅ Data directory initialization
+- ✅ Health check endpoint at `/health`
+- ✅ Automatic CORS configuration based on `WEB_ORIGIN`
+
+### Health Check
+
+Render will automatically monitor the health endpoint:
+- **Endpoint**: `GET /health`
+- **Response**: `{"ok": true}` with 200 status
+- **Use**: Configure this as your health check path in Render
+
+### CORS Configuration
+
+The application automatically configures CORS based on environment:
+- **Development**: Allows all origins
+- **Production**: Only allows origins specified in `WEB_ORIGIN` (comma-separated for multiple origins)
 
 ### Environment Setup
 
