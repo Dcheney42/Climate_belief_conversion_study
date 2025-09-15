@@ -594,7 +594,7 @@ app.post('/api/generate-summary', async (req, res) => {
                 messages: [
                     {
                         role: "system",
-                        content: "Summarize the following passage, which describes a belief, in a single sentence. Do not provide any normative judgment. Accurately describe the content in a way the person who wrote it would agree with. Frame it as an assertion. If the statement is already short, do not change it much. If it is long and detailed, capture the core, high-level points. Do not focus on any evidence the participant gives; only focus on the belief itself. The passage comes from answers to two questions in an academic survey: the 'Current views' question and the 'Elaboration' question. Your output must be exactly one sentence, with no preamble, no bullet points, and no quotation marks."
+                        content: "Please provide a natural, conversational summary of what the participant wrote about their views on climate change. Write it as a clear, neutral recap that captures their main perspective in plain language. Keep it accurate and phrase it in a way the participant would likely recognize and agree with. If their response is already brief, don't change it much. If it's longer, focus on their core viewpoint rather than specific evidence or details they mentioned. Write exactly one sentence with no preamble, bullet points, or quotation marks."
                     },
                     {
                         role: "user",

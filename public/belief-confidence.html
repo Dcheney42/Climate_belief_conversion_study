@@ -98,6 +98,7 @@
         // State management
         let hasTriedSubmit = false;
         let confidenceLevel = 50;
+        let confidenceSliderMoved = false; // Track if slider has been moved
         let aiSummaryText = '';
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -111,6 +112,9 @@
 
             // Generate AI summary
             generateAISummary();
+
+            // Restore slider values if they exist
+            restoreSliderValues();
 
             // Initialize form validation
             initializeFormValidation();
@@ -169,7 +173,11 @@
             
             confidenceSlider.addEventListener('input', function() {
                 confidenceLevel = parseInt(this.value);
+                confidenceSliderMoved = true; // Mark slider as moved
+                this.classList.add('moved'); // Add visual styling for moved state
                 sliderValue.textContent = confidenceLevel + '%';
+                // Store value in sessionStorage for persistence
+                saveSliderValue('confidenceLevel', confidenceLevel);
                 // Update tooltip position
                 updateTooltipPosition();
                 checkFormCompleteness();
@@ -261,6 +269,8 @@
                 isValid = isValid && missingInfo.length > 0;
             }
             
+            // Confidence slider is now optional - don't require it for form completion
+            
             submitBtn.disabled = !isValid;
         }
 
@@ -275,6 +285,13 @@
                 return;
             }
             
+            // Check for missing optional fields and show soft validation
+            const missingFields = getMissingOptionalFields();
+            if (missingFields.length > 0 && !sessionStorage.getItem('soft_validation_acknowledged_belief')) {
+                showSoftValidationPrompt(missingFields);
+                return;
+            }
+            
             hasTriedSubmit = true;
             isSubmitting = true;
             
@@ -282,7 +299,7 @@
             const missingInfo = document.getElementById('missingInfo').value.trim();
             const submitBtn = document.getElementById('submitBtn');
             
-            // Validate
+            // Validate required fields only
             if (!selectedValue) {
                 showGeneralError('Please indicate whether the AI accurately summarized your perspective.');
                 isSubmitting = false;
@@ -308,7 +325,7 @@
                     ...surveyData,
                     ai_summary_generated: aiSummaryText,
                     AI_Summary_Views: aiSummaryText, // Store for reuse on final page
-                    confidence_level: confidenceLevel,
+                    confidence_level: confidenceSliderMoved ? confidenceLevel : "N/a",
                     ai_accurate: selectedValue,
                     missing_info: selectedValue === 'No' ? missingInfo : null
                 };
@@ -368,6 +385,59 @@
                 generalErrorElement.textContent = '';
                 generalErrorElement.style.display = 'none';
             }
+        }
+
+        function getMissingOptionalFields() {
+            const missingFields = [];
+            
+            // Check if confidence slider was moved (optional)
+            if (!confidenceSliderMoved) {
+                missingFields.push('Confidence level');
+            }
+            
+            return missingFields;
+        }
+
+        function showSoftValidationPrompt(missingFields) {
+            const fieldList = missingFields.join(', ');
+            const message = `You have left some questions blank: ${fieldList}. Please complete them if you wish.`;
+            
+            // Create a modal-style prompt
+            const modal = document.createElement('div');
+            modal.className = 'soft-validation-modal';
+            modal.innerHTML = `
+                <div class="soft-validation-content">
+                    <h3>Optional Questions</h3>
+                    <p>${message}</p>
+                    <div class="soft-validation-buttons">
+                        <button type="button" class="btn-secondary" onclick="closeSoftValidation()">Go Back and Complete</button>
+                        <button type="button" class="btn-primary" onclick="continueSoftValidation()">Continue Anyway</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus the modal for accessibility
+            modal.querySelector('.btn-secondary').focus();
+        }
+
+        function closeSoftValidation() {
+            const modal = document.querySelector('.soft-validation-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function continueSoftValidation() {
+            // Mark that user has acknowledged the soft validation
+            sessionStorage.setItem('soft_validation_acknowledged_belief', 'true');
+            
+            // Remove the modal
+            closeSoftValidation();
+            
+            // Resubmit the form
+            document.getElementById('beliefConfidenceForm').dispatchEvent(new Event('submit'));
         }
     </script>
 
@@ -437,23 +507,38 @@
             -webkit-appearance: none;
         }
 
+        /* Default state - hollow grey circle */
         .confidence-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #007bff;
+            background: transparent;
+            border: 2px solid #999;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .confidence-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            background: #007bff;
+            background: transparent;
+            border: 2px solid #999;
             cursor: pointer;
-            border: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Moved state - solid blue circle */
+        .confidence-slider.moved::-webkit-slider-thumb {
+            background: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        .confidence-slider.moved::-moz-range-thumb {
+            background: #007bff;
+            border: 2px solid #007bff;
         }
 
         .slider-value {
@@ -542,6 +627,86 @@
         .radio-text {
             font-size: 1rem;
             color: #333;
+        }
+
+        /* Soft Validation Modal Styles */
+        .soft-validation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .soft-validation-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .soft-validation-content h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+            font-size: 1.25rem;
+        }
+
+        .soft-validation-content p {
+            margin: 0 0 1.5rem 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .soft-validation-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .soft-validation-buttons .btn-secondary,
+        .soft-validation-buttons .btn-primary {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .soft-validation-buttons .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .soft-validation-buttons .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .soft-validation-buttons .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .soft-validation-buttons .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .soft-validation-buttons {
+                flex-direction: column;
+            }
+            
+            .soft-validation-buttons .btn-secondary,
+            .soft-validation-buttons .btn-primary {
+                width: 100%;
+            }
         }
     </style>
 </body>

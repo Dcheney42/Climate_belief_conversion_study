@@ -146,6 +146,7 @@
         // State management
         let hasTriedSubmit = false;
         let generalError = null;
+        let finalConfidenceSliderMoved = false; // Track if final confidence slider has been moved
 
         document.addEventListener('DOMContentLoaded', function() {
             initializeExitSurvey();
@@ -210,7 +211,11 @@
             if (finalConfidenceSlider && finalSliderValue) {
                 finalConfidenceSlider.addEventListener('input', function() {
                     const value = parseInt(this.value);
+                    finalConfidenceSliderMoved = true; // Mark slider as moved
+                    this.classList.add('moved'); // Add visual styling for moved state
                     finalSliderValue.textContent = value + '%';
+                    // Store value in sessionStorage for persistence
+                    saveSliderValue('finalConfidenceLevel', value);
                     // Update tooltip position
                     updateFinalTooltipPosition();
                 });
@@ -350,7 +355,8 @@
             const isValid = Object.keys(errors).length === 0;
             
             // Only enable/disable button, don't show errors
-            submitBtn.disabled = !isValid;
+            // All fields are now optional, so form is always valid
+            submitBtn.disabled = false;
             
             // If form becomes valid after a submit attempt, clear general error
             if (isValid && hasTriedSubmit && generalError) {
@@ -463,10 +469,17 @@
         document.getElementById('exitSurveyForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Check for missing optional fields and show soft validation
+            const missingFields = getMissingOptionalFields();
+            if (missingFields.length > 0 && !sessionStorage.getItem('soft_validation_acknowledged_exit')) {
+                showSoftValidationPrompt(missingFields);
+                return;
+            }
+            
             // Set that we've tried to submit
             hasTriedSubmit = true;
             
-            // Validate form and get errors
+            // Validate form and get errors (no required fields currently)
             const errors = validateFormFields();
             const isValid = Object.keys(errors).length === 0;
             
@@ -497,7 +510,7 @@
             const surveyData = {
                 participant_id: sessionStorage.getItem('participant_id'),
                 summaryConfidence: summaryConfidence ? parseInt(summaryConfidence) : null,
-                finalConfidenceLevel: finalConfidenceLevel ? parseInt(finalConfidenceLevel) : null
+                finalConfidenceLevel: finalConfidenceSliderMoved ? parseInt(finalConfidenceLevel) : "N/a"
             };
             
             console.log('Submitting exit survey:', surveyData);
@@ -611,23 +624,38 @@
             -webkit-appearance: none;
         }
 
+        /* Default state - hollow grey circle */
         .confidence-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background: #007bff;
+            background: transparent;
+            border: 2px solid #999;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .confidence-slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            background: #007bff;
+            background: transparent;
+            border: 2px solid #999;
             cursor: pointer;
-            border: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Moved state - solid blue circle */
+        .confidence-slider.moved::-webkit-slider-thumb {
+            background: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        .confidence-slider.moved::-moz-range-thumb {
+            background: #007bff;
+            border: 2px solid #007bff;
         }
 
         .slider-value {
@@ -655,6 +683,86 @@
             color: #666;
             font-size: 0.9rem;
             line-height: 1.4;
+        }
+
+        /* Soft Validation Modal Styles */
+        .soft-validation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .soft-validation-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .soft-validation-content h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+            font-size: 1.25rem;
+        }
+
+        .soft-validation-content p {
+            margin: 0 0 1.5rem 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .soft-validation-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .soft-validation-buttons .btn-secondary,
+        .soft-validation-buttons .btn-primary {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .soft-validation-buttons .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .soft-validation-buttons .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .soft-validation-buttons .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .soft-validation-buttons .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .soft-validation-buttons {
+                flex-direction: column;
+            }
+            
+            .soft-validation-buttons .btn-secondary,
+            .soft-validation-buttons .btn-primary {
+                width: 100%;
+            }
         }
     </style>
 </body>

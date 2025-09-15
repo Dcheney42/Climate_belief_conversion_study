@@ -78,6 +78,9 @@
             // Initialize the matrix
             initializeMatrix();
             
+            // Restore slider values if they exist
+            restoreSliderValues();
+            
             // Initialize form validation
             initializeFormValidation();
         });
@@ -255,6 +258,10 @@
                 // Track that slider was moved for metadata
                 slider.addEventListener('change', function() {
                     this.setAttribute('data-moved', 'true');
+                    this.classList.add('moved'); // Add visual styling for moved state
+                    // Store value in sessionStorage for persistence
+                    const itemId = this.getAttribute('data-item-id');
+                    saveSliderValue(itemId, parseInt(this.value));
                 });
             });
 
@@ -307,6 +314,7 @@
                     slider.value = currentValues[itemId];
                     valueDisplay.textContent = currentValues[itemId];
                     slider.setAttribute('data-moved', 'true');
+                    slider.classList.add('moved'); // Add visual styling for moved state
                     updateTooltipPosition(slider, valueDisplay);
                 }
             });
@@ -346,6 +354,13 @@
         function handleFormSubmit(e) {
             e.preventDefault();
             
+            // Check for untouched sliders and show soft validation
+            const untouchedSliders = getUntouchedSliders();
+            if (untouchedSliders.length > 0 && !sessionStorage.getItem('soft_validation_acknowledged_matrix')) {
+                showSoftValidationPrompt(untouchedSliders);
+                return;
+            }
+            
             // Collect all slider values
             const sliders = document.querySelectorAll('.matrix-slider');
             const rawData = {};
@@ -358,9 +373,9 @@
                 const isReverse = slider.getAttribute('data-reverse') === 'true';
                 const wasMoved = slider.getAttribute('data-moved') === 'true';
                 
-                // Store null for untouched sliders, actual value for moved sliders
-                const rawValue = wasMoved ? parseInt(slider.value) : null;
-                const scoredValue = wasMoved ? (isReverse ? (100 - rawValue) : rawValue) : null;
+                // Store "N/a" for untouched sliders, actual value for moved sliders
+                const rawValue = wasMoved ? parseInt(slider.value) : "N/a";
+                const scoredValue = wasMoved ? (isReverse ? (100 - parseInt(slider.value)) : parseInt(slider.value)) : "N/a";
                 
                 rawData[itemId + '_raw'] = rawValue;
                 scoredData[itemId + '_scored'] = scoredValue;
@@ -374,7 +389,7 @@
             
             // Calculate mean scores only for moved sliders
             const ccs_mean_scored = allScoredValues.length > 0 ?
-                allScoredValues.reduce((a, b) => a + b, 0) / allScoredValues.length : null;
+                allScoredValues.reduce((a, b) => a + b, 0) / allScoredValues.length : "N/a";
             
             // Calculate subscale means
             const subscales = calculateSubscaleMeans(scoredData);
@@ -409,10 +424,10 @@
         }
 
         function calculateSubscaleMeans(scoredData) {
-            // Helper function to calculate mean of non-null values
+            // Helper function to calculate mean of non-"N/a" values
             function calculateMean(items) {
-                const validItems = items.filter(item => item !== null);
-                return validItems.length > 0 ? validItems.reduce((a, b) => a + b, 0) / validItems.length : null;
+                const validItems = items.filter(item => item !== "N/a");
+                return validItems.length > 0 ? validItems.reduce((a, b) => a + b, 0) / validItems.length : "N/a";
             }
             
             // Occurrence subscale (items 3, 7R)
@@ -442,6 +457,85 @@
                 ccs_efficacy_mean,
                 ccs_trust_mean
             };
+        }
+
+        function saveSliderValue(itemId, value) {
+            // Store slider values for persistence across navigation
+            let sliderData = JSON.parse(sessionStorage.getItem('slider_values') || '{}');
+            sliderData[itemId] = value;
+            sessionStorage.setItem('slider_values', JSON.stringify(sliderData));
+        }
+
+        function restoreSliderValues() {
+            const sliderData = JSON.parse(sessionStorage.getItem('slider_values') || '{}');
+            
+            Object.keys(sliderData).forEach(itemId => {
+                const slider = document.getElementById(itemId + '_slider');
+                const valueDisplay = document.getElementById(itemId + '_value');
+                if (slider && valueDisplay) {
+                    slider.value = sliderData[itemId];
+                    valueDisplay.textContent = sliderData[itemId];
+                    slider.setAttribute('data-moved', 'true');
+                    slider.classList.add('moved');
+                    updateTooltipPosition(slider, valueDisplay);
+                }
+            });
+        }
+
+        function getUntouchedSliders() {
+            const untouchedSliders = [];
+            const sliders = document.querySelectorAll('.matrix-slider');
+            
+            sliders.forEach(slider => {
+                const wasMoved = slider.getAttribute('data-moved') === 'true';
+                if (!wasMoved) {
+                    untouchedSliders.push(slider);
+                }
+            });
+            
+            return untouchedSliders;
+        }
+
+        function showSoftValidationPrompt(untouchedSliders) {
+            const count = untouchedSliders.length;
+            const message = `You have left ${count} question${count > 1 ? 's' : ''} unanswered. Please complete them if you wish.`;
+            
+            // Create a modal-style prompt
+            const modal = document.createElement('div');
+            modal.className = 'soft-validation-modal';
+            modal.innerHTML = `
+                <div class="soft-validation-content">
+                    <h3>Unanswered Questions</h3>
+                    <p>${message}</p>
+                    <div class="soft-validation-buttons">
+                        <button type="button" class="btn-secondary" onclick="closeSoftValidation()">Go Back and Complete</button>
+                        <button type="button" class="btn-primary" onclick="continueSoftValidation()">Continue Anyway</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus the modal for accessibility
+            modal.querySelector('.btn-secondary').focus();
+        }
+
+        function closeSoftValidation() {
+            const modal = document.querySelector('.soft-validation-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function continueSoftValidation() {
+            // Mark that user has acknowledged the soft validation
+            sessionStorage.setItem('soft_validation_acknowledged_matrix', 'true');
+            
+            // Remove the modal
+            closeSoftValidation();
+            
+            // Resubmit the form
+            document.getElementById('matrixForm').dispatchEvent(new Event('submit'));
         }
 
         function showGeneralError(message) {
@@ -527,33 +621,56 @@
             cursor: pointer;
         }
 
+        /* Default state - hollow grey circle */
         .matrix-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
             width: 18px;
             height: 18px;
             border-radius: 50%;
-            background: #007bff;
+            background: transparent;
+            border: 2px solid #999;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .matrix-slider::-webkit-slider-thumb:hover {
-            background: #0056b3;
+            border-color: #666;
         }
 
         .matrix-slider::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            background: #007bff;
+            background: transparent;
+            border: 2px solid #999;
             cursor: pointer;
-            border: none;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .matrix-slider::-moz-range-thumb:hover {
+            border-color: #666;
+        }
+
+        /* Moved state - solid blue circle */
+        .matrix-slider.moved::-webkit-slider-thumb {
+            background: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        .matrix-slider.moved::-webkit-slider-thumb:hover {
             background: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .matrix-slider.moved::-moz-range-thumb {
+            background: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        .matrix-slider.moved::-moz-range-thumb:hover {
+            background: #0056b3;
+            border-color: #0056b3;
         }
 
         .slider-value {
@@ -657,6 +774,86 @@
             border-radius: 12px;
             padding: 2rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Soft Validation Modal Styles */
+        .soft-validation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .soft-validation-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .soft-validation-content h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+            font-size: 1.25rem;
+        }
+
+        .soft-validation-content p {
+            margin: 0 0 1.5rem 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .soft-validation-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .soft-validation-buttons .btn-secondary,
+        .soft-validation-buttons .btn-primary {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .soft-validation-buttons .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .soft-validation-buttons .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .soft-validation-buttons .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .soft-validation-buttons .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .soft-validation-buttons {
+                flex-direction: column;
+            }
+            
+            .soft-validation-buttons .btn-secondary,
+            .soft-validation-buttons .btn-primary {
+                width: 100%;
+            }
         }
     </style>
 </body>
