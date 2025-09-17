@@ -594,7 +594,7 @@ app.post('/api/generate-summary', async (req, res) => {
                 messages: [
                     {
                         role: "system",
-                        content: "Please provide a natural, conversational summary of what the participant wrote about their views on climate change. Write it as a clear, neutral recap that captures their main perspective in plain language. Keep it accurate and phrase it in a way the participant would likely recognize and agree with. If their response is already brief, don't change it much. If it's longer, focus on their core viewpoint rather than specific evidence or details they mentioned. Write exactly one sentence with no preamble, bullet points, or quotation marks."
+                        content: "Please provide a neutral summary of the views expressed about climate change. Write it as a direct statement of the views themselves, not as a description of what the participant thinks, feels, or believes. Avoid phrases like 'the participant feels,' 'the participant thinks,' 'the participant believes,' etc. Instead, phrase it as a direct statement of the views expressed. For example, instead of 'The participant feels frustrated that climate change is political,' write 'Climate change is being treated as a political issue.' Keep it accurate and concise. Write exactly one sentence with no preamble, bullet points, or quotation marks."
                     },
                     {
                         role: "user",

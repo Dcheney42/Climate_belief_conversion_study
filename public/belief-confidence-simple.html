@@ -30,7 +30,7 @@
                         <!-- AI Summary Display -->
                         <div id="aiSummaryContainer" class="ai-summary-container" style="display: none;">
                             <p class="question-text">
-                                AI Summary of your perspective:
+                                AI Summary of your perspective on climate change:
                             </p>
                             <div id="aiSummary" class="ai-summary">
                                 <!-- AI-generated summary will be inserted here -->
@@ -143,6 +143,9 @@
                 confidenceSliderMoved = true; // Mark slider as moved
                 this.classList.add('moved'); // Add visual styling for moved state
                 sliderValue.textContent = confidenceLevel + '%';
+                // Update track fill percentage
+                const percentage = (confidenceLevel / 100) * 100;
+                this.style.setProperty('--fill-percent', percentage + '%');
                 // Store value in sessionStorage for persistence
                 saveSliderValue('confidenceLevel', confidenceLevel);
                 checkFormCompleteness();
@@ -336,6 +339,9 @@
                 confidenceSlider.value = confidenceLevel;
                 confidenceSlider.classList.add('moved');
                 sliderValue.textContent = confidenceLevel + '%';
+                // Update track fill percentage for restored value
+                const percentage = (confidenceLevel / 100) * 100;
+                confidenceSlider.style.setProperty('--fill-percent', percentage + '%');
             }
         }
     </script>
@@ -388,6 +394,7 @@
             background: #ddd;
             outline: none;
             -webkit-appearance: none;
+            cursor: pointer;
         }
 
         /* Default state - hollow grey circle */
@@ -403,6 +410,10 @@
             transition: all 0.3s ease;
         }
 
+        .confidence-slider::-webkit-slider-thumb:hover {
+            border-color: #666;
+        }
+
         .confidence-slider::-moz-range-thumb {
             width: 16px;
             height: 16px;
@@ -411,17 +422,46 @@
             border: 2px solid #999;
             cursor: pointer;
             transition: all 0.3s ease;
+            -moz-appearance: none;
         }
 
-        /* Moved state - solid blue circle */
+        .confidence-slider::-moz-range-thumb:hover {
+            border-color: #666;
+        }
+
+        .confidence-slider::-moz-range-track {
+            background: #ddd;
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        /* Moved state - solid blue circle and blue track fill */
+        .confidence-slider.moved {
+            background: linear-gradient(to right, #007bff var(--fill-percent, 50%), #ddd var(--fill-percent, 50%));
+        }
+
         .confidence-slider.moved::-webkit-slider-thumb {
             background: #007bff;
             border: 2px solid #007bff;
         }
 
+        .confidence-slider.moved::-webkit-slider-thumb:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+
         .confidence-slider.moved::-moz-range-thumb {
             background: #007bff;
             border: 2px solid #007bff;
+        }
+
+        .confidence-slider.moved::-moz-range-thumb:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .confidence-slider.moved::-moz-range-track {
+            background: linear-gradient(to right, #007bff var(--fill-percent, 50%), #ddd var(--fill-percent, 50%));
         }
 
         .slider-value {

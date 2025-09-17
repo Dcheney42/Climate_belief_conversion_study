@@ -136,15 +136,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Climate Belief Conversion Narratives Study</h1>
-            <p class="subtitle">Participant Debrief Sheet</p>
+            <h1>Study Debrief</h1>
         </div>
         
         <div class="content">
             <div class="debrief-content" id="debriefContent">
                 <h1>Participant Debrief Sheet</h1>
                 
-                <p class="study-title"><strong>Study Title:</strong> AI Methods to Investigate Climate Change Belief Change Narratives</p>
+                <p class="study-title"><strong>Study Title:</strong> Examining Belief Change Narratives through Dialogues with AI</p>
                 
                 <p class="thank-you">Thank you for participating in our research study. We appreciate the time and effort you've contributed to this important research.</p>
                 
@@ -179,9 +178,6 @@
                 <p><strong>Please click the button below to be redirected back to Prolific to register your submission</strong></p>
             </div>
             
-            <div class="download-section">
-                <a href="#" class="download-link" id="downloadDebriefPdf">📄 Download Debrief Sheet as PDF</a>
-            </div>
             
             <div class="submit-section">
                 <button type="button" class="btn-submit" id="submitBtn">Submit and Return to Prolific</button>
@@ -240,26 +236,73 @@
         function initializeSubmit() {
             const submitBtn = document.getElementById('submitBtn');
             
-            submitBtn.addEventListener('click', function() {
-                // Store completion data
-                const completionData = {
-                    completed_at: new Date().toISOString(),
-                    participant_id: sessionStorage.getItem('participant_id'),
-                    prolific_id: sessionStorage.getItem('prolific_id')
-                };
+            submitBtn.addEventListener('click', async function() {
+                // Disable button during submission
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
                 
-                sessionStorage.setItem('completion_data', JSON.stringify(completionData));
-                
-                // Try to redirect to Prolific completion URL
-                const prolificCompletionUrl = getProlificCompletionUrl();
-                
-                if (prolificCompletionUrl) {
-                    console.log('Redirecting to Prolific completion URL');
-                    window.location.href = prolificCompletionUrl;
-                } else {
-                    // Fallback: show completion message
-                    alert('Thank you for completing the study! Please return to Prolific to register your submission.');
-                    console.log('Study completed successfully');
+                try {
+                    // Prepare completion data
+                    const completionData = {
+                        participant_id: sessionStorage.getItem('participant_id'),
+                        prolific_id: sessionStorage.getItem('prolific_id'),
+                        completed_at: new Date().toISOString(),
+                        survey_completed: true
+                    };
+                    
+                    console.log('Submitting final survey completion:', completionData);
+                    
+                    // Submit completion data to server
+                    const response = await fetch('/api/complete-survey', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(completionData)
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const result = await response.json();
+                    console.log('Survey completion successful:', result);
+                    
+                    // Store completion data locally
+                    sessionStorage.setItem('completion_data', JSON.stringify(completionData));
+                    
+                    // Get Prolific completion URL from server response or environment
+                    const prolificCompletionUrl = result.prolificCompletionUrl || getProlificCompletionUrl();
+                    
+                    if (prolificCompletionUrl) {
+                        console.log('Redirecting to Prolific completion URL:', prolificCompletionUrl);
+                        window.location.href = prolificCompletionUrl;
+                    } else {
+                        // Fallback: show completion message
+                        alert('Thank you for completing the study! Please return to Prolific to register your submission.');
+                        console.log('Study completed successfully - no Prolific URL available');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error submitting survey completion:', error);
+                    
+                    // Re-enable button and show error
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit and Return to Prolific';
+                    
+                    // Show error but allow fallback completion
+                    const continueAnyway = confirm('There was an error submitting your completion data to the server. Would you like to continue to Prolific anyway? (Your previous responses have been saved)');
+                    
+                    if (continueAnyway) {
+                        // Try to redirect to Prolific even with submission error
+                        const prolificCompletionUrl = getProlificCompletionUrl();
+                        if (prolificCompletionUrl) {
+                            console.log('Redirecting to Prolific despite submission error');
+                            window.location.href = prolificCompletionUrl;
+                        } else {
+                            alert('Thank you for completing the study! Please return to Prolific to register your submission.');
+                        }
+                    }
                 }
             });
         }
@@ -269,13 +312,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const prolificId = sessionStorage.getItem('prolific_id');
             
-            // Check for completion URL in URL parameters
-            const returnUrl = urlParams.get('PROLIFIC_COMPLETION_URL') || 
+            // Check for completion URL in URL parameters (from environment)
+            const returnUrl = urlParams.get('PROLIFIC_COMPLETION_URL') ||
                              urlParams.get('completion_url') ||
                              urlParams.get('return_url');
             
             if (returnUrl) {
                 return returnUrl;
+            }
+            
+            // Check if there's a completion URL stored from server environment
+            const storedCompletionUrl = sessionStorage.getItem('prolific_completion_url');
+            if (storedCompletionUrl) {
+                return storedCompletionUrl;
             }
             
             // Construct standard Prolific completion URL if we have the participant ID

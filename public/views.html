@@ -20,10 +20,14 @@
                     <div class="demo-field-card">
                         <h3 class="card-heading">Current Views</h3>
                         <p class="question-text">
-                            We'd like you to share your overall perspective on climate change in a few sentences. 
-                            Consider the following points in your response: how do you generally view climate change? 
-                            Do you believe humans have a significant impact on the environment? There are no right 
-                            or wrong answers — we're interested in your honest thoughts and opinions.
+                            We'd like you to share your overall perspective on climate change in a few sentences. Consider the following points in your response:
+                        </p>
+                        <ul class="guiding-points">
+                            <li>How do you generally view climate change?</li>
+                            <li>Do you believe humans have a significant impact on the environment?</li>
+                        </ul>
+                        <p class="question-text">
+                            There are no right or wrong answers — we're interested in your honest thoughts and opinions.
                         </p>
                         <textarea id="currentViews" name="currentViews"
                                   class="field-input"
@@ -35,7 +39,10 @@
                     
                     <div class="form-actions">
                         <div class="general-error" id="currentViewsGeneralError" role="alert" style="display: none;"></div>
-                        <button type="submit" class="btn-primary" id="currentViewsSubmitBtn" disabled>Submit</button>
+                        <div class="navigation-buttons">
+                            <button type="button" class="btn-secondary" id="previousBtn">Previous</button>
+                            <button type="submit" class="btn-primary" id="currentViewsSubmitBtn" disabled>Submit</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -71,7 +78,10 @@
                     
                     <div class="form-actions">
                         <div class="general-error" id="elaborationGeneralError" role="alert" style="display: none;"></div>
-                        <button type="submit" class="btn-primary" id="elaborationSubmitBtn" disabled>Continue</button>
+                        <div class="navigation-buttons">
+                            <button type="button" class="btn-secondary" id="elaborationPreviousBtn">Previous</button>
+                            <button type="submit" class="btn-primary" id="elaborationSubmitBtn" disabled>Continue</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -84,21 +94,46 @@
         let currentViewsText = '';
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user came from political views page
-            const demographicsData = sessionStorage.getItem('demographics_data');
-            if (!demographicsData) {
-                alert('Please complete the previous pages first.');
-                window.location.href = '/survey.html';
-                return;
+            // Check if user is returning from belief confidence page via Previous button
+            const returningFromBelief = sessionStorage.getItem('returning_from_previous_belief_confidence');
+            if (returningFromBelief) {
+                // Clear the flag and skip demographic validation
+                sessionStorage.removeItem('returning_from_previous_belief_confidence');
+                
+                // Restore survey data that was moved during forward navigation
+                const surveyData = sessionStorage.getItem('survey_data');
+                if (surveyData) {
+                    const data = JSON.parse(surveyData);
+                    // Restore demographics data from survey_data for backwards compatibility
+                    sessionStorage.setItem('demographics_data', JSON.stringify(data));
+                    // Restore views data for editing
+                    if (data.current_views) {
+                        sessionStorage.setItem('views_current_text', data.current_views);
+                    }
+                    if (data.elaboration) {
+                        sessionStorage.setItem('views_elaboration_text', data.elaboration);
+                    }
+                }
+            } else {
+                // Normal forward navigation - check if user came from political views page
+                const demographicsData = sessionStorage.getItem('demographics_data');
+                if (!demographicsData) {
+                    alert('Please complete the previous pages first.');
+                    window.location.href = '/survey.html';
+                    return;
+                }
+
+                // Verify political views data exists
+                const data = JSON.parse(demographicsData);
+                if (!data.hasOwnProperty('economic_issues') && !data.hasOwnProperty('social_issues')) {
+                    alert('Please complete the political views questions first.');
+                    window.location.href = '/political-views.html';
+                    return;
+                }
             }
 
-            // Verify political views data exists
-            const data = JSON.parse(demographicsData);
-            if (!data.hasOwnProperty('economic_issues') && !data.hasOwnProperty('social_issues')) {
-                alert('Please complete the political views questions first.');
-                window.location.href = '/political-views.html';
-                return;
-            }
+            // Restore saved values if they exist
+            restoreViewsData();
 
             // Initialize form validation
             initializeFormValidation();
@@ -109,6 +144,7 @@
             const currentViewsForm = document.getElementById('currentViewsForm');
             const currentViewsInput = document.getElementById('currentViews');
             const currentViewsSubmitBtn = document.getElementById('currentViewsSubmitBtn');
+            const previousBtn = document.getElementById('previousBtn');
             
             // Add event listeners for current views
             currentViewsInput.addEventListener('input', function() {
@@ -116,14 +152,22 @@
                 if (hasTriedSubmit) {
                     validateCurrentViews();
                 }
+                // Save data as user types
+                saveViewsData();
             });
 
             currentViewsForm.addEventListener('submit', handleCurrentViewsSubmit);
+            
+            // Previous button navigation
+            previousBtn.addEventListener('click', function() {
+                window.location.href = '/political-views.html';
+            });
 
             // Initialize elaboration form
             const elaborationForm = document.getElementById('elaborationForm');
             const elaborationInput = document.getElementById('elaboration');
             const elaborationSubmitBtn = document.getElementById('elaborationSubmitBtn');
+            const elaborationPreviousBtn = document.getElementById('elaborationPreviousBtn');
             
             // Add event listeners for elaboration
             elaborationInput.addEventListener('input', function() {
@@ -131,12 +175,58 @@
                 if (hasTriedSubmit) {
                     validateElaboration();
                 }
+                // Save data as user types
+                saveViewsData();
             });
 
             elaborationForm.addEventListener('submit', handleElaborationSubmit);
+            
+            // Elaboration previous button - goes back to current views section
+            elaborationPreviousBtn.addEventListener('click', function() {
+                document.getElementById('elaborationSection').style.display = 'none';
+                document.getElementById('currentViewsSection').style.display = 'block';
+                document.getElementById('currentViewsSection').scrollIntoView({ behavior: 'smooth' });
+            });
 
             // Initial validation check
             checkCurrentViewsCompleteness();
+        }
+
+        function restoreViewsData() {
+            // Restore current views text if it exists
+            const savedCurrentViews = sessionStorage.getItem('views_current_text');
+            const savedElaboration = sessionStorage.getItem('views_elaboration_text');
+            
+            if (savedCurrentViews) {
+                document.getElementById('currentViews').value = savedCurrentViews;
+                currentViewsText = savedCurrentViews;
+                checkCurrentViewsCompleteness();
+            }
+            
+            if (savedElaboration) {
+                document.getElementById('elaboration').value = savedElaboration;
+                checkElaborationCompleteness();
+                
+                // If both are saved, show the elaboration section
+                if (savedCurrentViews) {
+                    displayOriginalResponse(savedCurrentViews);
+                    document.getElementById('currentViewsSection').style.display = 'none';
+                    document.getElementById('elaborationSection').style.display = 'block';
+                }
+            }
+        }
+
+        function saveViewsData() {
+            // Save current form data to session storage
+            const currentViews = document.getElementById('currentViews').value.trim();
+            const elaboration = document.getElementById('elaboration').value.trim();
+            
+            if (currentViews) {
+                sessionStorage.setItem('views_current_text', currentViews);
+            }
+            if (elaboration) {
+                sessionStorage.setItem('views_elaboration_text', elaboration);
+            }
         }
 
         function checkCurrentViewsCompleteness() {
@@ -192,6 +282,9 @@
             const currentViewsInput = document.getElementById('currentViews');
             currentViewsText = currentViewsInput.value.trim();
             
+            // Save current views text
+            saveViewsData();
+            
             // Display original response in the elaboration section
             displayOriginalResponse(currentViewsText);
             
@@ -236,6 +329,9 @@
                 sessionStorage.setItem('survey_data', JSON.stringify(surveyData));
                 // Clear demographics data as it's now in survey_data
                 sessionStorage.removeItem('demographics_data');
+                // Clear saved views data as it's now submitted
+                sessionStorage.removeItem('views_current_text');
+                sessionStorage.removeItem('views_elaboration_text');
                 
                 // Proceed to belief confidence page
                 console.log('Views survey completed - proceeding to belief confidence page');
@@ -304,6 +400,17 @@
             line-height: 1.5;
         }
 
+        .guiding-points {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .guiding-points li {
+            margin-bottom: 0.5rem;
+        }
+
         .original-response-container {
             margin: 1rem 0;
         }
@@ -346,6 +453,40 @@
             background-color: #ffebee;
             border-radius: 4px;
             border: 1px solid #ffcdd2;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        @media (max-width: 768px) {
+            .navigation-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                margin: 0.5rem 0;
+            }
         }
     </style>
 </body>

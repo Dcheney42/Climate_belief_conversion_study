@@ -56,7 +56,7 @@
                         <!-- AI Check Question -->
                         <div class="ai-check-section">
                             <p class="question-text">
-                                Did the AI accurately summarize your perspective?
+                                Did the AI accurately summarize your perspective on climate change?
                             </p>
                             
                             <div class="radio-group">
@@ -87,7 +87,10 @@
                     
                     <div class="form-actions">
                         <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
-                        <button type="submit" class="btn-primary" id="submitBtn" disabled>Continue</button>
+                        <div class="navigation-buttons">
+                            <button type="button" class="btn-secondary" id="previousBtn">Previous</button>
+                            <button type="submit" class="btn-primary" id="submitBtn" disabled>Continue</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -102,12 +105,19 @@
         let aiSummaryText = '';
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user came from views page
-            const surveyData = sessionStorage.getItem('survey_data');
-            if (!surveyData) {
-                alert('Please complete the previous surveys first.');
-                window.location.href = '/survey.html';
-                return;
+            // Check if user is returning from Previous button navigation
+            const returningFromPrevious = sessionStorage.getItem('returning_from_previous_belief_confidence');
+            if (returningFromPrevious) {
+                // Clear the flag and skip validation
+                sessionStorage.removeItem('returning_from_previous_belief_confidence');
+            } else {
+                // Check if user came from views page (only for forward navigation)
+                const surveyData = sessionStorage.getItem('survey_data');
+                if (!surveyData) {
+                    alert('Please complete the previous surveys first.');
+                    window.location.href = '/survey.html';
+                    return;
+                }
             }
 
             // Generate AI summary
@@ -115,6 +125,9 @@
 
             // Restore slider values if they exist
             restoreSliderValues();
+
+            // Restore form values if they exist
+            restoreFormValues();
 
             // Initialize form validation
             initializeFormValidation();
@@ -170,12 +183,25 @@
             const confidenceSlider = document.getElementById('confidenceSlider');
             const sliderValue = document.getElementById('sliderValue');
             const form = document.getElementById('beliefConfidenceForm');
+            const previousBtn = document.getElementById('previousBtn');
+            
+            // Previous button navigation
+            previousBtn.addEventListener('click', function() {
+                // Save current form state before navigating
+                saveFormState();
+                // Set flag to bypass validation when returning
+                sessionStorage.setItem('returning_from_previous_belief_confidence', 'true');
+                window.location.href = '/views.html';
+            });
             
             confidenceSlider.addEventListener('input', function() {
                 confidenceLevel = parseInt(this.value);
                 confidenceSliderMoved = true; // Mark slider as moved
                 this.classList.add('moved'); // Add visual styling for moved state
                 sliderValue.textContent = confidenceLevel + '%';
+                // Update track fill percentage
+                const percentage = (confidenceLevel / 100) * 100;
+                this.style.setProperty('--fill-percent', percentage + '%');
                 // Store value in sessionStorage for persistence
                 saveSliderValue('confidenceLevel', confidenceLevel);
                 // Update tooltip position
@@ -218,7 +244,15 @@
                 input.addEventListener('change', function() {
                     handleAiAccurateChange();
                     checkFormCompleteness();
+                    // Save form state when values change
+                    saveFormState();
                 });
+            });
+
+            // Add event listener for missing info text area
+            const missingInfoInput = document.getElementById('missingInfo');
+            missingInfoInput.addEventListener('input', function() {
+                saveFormState();
             });
 
             form.addEventListener('submit', handleFormSubmit);
@@ -301,7 +335,7 @@
             
             // Validate required fields only
             if (!selectedValue) {
-                showGeneralError('Please indicate whether the AI accurately summarized your perspective.');
+                showGeneralError('Please indicate whether the AI accurately summarized your perspective on climate change.');
                 isSubmitting = false;
                 return;
             }
@@ -352,6 +386,8 @@
                     sessionStorage.setItem('participant_id', data.participantId);
                     // Clear survey data
                     sessionStorage.removeItem('survey_data');
+                    // Clear saved form state as it's now submitted
+                    sessionStorage.removeItem('belief_confidence_form_state');
                     
                     // Proceed to intro page before chat conversation
                     console.log('Belief confidence survey completed - proceeding to intro page');
@@ -439,6 +475,86 @@
             // Resubmit the form
             document.getElementById('beliefConfidenceForm').dispatchEvent(new Event('submit'));
         }
+
+        function saveSliderValue(key, value) {
+            // Store slider values for persistence across navigation
+            let sliderData = JSON.parse(sessionStorage.getItem('slider_values') || '{}');
+            sliderData[key] = value;
+            sessionStorage.setItem('slider_values', JSON.stringify(sliderData));
+        }
+
+        function restoreSliderValues() {
+            const sliderData = JSON.parse(sessionStorage.getItem('slider_values') || '{}');
+            const confidenceSlider = document.getElementById('confidenceSlider');
+            const sliderValue = document.getElementById('sliderValue');
+            
+            if (sliderData.confidenceLevel !== undefined) {
+                confidenceLevel = sliderData.confidenceLevel;
+                confidenceSliderMoved = true;
+                confidenceSlider.value = confidenceLevel;
+                confidenceSlider.classList.add('moved');
+                sliderValue.textContent = confidenceLevel + '%';
+                // Update track fill percentage for restored value
+                const percentage = (confidenceLevel / 100) * 100;
+                confidenceSlider.style.setProperty('--fill-percent', percentage + '%');
+            }
+        }
+
+        function saveFormState() {
+            // Save current form state to session storage
+            const aiAccurate = document.querySelector('input[name="aiAccurate"]:checked')?.value;
+            const missingInfo = document.getElementById('missingInfo').value;
+            
+            const formState = {
+                aiAccurate: aiAccurate || null,
+                missingInfo: missingInfo,
+                confidenceLevel: confidenceSliderMoved ? confidenceLevel : null,
+                confidenceSliderMoved: confidenceSliderMoved
+            };
+            
+            sessionStorage.setItem('belief_confidence_form_state', JSON.stringify(formState));
+        }
+
+        function restoreFormValues() {
+            const savedState = sessionStorage.getItem('belief_confidence_form_state');
+            if (!savedState) return;
+            
+            const formState = JSON.parse(savedState);
+            
+            // Restore AI accuracy radio button
+            if (formState.aiAccurate) {
+                const radio = document.querySelector(`input[name="aiAccurate"][value="${formState.aiAccurate}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    handleAiAccurateChange();
+                }
+            }
+            
+            // Restore missing info text
+            if (formState.missingInfo) {
+                document.getElementById('missingInfo').value = formState.missingInfo;
+            }
+            
+            // Restore confidence slider state
+            if (formState.confidenceLevel !== null && formState.confidenceSliderMoved) {
+                const confidenceSlider = document.getElementById('confidenceSlider');
+                const sliderValue = document.getElementById('sliderValue');
+                
+                confidenceLevel = formState.confidenceLevel;
+                confidenceSliderMoved = formState.confidenceSliderMoved;
+                confidenceSlider.value = confidenceLevel;
+                confidenceSlider.classList.add('moved');
+                sliderValue.textContent = confidenceLevel + '%';
+                
+                // Update track fill percentage
+                const percentage = (confidenceLevel / 100) * 100;
+                confidenceSlider.style.setProperty('--fill-percent', percentage + '%');
+                updateTooltipPosition();
+            }
+            
+            // Check form completeness after restoring values
+            checkFormCompleteness();
+        }
     </script>
 
     <style>
@@ -505,6 +621,7 @@
             background: #ddd;
             outline: none;
             -webkit-appearance: none;
+            cursor: pointer;
         }
 
         /* Default state - hollow grey circle */
@@ -520,6 +637,10 @@
             transition: all 0.3s ease;
         }
 
+        .confidence-slider::-webkit-slider-thumb:hover {
+            border-color: #666;
+        }
+
         .confidence-slider::-moz-range-thumb {
             width: 16px;
             height: 16px;
@@ -528,17 +649,46 @@
             border: 2px solid #999;
             cursor: pointer;
             transition: all 0.3s ease;
+            -moz-appearance: none;
         }
 
-        /* Moved state - solid blue circle */
+        .confidence-slider::-moz-range-thumb:hover {
+            border-color: #666;
+        }
+
+        .confidence-slider::-moz-range-track {
+            background: #ddd;
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        /* Moved state - solid blue circle and blue track fill */
+        .confidence-slider.moved {
+            background: linear-gradient(to right, #007bff var(--fill-percent, 50%), #ddd var(--fill-percent, 50%));
+        }
+
         .confidence-slider.moved::-webkit-slider-thumb {
             background: #007bff;
             border: 2px solid #007bff;
         }
 
+        .confidence-slider.moved::-webkit-slider-thumb:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+
         .confidence-slider.moved::-moz-range-thumb {
             background: #007bff;
             border: 2px solid #007bff;
+        }
+
+        .confidence-slider.moved::-moz-range-thumb:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+
+        .confidence-slider.moved::-moz-range-track {
+            background: linear-gradient(to right, #007bff var(--fill-percent, 50%), #ddd var(--fill-percent, 50%));
         }
 
         .slider-value {
@@ -706,6 +856,41 @@
             .soft-validation-buttons .btn-secondary,
             .soft-validation-buttons .btn-primary {
                 width: 100%;
+            }
+        }
+
+        /* Navigation buttons styling */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        @media (max-width: 768px) {
+            .navigation-buttons {
+                flex-direction: column;
+            }
+
+            .navigation-buttons .btn-primary,
+            .navigation-buttons .btn-secondary {
+                width: 100%;
+                margin: 0.5rem 0;
             }
         }
     </style>

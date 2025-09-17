@@ -219,6 +219,9 @@
                     const value = this.value;
                     valueDisplay.textContent = value;
                     updateTooltipPosition(this, valueDisplay);
+                    // Update track fill percentage
+                    const percentage = (value / 100) * 100;
+                    this.style.setProperty('--fill-percent', percentage + '%');
                 });
 
                 // Show tooltip when dragging starts
@@ -259,6 +262,9 @@
                 slider.addEventListener('change', function() {
                     this.setAttribute('data-moved', 'true');
                     this.classList.add('moved'); // Add visual styling for moved state
+                    // Update track fill percentage
+                    const percentage = (this.value / 100) * 100;
+                    this.style.setProperty('--fill-percent', percentage + '%');
                     // Store value in sessionStorage for persistence
                     const itemId = this.getAttribute('data-item-id');
                     saveSliderValue(itemId, parseInt(this.value));
@@ -315,6 +321,9 @@
                     valueDisplay.textContent = currentValues[itemId];
                     slider.setAttribute('data-moved', 'true');
                     slider.classList.add('moved'); // Add visual styling for moved state
+                    // Update track fill percentage for restored value
+                    const percentage = (currentValues[itemId] / 100) * 100;
+                    slider.style.setProperty('--fill-percent', percentage + '%');
                     updateTooltipPosition(slider, valueDisplay);
                 }
             });
@@ -477,6 +486,9 @@
                     valueDisplay.textContent = sliderData[itemId];
                     slider.setAttribute('data-moved', 'true');
                     slider.classList.add('moved');
+                    // Update track fill percentage for restored value
+                    const percentage = (sliderData[itemId] / 100) * 100;
+                    slider.style.setProperty('--fill-percent', percentage + '%');
                     updateTooltipPosition(slider, valueDisplay);
                 }
             });
@@ -646,13 +658,24 @@
             border: 2px solid #999;
             cursor: pointer;
             transition: all 0.3s ease;
+            -moz-appearance: none;
         }
 
         .matrix-slider::-moz-range-thumb:hover {
             border-color: #666;
         }
 
-        /* Moved state - solid blue circle */
+        .matrix-slider::-moz-range-track {
+            background: #ddd;
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        /* Moved state - solid blue circle and blue track fill */
+        .matrix-slider.moved {
+            background: linear-gradient(to right, #007bff var(--fill-percent, 50%), #ddd var(--fill-percent, 50%));
+        }
+
         .matrix-slider.moved::-webkit-slider-thumb {
             background: #007bff;
             border: 2px solid #007bff;
@@ -671,6 +694,10 @@
         .matrix-slider.moved::-moz-range-thumb:hover {
             background: #0056b3;
             border-color: #0056b3;
+        }
+
+        .matrix-slider.moved::-moz-range-track {
+            background: linear-gradient(to right, #007bff var(--fill-percent, 50%), #ddd var(--fill-percent, 50%));
         }
 
         .slider-value {

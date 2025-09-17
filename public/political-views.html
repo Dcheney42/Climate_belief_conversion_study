@@ -74,6 +74,9 @@
             // Initialize the questions
             initializeQuestions();
             
+            // Restore previously selected values if they exist
+            restoreRadioValues();
+            
             // Initialize form validation
             initializeFormValidation();
         });
@@ -180,6 +183,17 @@
             const previousBtn = document.getElementById('previousBtn');
             const nextBtn = document.getElementById('nextBtn');
 
+            // Add event listeners to radio buttons for persistence
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Store the selected value in sessionStorage for persistence
+                        saveRadioValue(this.getAttribute('data-question-id'), parseInt(this.value));
+                    }
+                });
+            });
+
             // Previous button navigation
             previousBtn.addEventListener('click', function() {
                 window.location.href = '/cc-views-matrix.html';
@@ -214,10 +228,20 @@
                     radio.checked = true;
                 }
             });
+
+            // Re-initialize form validation for new radio buttons
+            initializeFormValidation();
         }
 
         function handleFormSubmit(e) {
             e.preventDefault();
+            
+            // Check for unanswered questions and show soft validation
+            const unansweredQuestions = getUnansweredQuestions();
+            if (unansweredQuestions.length > 0 && !sessionStorage.getItem('soft_validation_acknowledged_political')) {
+                showSoftValidationPrompt(unansweredQuestions);
+                return;
+            }
             
             // Collect all responses (including null for unanswered questions)
             const responses = {};
@@ -251,6 +275,79 @@
             
             // Proceed to Views on Climate Change page
             window.location.href = '/views.html';
+        }
+
+        function getUnansweredQuestions() {
+            const unansweredQuestions = [];
+            
+            politicalQuestions.forEach(question => {
+                const selectedRadio = document.querySelector(`input[name="${question.id}"]:checked`);
+                if (!selectedRadio) {
+                    unansweredQuestions.push(question);
+                }
+            });
+            
+            return unansweredQuestions;
+        }
+
+        function showSoftValidationPrompt(unansweredQuestions) {
+            const count = unansweredQuestions.length;
+            const message = `You have left ${count} question${count > 1 ? 's' : ''} unanswered. Please complete them if you wish.`;
+            
+            // Create a modal-style prompt
+            const modal = document.createElement('div');
+            modal.className = 'soft-validation-modal';
+            modal.innerHTML = `
+                <div class="soft-validation-content">
+                    <h3>Unanswered Questions</h3>
+                    <p>${message}</p>
+                    <div class="soft-validation-buttons">
+                        <button type="button" class="btn-secondary" onclick="closeSoftValidation()">Go Back and Complete</button>
+                        <button type="button" class="btn-primary" onclick="continueSoftValidation()">Continue Anyway</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus the modal for accessibility
+            modal.querySelector('.btn-secondary').focus();
+        }
+
+        function closeSoftValidation() {
+            const modal = document.querySelector('.soft-validation-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function continueSoftValidation() {
+            // Mark that user has acknowledged the soft validation
+            sessionStorage.setItem('soft_validation_acknowledged_political', 'true');
+            
+            // Remove the modal
+            closeSoftValidation();
+            
+            // Resubmit the form
+            document.getElementById('politicalViewsForm').dispatchEvent(new Event('submit'));
+        }
+
+        function saveRadioValue(questionId, value) {
+            // Store radio button values for persistence across navigation
+            let radioData = JSON.parse(sessionStorage.getItem('political_radio_values') || '{}');
+            radioData[questionId] = value;
+            sessionStorage.setItem('political_radio_values', JSON.stringify(radioData));
+        }
+
+        function restoreRadioValues() {
+            const radioData = JSON.parse(sessionStorage.getItem('political_radio_values') || '{}');
+            
+            Object.keys(radioData).forEach(questionId => {
+                const radio = document.querySelector(`input[name="${questionId}"][value="${radioData[questionId]}"]`);
+                if (radio) {
+                    radio.checked = true;
+                }
+            });
         }
     </script>
 
@@ -434,6 +531,86 @@
             border-radius: 12px;
             padding: 2rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Soft Validation Modal Styles */
+        .soft-validation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .soft-validation-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .soft-validation-content h3 {
+            margin: 0 0 1rem 0;
+            color: #333;
+            font-size: 1.25rem;
+        }
+
+        .soft-validation-content p {
+            margin: 0 0 1.5rem 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .soft-validation-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .soft-validation-buttons .btn-secondary,
+        .soft-validation-buttons .btn-primary {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .soft-validation-buttons .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .soft-validation-buttons .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .soft-validation-buttons .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .soft-validation-buttons .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .soft-validation-buttons {
+                flex-direction: column;
+            }
+            
+            .soft-validation-buttons .btn-secondary,
+            .soft-validation-buttons .btn-primary {
+                width: 100%;
+            }
         }
     </style>
 </body>

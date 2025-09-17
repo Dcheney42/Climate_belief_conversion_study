@@ -355,9 +355,8 @@ textarea:focus {
 .navigation-buttons {
     display: flex;
     justify-content: space-between;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #e1e8ed;
+    margin-top: 15px;
+    padding-top: 0;
 }
 
 /* Consent Form Styles */
@@ -787,9 +786,8 @@ textarea:focus {
 .form-actions {
     display: flex;
     justify-content: space-between;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #e1e8ed;
+    margin-top: 15px;
+    padding-top: 0;
 }
 
 /* Footer */

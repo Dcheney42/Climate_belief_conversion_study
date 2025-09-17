@@ -11,7 +11,6 @@
         <!-- Header Box -->
         <div class="demo-field-card" style="text-align: center; margin-bottom: 24px;">
             <h1 style="font-size: 2em; margin-bottom: 8px;">Final questions</h1>
-            <p style="color: #6b7280; margin: 0;">Please answer these final questions about your experience.</p>
         </div>
         
         <div class="content">
@@ -22,7 +21,7 @@
                     <h2 style="margin-bottom: 20px;">Your Perspective Summary</h2>
                     
                     <div style="margin-bottom: 24px;">
-                        <p style="color: #4a5568; margin-bottom: 12px;">Earlier, the AI summarized your perspective as:</p>
+                        <p style="color: #4a5568; margin-bottom: 12px;">Earlier, the AI summarized your perspective on climate change as:</p>
                         <div class="ai-summary-container">
                             <div id="savedAiSummary" class="ai-summary">
                                 (No summary available)
@@ -130,7 +129,7 @@
                 
                 <div class="form-actions">
                     <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
-                    <button type="submit" class="btn-primary" id="submitBtn">Submit Survey</button>
+                    <button type="submit" class="btn-primary" id="submitBtn">Next</button>
                 </div>
             </form>
             
@@ -209,6 +208,9 @@
             const finalSliderValue = document.getElementById('finalSliderValue');
             
             if (finalConfidenceSlider && finalSliderValue) {
+                // Set initial tooltip position
+                updateFinalTooltipPosition();
+                
                 finalConfidenceSlider.addEventListener('input', function() {
                     const value = parseInt(this.value);
                     finalConfidenceSliderMoved = true; // Mark slider as moved
@@ -535,14 +537,14 @@
                 } else {
                     alert('Error submitting survey. Please try again.');
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Submit Survey';
+                    submitBtn.textContent = 'Next';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert('Error submitting survey. Please try again.');
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Submit Survey';
+                submitBtn.textContent = 'Next';
             });
         }
         
@@ -576,6 +578,65 @@
                 });
             });
         });
+        function getMissingOptionalFields() {
+            const missingFields = [];
+            
+            // Check if final confidence slider was moved (optional)
+            if (!finalConfidenceSliderMoved) {
+                missingFields.push('Final confidence level');
+            }
+            
+            return missingFields;
+        }
+
+        function showSoftValidationPrompt(missingFields) {
+            const fieldList = missingFields.join(', ');
+            const message = `You have left some questions blank: ${fieldList}. Please complete them if you wish.`;
+            
+            // Create a modal-style prompt
+            const modal = document.createElement('div');
+            modal.className = 'soft-validation-modal';
+            modal.innerHTML = `
+                <div class="soft-validation-content">
+                    <h3>Optional Questions</h3>
+                    <p>${message}</p>
+                    <div class="soft-validation-buttons">
+                        <button type="button" class="btn-secondary" onclick="closeSoftValidation()">Go Back and Complete</button>
+                        <button type="button" class="btn-primary" onclick="continueSoftValidation()">Continue Anyway</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Focus the modal for accessibility
+            modal.querySelector('.btn-secondary').focus();
+        }
+
+        function closeSoftValidation() {
+            const modal = document.querySelector('.soft-validation-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        function continueSoftValidation() {
+            // Mark that user has acknowledged the soft validation
+            sessionStorage.setItem('soft_validation_acknowledged_exit', 'true');
+            
+            // Remove the modal
+            closeSoftValidation();
+            
+            // Resubmit the form
+            document.getElementById('exitSurveyForm').dispatchEvent(new Event('submit'));
+        }
+
+        function saveSliderValue(key, value) {
+            // Store slider values for persistence across navigation
+            let sliderData = JSON.parse(sessionStorage.getItem('slider_values') || '{}');
+            sliderData[key] = value;
+            sessionStorage.setItem('slider_values', JSON.stringify(sliderData));
+        }
     </script>
 
     <style>
