@@ -131,6 +131,71 @@
             color: #1a73e8;
             margin-bottom: 1.5rem;
         }
+        
+        .completion-code-section {
+            text-align: center;
+            margin: 2rem 0 1rem 0;
+        }
+        
+        .completion-code-box {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 0 auto;
+            max-width: 400px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .completion-text {
+            margin: 0 0 1rem 0;
+            color: #155724;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .completion-code {
+            font-family: 'Courier New', Monaco, monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #155724;
+            background-color: #f8f9fa;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin: 0;
+        
+        .copy-instruction {
+            margin: 0.75rem 0 0 0;
+            color: #666;
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+        
+        .copy-feedback {
+            display: none;
+            margin: 0.5rem 0 0 0;
+            color: #155724;
+            font-size: 0.875rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .copy-feedback.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        .completion-code:hover {
+            background-color: #e9ecef;
+            border-color: #a3c7a3;
+            cursor: pointer;
+        }
+            user-select: text;
+            cursor: text;
+            letter-spacing: 2px;
+        }
     </style>
 </head>
 <body>
@@ -165,6 +230,8 @@
                 <h2>Confidentiality Reminder</h2>
                 <p>As a reminder, all the data collected in this study will be kept confidential and anonymous. Your responses will not be identifiable in any published results.</p>
                 
+                    <p class="copy-instruction">Click the code above to copy it to your clipboard</p>
+                    <div class="copy-feedback" id="copyFeedback">Copied to clipboard!</div>
                 <h2>Further Questions or Concerns</h2>
                 <p>If you have any questions about this research or your participation, please don't hesitate to contact the lead researcher:</p>
                 
@@ -179,6 +246,13 @@
             </div>
             
             
+            <div class="completion-code-section">
+                <div class="completion-code-box">
+                    <p class="completion-text">Your Prolific completion code is:</p>
+                    <div class="completion-code" id="completionCode">CNCTZ833</div>
+                </div>
+            </div>
+            
             <div class="submit-section">
                 <button type="button" class="btn-submit" id="submitBtn">Submit and Return to Prolific</button>
             </div>
@@ -191,6 +265,8 @@
             const participantId = sessionStorage.getItem('participant_id');
             if (!participantId) {
                 alert('Please complete the study from the beginning.');
+            
+            initializeCopyToClipboard();
                 window.location.href = '/';
                 return;
             }
@@ -322,6 +398,68 @@
             }
             
             // Check if there's a completion URL stored from server environment
+        
+        function initializeCopyToClipboard() {
+            const completionCodeElement = document.getElementById('completionCode');
+            const copyFeedback = document.getElementById('copyFeedback');
+            
+            completionCodeElement.addEventListener('click', async function() {
+                try {
+                    const completionCode = this.textContent.trim();
+                    
+                    // Use modern clipboard API if available
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(completionCode);
+                    } else {
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = completionCode;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-999999px';
+                        textArea.style.top = '-999999px';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        document.execCommand('copy');
+                        textArea.remove();
+                    }
+                    
+                    // Show feedback
+                    copyFeedback.classList.add('show');
+                    
+                    // Hide feedback after 2 seconds
+                    setTimeout(() => {
+                        copyFeedback.classList.remove('show');
+                    }, 2000);
+                    
+                    console.log('Completion code copied to clipboard:', completionCode);
+                    
+                } catch (error) {
+                    console.error('Failed to copy completion code:', error);
+                    // Show error feedback
+                    copyFeedback.textContent = 'Failed to copy - please select manually';
+                    copyFeedback.classList.add('show');
+                    
+                    setTimeout(() => {
+                        copyFeedback.textContent = 'Copied to clipboard!';
+                        copyFeedback.classList.remove('show');
+                    }, 3000);
+                }
+            });
+            
+            // Add keyboard accessibility
+            completionCodeElement.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+            
+            // Add title attribute for tooltip
+            completionCodeElement.setAttribute('title', 'Click to copy to clipboard');
+            completionCodeElement.setAttribute('tabindex', '0');
+            completionCodeElement.setAttribute('role', 'button');
+        }
             const storedCompletionUrl = sessionStorage.getItem('prolific_completion_url');
             if (storedCompletionUrl) {
                 return storedCompletionUrl;
