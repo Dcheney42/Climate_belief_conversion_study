@@ -35,7 +35,8 @@
                                   placeholder="Please share your perspective on climate change..."
                                   rows="6"
                                   required></textarea>
-                        <div class="field-error" id="currentViews-error"></div>
+                       <div class="character-limit-reminder">Please write at least 50 characters.</div>
+                       <div class="field-error" id="currentViews-error"></div>
                     </div>
                     
                     <div class="form-actions">
@@ -74,7 +75,8 @@
                                   placeholder="Please elaborate on what influenced your perspective..."
                                   rows="6"
                                   required></textarea>
-                        <div class="field-error" id="elaboration-error"></div>
+                       <div class="character-limit-reminder">Please write at least 50 characters.</div>
+                       <div class="field-error" id="elaboration-error"></div>
                     </div>
                     
                     <div class="form-actions">
@@ -284,8 +286,8 @@
             }
             
             if (text.length < 50) {
-                showFieldError('currentViews', 'Please enter at least 50 characters before continuing.');
-                showGeneralError('currentViewsGeneralError', 'Please enter at least 50 characters before continuing.');
+                showFieldError('currentViews', 'Response is too short. Please provide more detail.');
+                showGeneralError('currentViewsGeneralError', 'Response is too short. Please provide more detail.');
                 return false;
             }
             
@@ -305,6 +307,11 @@
                 return false;
             }
             
+            // Only validate on submit attempt, not during typing
+            if (!hasTriedSubmit) {
+                return true;
+            }
+            
             if (!text) {
                 showFieldError('elaboration', 'Please elaborate on what influenced your perspective.');
                 showGeneralError('elaborationGeneralError', 'Please elaborate on what influenced your perspective.');
@@ -312,8 +319,7 @@
             }
             
             if (text.length < 50) {
-                showFieldError('elaboration', 'Please enter at least 50 characters before continuing.');
-                showGeneralError('elaborationGeneralError', 'Please enter at least 50 characters before continuing.');
+                // Don't show field errors for character count during typing
                 return false;
             }
             
@@ -568,6 +574,14 @@
             overflow: hidden;
             user-select: none;
             pointer-events: none;
+        }
+
+        .character-limit-reminder {
+            font-style: italic;
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.5rem;
+            margin-bottom: 0;
         }
     </style>
 </body>

@@ -71,17 +71,6 @@
                             </div>
                             <div class="field-error" id="aiAccurate-error"></div>
                             
-                            <!-- Conditional follow-up text box -->
-                            <div id="missingInfoSection" class="missing-info-section" style="display: none;">
-                                <p class="question-text">
-                                    Please add any information missing from the AI summary.
-                                </p>
-                                <textarea id="missingInfo" name="missingInfo"
-                                          class="field-input"
-                                          placeholder="Please describe what was missing from the summary..."
-                                          rows="4"></textarea>
-                                <div class="field-error" id="missingInfo-error"></div>
-                            </div>
                         </div>
                     </div>
                     
@@ -249,11 +238,6 @@
                 });
             });
 
-            // Add event listener for missing info text area
-            const missingInfoInput = document.getElementById('missingInfo');
-            missingInfoInput.addEventListener('input', function() {
-                saveFormState();
-            });
 
             form.addEventListener('submit', handleFormSubmit);
             
@@ -276,32 +260,14 @@
         }
 
         function handleAiAccurateChange() {
-            const selectedValue = document.querySelector('input[name="aiAccurate"]:checked')?.value;
-            const missingInfoSection = document.getElementById('missingInfoSection');
-            
-            if (selectedValue === 'No') {
-                missingInfoSection.style.display = 'block';
-                // Add input listener for missing info text
-                const missingInfoInput = document.getElementById('missingInfo');
-                missingInfoInput.addEventListener('input', checkFormCompleteness);
-            } else {
-                missingInfoSection.style.display = 'none';
-                // Clear any text in the missing info field
-                document.getElementById('missingInfo').value = '';
-            }
+            // No conditional display logic needed since text box is removed
         }
 
         function checkFormCompleteness() {
             const selectedValue = document.querySelector('input[name="aiAccurate"]:checked')?.value;
-            const missingInfo = document.getElementById('missingInfo').value.trim();
             const submitBtn = document.getElementById('submitBtn');
             
             let isValid = selectedValue !== undefined;
-            
-            // If they selected "No", they must provide missing info
-            if (selectedValue === 'No') {
-                isValid = isValid && missingInfo.length > 0;
-            }
             
             // Confidence slider is now optional - don't require it for form completion
             
@@ -330,18 +296,11 @@
             isSubmitting = true;
             
             const selectedValue = document.querySelector('input[name="aiAccurate"]:checked')?.value;
-            const missingInfo = document.getElementById('missingInfo').value.trim();
             const submitBtn = document.getElementById('submitBtn');
             
             // Validate required fields only
             if (!selectedValue) {
                 showGeneralError('Please indicate whether the AI accurately summarized your perspective on climate change.');
-                isSubmitting = false;
-                return;
-            }
-            
-            if (selectedValue === 'No' && !missingInfo) {
-                showGeneralError('Please add any information missing from the AI summary.');
                 isSubmitting = false;
                 return;
             }
@@ -361,7 +320,7 @@
                     AI_Summary_Views: aiSummaryText, // Store for reuse on final page
                     confidence_level: confidenceSliderMoved ? confidenceLevel : "N/a",
                     ai_accurate: selectedValue,
-                    missing_info: selectedValue === 'No' ? missingInfo : null
+                    missing_info: null
                 };
                 
                 console.log('Submitting belief confidence data:', beliefConfidenceData);
@@ -503,11 +462,9 @@
         function saveFormState() {
             // Save current form state to session storage
             const aiAccurate = document.querySelector('input[name="aiAccurate"]:checked')?.value;
-            const missingInfo = document.getElementById('missingInfo').value;
             
             const formState = {
                 aiAccurate: aiAccurate || null,
-                missingInfo: missingInfo,
                 confidenceLevel: confidenceSliderMoved ? confidenceLevel : null,
                 confidenceSliderMoved: confidenceSliderMoved
             };
@@ -530,10 +487,6 @@
                 }
             }
             
-            // Restore missing info text
-            if (formState.missingInfo) {
-                document.getElementById('missingInfo').value = formState.missingInfo;
-            }
             
             // Restore confidence slider state
             if (formState.confidenceLevel !== null && formState.confidenceSliderMoved) {
@@ -717,11 +670,6 @@
             border-top: 1px solid #eee;
         }
 
-        .missing-info-section {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
-        }
 
         .field-input {
             width: 100%;

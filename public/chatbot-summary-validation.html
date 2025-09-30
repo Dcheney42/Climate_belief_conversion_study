@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Summary Validation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Chatbot Summary Validation</h1>
+            <p class="subtitle">Final Question</p>
+        </div>
+        
+        <div class="content">
+            <form id="summaryValidationForm" class="survey-form">
+                <div class="demo-field-card">
+                    <h3 class="card-heading">Summary of Your Conversation</h3>
+                    <p class="question-text">
+                        The chatbot has summarized the main points of your belief change narrative as follows:
+                    </p>
+                    
+                    <!-- Chatbot Summary Display -->
+                    <div id="chatbotSummaryContainer" class="chatbot-summary-container">
+                        <ul id="chatbotSummaryList" class="chatbot-summary-list">
+                            <!-- Summary points will be inserted here -->
+                            <li class="loading-summary">Loading summary...</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="question-text">
+                        Did the chatbot accurately summarise the main points of your belief change narrative?
+                    </p>
+                    
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="summaryAccurate" value="Yes" required>
+                            <span class="radio-text">Yes</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="summaryAccurate" value="No" required>
+                            <span class="radio-text">No</span>
+                        </label>
+                    </div>
+                    <div class="field-error" id="summaryAccurate-error"></div>
+                </div>
+                
+                <div class="form-actions">
+                    <div class="general-error" id="generalError" role="alert" style="display: none;"></div>
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn-secondary" id="previousBtn">Previous</button>
+                        <button type="submit" class="btn-primary" id="submitBtn" disabled>Continue</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let hasTriedSubmit = false;
+        let chatbotSummary = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user came from exit survey
+            const exitSurveyData = sessionStorage.getItem('exit_survey_data');
+            if (!exitSurveyData) {
+                alert('Please complete the exit survey first.');
+                window.location.href = '/exit-survey.html';
+                return;
+            }
+
+            // Load and display chatbot summary
+            loadChatbotSummary();
+
+            // Initialize form validation
+            initializeFormValidation();
+        });
+
+        function loadChatbotSummary() {
+            try {
+                // Get the chatbot summary from session storage
+                const summaryData = sessionStorage.getItem('chatbot_summary');
+                
+                if (summaryData) {
+                    chatbotSummary = JSON.parse(summaryData);
+                    displaySummary(chatbotSummary);
+                } else {
+                    // Fallback: check if there's conversation data to generate summary from
+                    const conversationData = sessionStorage.getItem('conversation_data');
+                    if (conversationData) {
+                        generateSummaryFromConversation(JSON.parse(conversationData));
+                    } else {
+                        // No summary available - show placeholder
+                        displayFallbackSummary();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading chatbot summary:', error);
+                displayFallbackSummary();
+            }
+        }
+
+        function displaySummary(summaryPoints) {
+            const summaryList = document.getElementById('chatbotSummaryList');
+            summaryList.innerHTML = '';
+            
+            if (Array.isArray(summaryPoints) && summaryPoints.length > 0) {
+                summaryPoints.forEach(point => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = point;
+                    summaryList.appendChild(listItem);
+                });
+            } else if (typeof summaryPoints === 'string') {
+                // Handle case where summary is a single string
+                const listItem = document.createElement('li');
+                listItem.textContent = summaryPoints;
+                summaryList.appendChild(listItem);
+            } else {
+                displayFallbackSummary();
+            }
+        }
+
+        function generateSummaryFromConversation(conversationData) {
+            // Simple fallback summary generation
+            const fallbackSummary = [
+                "You engaged in a conversation about your views on climate change",
+                "You shared your perspective on belief change",
+                "The conversation explored factors that influenced your thinking"
+            ];
+            
+            displaySummary(fallbackSummary);
+        }
+
+        function displayFallbackSummary() {
+            const summaryList = document.getElementById('chatbotSummaryList');
+            summaryList.innerHTML = '<li>No summary available from the chatbot conversation.</li>';
+        }
+
+        function initializeFormValidation() {
+            const form = document.getElementById('summaryValidationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const previousBtn = document.getElementById('previousBtn');
+            
+            // Add event listeners for form validation
+            const inputs = form.querySelectorAll('input[type="radio"]');
+            inputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    checkFormCompleteness();
+                    if (hasTriedSubmit) {
+                        validateForm();
+                    }
+                });
+            });
+
+            // Previous button navigation
+            previousBtn.addEventListener('click', function() {
+                window.location.href = '/exit-survey.html';
+            });
+
+            form.addEventListener('submit', handleFormSubmit);
+            
+            // Initial validation check
+            checkFormCompleteness();
+        }
+
+        function checkFormCompleteness() {
+            const selectedValue = document.querySelector('input[name="summaryAccurate"]:checked');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            submitBtn.disabled = !selectedValue;
+        }
+
+        function validateForm() {
+            const selectedValue = document.querySelector('input[name="summaryAccurate"]:checked');
+            
+            if (!selectedValue) {
+                showFieldError('summaryAccurate', 'Please indicate whether the chatbot accurately summarized your narrative.');
+                showGeneralError('Please indicate whether the chatbot accurately summarized your narrative.');
+                return false;
+            }
+            
+            clearFieldError('summaryAccurate');
+            clearGeneralError();
+            return true;
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            hasTriedSubmit = true;
+            
+            if (!validateForm()) {
+                return;
+            }
+            
+            const selectedValue = document.querySelector('input[name="summaryAccurate"]:checked').value;
+            
+            // Store summary validation data
+            const summaryValidationData = {
+                chatbot_summary: chatbotSummary,
+                summary_accurate: selectedValue,
+                timestamp: new Date().toISOString()
+            };
+            
+            sessionStorage.setItem('summary_validation_data', JSON.stringify(summaryValidationData));
+            
+            console.log('Summary validation completed - proceeding to debrief');
+            window.location.href = '/debrief.html';
+        }
+
+        function showFieldError(fieldName, message) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.add('show');
+            }
+        }
+
+        function clearFieldError(fieldName) {
+            const errorElement = document.getElementById(fieldName + '-error');
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+        }
+
+        function showGeneralError(message) {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = message;
+                generalErrorElement.style.display = 'block';
+            }
+        }
+
+        function clearGeneralError() {
+            const generalErrorElement = document.getElementById('generalError');
+            if (generalErrorElement) {
+                generalErrorElement.textContent = '';
+                generalErrorElement.style.display = 'none';
+            }
+        }
+    </script>
+
+    <style>
+        .chatbot-summary-container {
+            margin: 1.5rem 0;
+            background-color: #f8f9fa;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .chatbot-summary-list {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .chatbot-summary-list li {
+            margin-bottom: 0.75rem;
+        }
+
+        .loading-summary {
+            color: #666;
+            font-style: italic;
+        }
+
+        .question-text {
+            margin-bottom: 1rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .radio-label:hover {
+            background-color: #f8f9fa;
+        }
+
+        .radio-label input[type="radio"] {
+            margin-right: 0.75rem;
+        }
+
+        .radio-text {
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .field-error.show {
+            display: block;
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .general-error {
+            color: #d32f2f;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #ffebee;
+            border-radius: 4px;
+            border: 1px solid #ffcdd2;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        @media (max-width: 768px) {
+            .navigation-buttons {
+                flex-direction: column;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+    </style>
+</body>
+</html>

@@ -154,7 +154,7 @@
             font-weight: 500;
         }
         
-        .completion-code {
+        .completion-code-button {
             font-family: 'Courier New', Monaco, monospace;
             font-size: 1.5rem;
             font-weight: bold;
@@ -164,37 +164,51 @@
             border-radius: 4px;
             padding: 0.75rem;
             margin: 0;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            display: block;
+            width: 100%;
+        }
         
-        .copy-instruction {
+        .completion-code-button:hover {
+            background-color: #e9ecef;
+            border-color: #a3c7a3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .completion-code-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .copy-instruction-inside {
             margin: 0.75rem 0 0 0;
             color: #666;
             font-size: 0.875rem;
-            font-style: italic;
         }
         
-        .copy-feedback {
-            display: none;
-            margin: 0.5rem 0 0 0;
-            color: #155724;
-            font-size: 0.875rem;
+        .toast-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #155724;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
         
-        .copy-feedback.show {
-            display: block;
+        .toast-notification.show {
             opacity: 1;
-        }
-        
-        .completion-code:hover {
-            background-color: #e9ecef;
-            border-color: #a3c7a3;
-            cursor: pointer;
-        }
-            user-select: text;
-            cursor: text;
-            letter-spacing: 2px;
         }
     </style>
 </head>
@@ -229,9 +243,6 @@
                 
                 <h2>Confidentiality Reminder</h2>
                 <p>As a reminder, all the data collected in this study will be kept confidential and anonymous. Your responses will not be identifiable in any published results.</p>
-                
-                    <p class="copy-instruction">Click the code above to copy it to your clipboard</p>
-                    <div class="copy-feedback" id="copyFeedback">Copied to clipboard!</div>
                 <h2>Further Questions or Concerns</h2>
                 <p>If you have any questions about this research or your participation, please don't hesitate to contact the lead researcher:</p>
                 
@@ -249,7 +260,8 @@
             <div class="completion-code-section">
                 <div class="completion-code-box">
                     <p class="completion-text">Your Prolific completion code is:</p>
-                    <div class="completion-code" id="completionCode">CNCTZ833</div>
+                    <button class="completion-code-button" id="completionCode">CNCTZ833</button>
+                    <p class="copy-instruction-inside">Click the code above to copy it</p>
                 </div>
             </div>
             
@@ -261,155 +273,82 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user completed the study
+            // Always initialize the functionality, regardless of session data
+            initializeCopyToClipboard();
+            initializeSubmit();
+            
+            // Optional check for completion tracking (don't block functionality)
             const participantId = sessionStorage.getItem('participant_id');
             if (!participantId) {
-                alert('Please complete the study from the beginning.');
-            
-            initializeCopyToClipboard();
-                window.location.href = '/';
-                return;
+                console.log('No participant ID found - participant may have navigated directly to debrief page');
             }
-            
-            initializeDownload();
-            initializeSubmit();
         });
         
-        function initializeDownload() {
-            const downloadLink = document.getElementById('downloadDebriefPdf');
-            
-            downloadLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                generateDebriefPDF();
-            });
-        }
-        
-        function generateDebriefPDF() {
-            try {
-                // Get the debrief content
-                const content = document.getElementById('debriefContent').innerText;
-                
-                // Create a blob with the content
-                const blob = new Blob([content], { type: 'text/plain' });
-                
-                // Create download link
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'Participant_Debrief_Sheet.pdf';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-                
-                console.log('Debrief sheet downloaded as text file');
-            } catch (error) {
-                console.error('Error generating download:', error);
-                alert('Download feature is currently unavailable. Please copy the text if needed.');
-            }
-        }
         
         function initializeSubmit() {
             const submitBtn = document.getElementById('submitBtn');
             
-            submitBtn.addEventListener('click', async function() {
-                // Disable button during submission
+            if (!submitBtn) {
+                console.error('Submit button not found');
+                return;
+            }
+            
+            console.log('Submit button found, adding event listener');
+            
+            submitBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Submit button clicked');
+                
+                // Disable button during redirect
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
+                submitBtn.textContent = 'Redirecting...';
                 
                 try {
-                    // Prepare completion data
-                    const completionData = {
-                        participant_id: sessionStorage.getItem('participant_id'),
-                        prolific_id: sessionStorage.getItem('prolific_id'),
-                        completed_at: new Date().toISOString(),
-                        survey_completed: true
-                    };
+                    // Use the official Prolific completion URL with the completion code
+                    const completionCode = 'CNCTZ833';
+                    const prolificCompletionUrl = `https://app.prolific.com/submissions/complete?cc=${completionCode}`;
                     
-                    console.log('Submitting final survey completion:', completionData);
+                    console.log('Redirecting to Prolific completion URL:', prolificCompletionUrl);
                     
-                    // Submit completion data to server
-                    const response = await fetch('/api/complete-survey', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(completionData)
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-                    const result = await response.json();
-                    console.log('Survey completion successful:', result);
-                    
-                    // Store completion data locally
-                    sessionStorage.setItem('completion_data', JSON.stringify(completionData));
-                    
-                    // Get Prolific completion URL from server response or environment
-                    const prolificCompletionUrl = result.prolificCompletionUrl || getProlificCompletionUrl();
-                    
-                    if (prolificCompletionUrl) {
-                        console.log('Redirecting to Prolific completion URL:', prolificCompletionUrl);
+                    // Small delay to show the "Redirecting..." text
+                    setTimeout(() => {
                         window.location.href = prolificCompletionUrl;
-                    } else {
-                        // Fallback: show completion message
-                        alert('Thank you for completing the study! Please return to Prolific to register your submission.');
-                        console.log('Study completed successfully - no Prolific URL available');
-                    }
+                    }, 100);
                     
                 } catch (error) {
-                    console.error('Error submitting survey completion:', error);
+                    console.error('Error redirecting to Prolific:', error);
                     
-                    // Re-enable button and show error
+                    // Re-enable button on error
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Submit and Return to Prolific';
                     
-                    // Show error but allow fallback completion
-                    const continueAnyway = confirm('There was an error submitting your completion data to the server. Would you like to continue to Prolific anyway? (Your previous responses have been saved)');
-                    
-                    if (continueAnyway) {
-                        // Try to redirect to Prolific even with submission error
-                        const prolificCompletionUrl = getProlificCompletionUrl();
-                        if (prolificCompletionUrl) {
-                            console.log('Redirecting to Prolific despite submission error');
-                            window.location.href = prolificCompletionUrl;
-                        } else {
-                            alert('Thank you for completing the study! Please return to Prolific to register your submission.');
-                        }
-                    }
+                    alert('There was an error redirecting to Prolific. Please manually navigate to Prolific and enter the completion code: CNCTZ833');
                 }
             });
+            
+            console.log('Submit button event listener added successfully');
         }
         
-        function getProlificCompletionUrl() {
-            // Try to get completion URL from various sources
-            const urlParams = new URLSearchParams(window.location.search);
-            const prolificId = sessionStorage.getItem('prolific_id');
+        function initializeCopyToClipboard() {
+            const completionCodeButton = document.getElementById('completionCode');
             
-            // Check for completion URL in URL parameters (from environment)
-            const returnUrl = urlParams.get('PROLIFIC_COMPLETION_URL') ||
-                             urlParams.get('completion_url') ||
-                             urlParams.get('return_url');
-            
-            if (returnUrl) {
-                return returnUrl;
+            if (!completionCodeButton) {
+                console.error('Completion code button not found');
+                return;
             }
             
-            // Check if there's a completion URL stored from server environment
-        
-        function initializeCopyToClipboard() {
-            const completionCodeElement = document.getElementById('completionCode');
-            const copyFeedback = document.getElementById('copyFeedback');
-            
-            completionCodeElement.addEventListener('click', async function() {
+            completionCodeButton.addEventListener('click', async function(e) {
+                e.preventDefault();
+                console.log('Button clicked'); // Debug log
+                
                 try {
                     const completionCode = this.textContent.trim();
+                    console.log('Copying code:', completionCode); // Debug log
                     
                     // Use modern clipboard API if available
                     if (navigator.clipboard && window.isSecureContext) {
                         await navigator.clipboard.writeText(completionCode);
+                        console.log('Copied using modern API'); // Debug log
                     } else {
                         // Fallback for older browsers
                         const textArea = document.createElement('textarea');
@@ -420,35 +359,23 @@
                         document.body.appendChild(textArea);
                         textArea.focus();
                         textArea.select();
-                        document.execCommand('copy');
+                        const successful = document.execCommand('copy');
                         textArea.remove();
+                        console.log('Fallback copy successful:', successful); // Debug log
                     }
                     
-                    // Show feedback
-                    copyFeedback.classList.add('show');
-                    
-                    // Hide feedback after 2 seconds
-                    setTimeout(() => {
-                        copyFeedback.classList.remove('show');
-                    }, 2000);
-                    
-                    console.log('Completion code copied to clipboard:', completionCode);
+                    // Show toast notification
+                    showToastNotification('Copied to clipboard!');
                     
                 } catch (error) {
                     console.error('Failed to copy completion code:', error);
-                    // Show error feedback
-                    copyFeedback.textContent = 'Failed to copy - please select manually';
-                    copyFeedback.classList.add('show');
-                    
-                    setTimeout(() => {
-                        copyFeedback.textContent = 'Copied to clipboard!';
-                        copyFeedback.classList.remove('show');
-                    }, 3000);
+                    // Show error toast
+                    showToastNotification('Failed to copy - please try selecting manually');
                 }
             });
             
             // Add keyboard accessibility
-            completionCodeElement.addEventListener('keypress', function(e) {
+            completionCodeButton.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     this.click();
@@ -456,22 +383,39 @@
             });
             
             // Add title attribute for tooltip
-            completionCodeElement.setAttribute('title', 'Click to copy to clipboard');
-            completionCodeElement.setAttribute('tabindex', '0');
-            completionCodeElement.setAttribute('role', 'button');
+            completionCodeButton.setAttribute('title', 'Click to copy to clipboard');
+            completionCodeButton.setAttribute('aria-label', 'Copy completion code to clipboard');
+            
+            console.log('Copy to clipboard initialized'); // Debug log
         }
-            const storedCompletionUrl = sessionStorage.getItem('prolific_completion_url');
-            if (storedCompletionUrl) {
-                return storedCompletionUrl;
-            }
+        
+        function showToastNotification(message) {
+            console.log('Showing toast:', message); // Debug log
             
-            // Construct standard Prolific completion URL if we have the participant ID
-            if (prolificId) {
-                return `https://app.prolific.com/submissions/complete?cc=CNCTZ833&prolific_pid=${prolificId}`;
-            }
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.textContent = message;
             
-            // Default Prolific completion page
-            return 'https://app.prolific.com/submissions/complete?cc=CNCTZ833';
+            // Add to document
+            document.body.appendChild(toast);
+            
+            // Show with slight delay for smooth animation
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // Hide after 2.5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                
+                // Remove from DOM after animation completes
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 2500);
         }
         
         // Keyboard accessibility for submit button

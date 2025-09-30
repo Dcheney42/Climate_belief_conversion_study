@@ -549,9 +549,19 @@
         }
         
         function showCompletion() {
-            // Redirect to debrief sheet instead of showing completion message here
-            console.log('Exit survey completed - redirecting to debrief sheet');
-            window.location.href = '/debrief';
+            // Store exit survey data for the next page
+            const formData = new FormData(document.getElementById('exitSurveyForm'));
+            const exitSurveyData = {
+                summaryConfidence: formData.get('summaryConfidence') ? parseInt(formData.get('summaryConfidence')) : null,
+                finalConfidenceLevel: finalConfidenceSliderMoved ? parseInt(formData.get('finalConfidenceLevel')) : "N/a",
+                completed_at: new Date().toISOString()
+            };
+            
+            sessionStorage.setItem('exit_survey_data', JSON.stringify(exitSurveyData));
+            
+            // Redirect to chatbot summary validation page
+            console.log('Exit survey completed - redirecting to chatbot summary validation');
+            window.location.href = '/chatbot-summary-validation.html';
         }
 
         function showError(message) {
