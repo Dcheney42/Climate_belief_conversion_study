@@ -1,0 +1,781 @@
+id,session_id,sender,message,character_count,timestamp,created_at
+1,sess_05b57d07,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+2,sess_05b57d07,e9cddf33-3c34-4057-b8ff-4dc2b4702235,I like media,12,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+3,sess_05b57d07,assistant,"That's interesting! It sounds like media might have played a role in your journey. Can you tell me more about how media influenced your beliefs about climate change? Were there specific articles, documentaries, or pieces of content that stood out to you?",254,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+4,sess_05b57d07,e9cddf33-3c34-4057-b8ff-4dc2b4702235,I like right-wing news. way funnier,35,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+5,sess_05b57d07,assistant,"I see! So, you were primarily consuming right-wing news. How did that perspective change for you over time? Was there a particular moment or piece of information that made you start questioning the views you had?",212,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+6,sess_05b57d07,e9cddf33-3c34-4057-b8ff-4dc2b4702235,"No, I just started watching and it just made mroe and mroe sense",64,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+7,sess_05b57d07,assistant,"That makes sense! It sounds like as you consumed more media, your understanding evolved gradually. Can you tell me a bit more about what that shift was like for you? Was it a gradual realization, or were there specific moments that really clicked for you?",255,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+8,sess_05b57d07,e9cddf33-3c34-4057-b8ff-4dc2b4702235,"Well, yeah. Gradual. Just felt more and more like the truth.",60,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+9,sess_05b57d07,assistant,"Thank you for sharing that. It sounds like as you engaged with different viewpoints, it became clearer to you over time. Looking back, what stands out as most important in shaping the way you see climate change now? Were there particular themes or messages that resonated with you?",281,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+10,sess_05b57d07,e9cddf33-3c34-4057-b8ff-4dc2b4702235,"Erm, just that the elites are lying to us.",42,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+11,sess_05b57d07,assistant,That's a significant point. It seems like a distrust in authority and the feeling that information might be manipulated played a role in your belief change. How do you see your views today compared to before your change? Do you feel more empowered or concerned about climate change now?,286,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+12,sess_05b57d07,e9cddf33-3c34-4057-b8ff-4dc2b4702235,"Less concerned, I think it's a hectic hoax.",43,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+13,sess_05b57d07,assistant,"I appreciate your honesty. So, it sounds like your perspective has shifted not just to believing in climate change, but also questioning the motivations behind it. Thanks for sharing your insights. 
+
+Here's a quick summary of what I heard from you:
+- Your change in belief was gradual as you consumed more media.
+- You found that the information made more sense to you over time.
+- A key takeaway for you is the belief that “the elites are lying to us.”
+- You feel less concerned about climate change now, viewing it as a “hectic hoax.”
+
+Does that sound right? Did I miss anything important?",591,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+14,sess_05b57d07,e9cddf33-3c34-4057-b8ff-4dc2b4702235,end the chat,12,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+15,sess_05b57d07,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-01T04:43:11.783Z,2025-09-01T04:43:11.783Z
+16,sess_07754f83,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T01:25:28.814Z,2025-09-02T01:25:28.814Z
+17,sess_07754f83,ab647845-4fa4-443a-ad46-a21bff2d0e52,end the chat,12,2025-09-02T01:25:28.814Z,2025-09-02T01:25:28.814Z
+18,sess_07754f83,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-02T01:25:28.814Z,2025-09-02T01:25:28.814Z
+19,sess_08ab0bd0,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-30T03:17:31.478Z,2025-09-30T03:17:31.478Z
+20,sess_08ab0bd0,1f01b9f3-ab4e-4539-83fc-be8b16993834,end the chat,12,2025-09-30T03:17:31.478Z,2025-09-30T03:17:31.478Z
+21,sess_08ab0bd0,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-30T03:17:31.478Z,2025-09-30T03:17:31.478Z
+22,sess_09fd4196,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-25T01:44:58.029Z,2025-09-25T01:44:58.029Z
+23,sess_09fd4196,3034c06f-810e-47e3-ba1c-2b8f59e780d3,end the chat,12,2025-09-25T01:44:58.029Z,2025-09-25T01:44:58.029Z
+24,sess_09fd4196,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-25T01:44:58.029Z,2025-09-25T01:44:58.029Z
+25,sess_0ac49810,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from believer to skeptic. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+26,sess_0ac49810,bf64ced7-420f-49b3-a173-bc26617c17c9,I think climate skeptics are cool,33,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+27,sess_0ac49810,assistant,That's interesting! Could you tell me a bit more about why you feel that way? What specifically about climate skeptics resonates with you?,138,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+28,sess_0ac49810,bf64ced7-420f-49b3-a173-bc26617c17c9,I like how they produce cool videos on youtube,46,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+29,sess_0ac49810,assistant,That's a great point! It sounds like the way climate skeptics communicate their ideas through media has had an impact on you. Can you tell me more about any specific videos or content that influenced your views? What was it about those videos that caught your attention?,270,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+30,sess_0ac49810,bf64ced7-420f-49b3-a173-bc26617c17c9,"I watch this guy, Mr skeptic, and he is really funny. He rips on the libs.",74,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+31,sess_0ac49810,assistant,It sounds like Mr. Skeptic's humor and style really resonate with you. How did watching his content make you feel about climate change? Did it change the way you thought about it over time?,189,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+32,sess_0ac49810,bf64ced7-420f-49b3-a173-bc26617c17c9,I just started to think it was all a joke. A hoax done by the elites to make my life hard.,90,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+33,sess_0ac49810,assistant,"I see. So it seems that the content you were consuming led you to view climate change as something orchestrated by certain groups, rather than a genuine concern. Can you tell me more about what experiences or thoughts reinforced that perspective for you? What stands out as most important in shaping the way you see climate change now?",335,2025-09-01T04:37:16.388Z,2025-09-01T04:37:16.388Z
+34,sess_0ae2063f,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T22:36:25.077Z,2025-09-04T22:36:25.077Z
+35,sess_143bc88b,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T06:16:17.517Z,2025-08-29T06:16:17.517Z
+36,sess_143bc88b,9a9a3594-7631-4ea3-9b41-7dad9da64d71,It's real,9,2025-08-29T06:16:17.517Z,2025-08-29T06:16:17.517Z
+37,sess_143bc88b,assistant,Thank you for sharing that. Can you tell me about your experience with changing your views on climate change?,109,2025-08-29T06:16:17.517Z,2025-08-29T06:16:17.517Z
+38,sess_192baba0,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T06:06:21.498Z,2025-09-04T06:06:21.498Z
+39,sess_192baba0,d187a367-2db6-4d03-b4be-7aebe3b3ffb1,I used to be super right wing but now I think that stuff is so gross,68,2025-09-04T06:06:21.498Z,2025-09-04T06:06:21.498Z
+40,sess_192baba0,assistant,"It sounds like you've had a significant shift in your political views and how they relate to climate issues. What experiences or events led you to feel that way, and how did that transformation unfold for you?",209,2025-09-04T06:06:21.498Z,2025-09-04T06:06:21.498Z
+41,sess_192baba0,d187a367-2db6-4d03-b4be-7aebe3b3ffb1,end the chat,12,2025-09-04T06:06:21.498Z,2025-09-04T06:06:21.498Z
+42,sess_192baba0,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-04T06:06:21.498Z,2025-09-04T06:06:21.498Z
+43,sess_1cb6e317,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T05:47:16.942Z,2025-09-02T05:47:16.942Z
+44,sess_243f12a0,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T05:47:24.827Z,2025-09-02T05:47:24.827Z
+45,sess_243f12a0,0b929b3f-396f-444b-baa3-ddcf73741a74,Yeah. I used to think it was all a big hoax from elites who controlled everything,81,2025-09-02T05:47:24.827Z,2025-09-02T05:47:24.827Z
+46,sess_243f12a0,assistant,Could you tell me more about your thoughts on climate change?,61,2025-09-02T05:47:24.827Z,2025-09-02T05:47:24.827Z
+47,sess_26d4ba88,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+48,sess_26d4ba88,a25c03c1-b61f-4a67-8117-252a87c767c0,"Well, I was chatting with my uncle and he mentioned that he used to think it was all a hoax but now he thinks it's real.",120,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+49,sess_26d4ba88,assistant,"That's really interesting! What do you think influenced that change the most? Were there people, events, or experiences that made a difference for you?",151,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+50,sess_26d4ba88,a25c03c1-b61f-4a67-8117-252a87c767c0,"Yeah, my uncle",14,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+51,sess_26d4ba88,assistant,"So your uncle's perspective had a significant impact on your views. Can you tell me a bit more about how that conversation with him went? Was it gradual, or did it feel more like a sudden realization for you?",208,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+52,sess_26d4ba88,a25c03c1-b61f-4a67-8117-252a87c767c0,I told you this before,22,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+53,sess_26d4ba88,assistant,"I apologize for that! Let’s dive deeper into your experience. Looking back, what stands out as most important in shaping the way you see climate change now?",156,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+54,sess_26d4ba88,a25c03c1-b61f-4a67-8117-252a87c767c0,My uncle,8,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+55,sess_26d4ba88,assistant,"It sounds like your uncle played a crucial role in your belief change. How do you see your views today, compared to before your change? What feelings or thoughts do you have now that you didn't have before?",206,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+56,sess_26d4ba88,a25c03c1-b61f-4a67-8117-252a87c767c0,end the chat,12,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+57,sess_26d4ba88,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-01T01:30:25.760Z,2025-09-01T01:30:25.760Z
+58,sess_29feaa04,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-03T02:46:35.315Z,2025-09-03T02:46:35.315Z
+59,sess_2c6ddf7a,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T06:03:15.865Z,2025-09-04T06:03:15.865Z
+60,sess_2c6ddf7a,3e689bda-4ac5-4e7c-a1ee-2b1decda0f1c,end the chat,12,2025-09-04T06:03:15.865Z,2025-09-04T06:03:15.865Z
+61,sess_2c6ddf7a,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-04T06:03:15.865Z,2025-09-04T06:03:15.865Z
+62,sess_315e2852,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-25T22:46:10.403Z,2025-09-25T22:46:10.403Z
+63,sess_315e2852,6258ec54-28aa-4852-9506-ed3abff52e20,end the chat,12,2025-09-25T22:46:10.403Z,2025-09-25T22:46:10.403Z
+64,sess_315e2852,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-25T22:46:10.403Z,2025-09-25T22:46:10.403Z
+65,sess_372a102e,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-08T05:11:00.875Z,2025-09-08T05:11:00.875Z
+66,sess_372a102e,d794178a-6563-486a-bb38-4988618806ce,"Yeah, I used to believe it was real but now I don't",51,2025-09-08T05:11:00.875Z,2025-09-08T05:11:00.875Z
+67,sess_372a102e,assistant,"I appreciate you sharing that. It sounds like a significant shift in your perspective. Can you walk me through what led to that change? Was it a gradual process, or did something specific trigger this shift for you?",215,2025-09-08T05:11:00.875Z,2025-09-08T05:11:00.875Z
+68,sess_372a102e,d794178a-6563-486a-bb38-4988618806ce,I gradually started to think this,33,2025-09-08T05:11:00.875Z,2025-09-08T05:11:00.875Z
+69,sess_372a102e,assistant,"It sounds like this was a slow evolution for you. As you began to change your mind, were there certain thoughts, conversations, or experiences that stood out to you during that time? What influenced your gradual shift the most?",227,2025-09-08T05:11:00.875Z,2025-09-08T05:11:00.875Z
+70,sess_372a102e,d794178a-6563-486a-bb38-4988618806ce,end the chat,12,2025-09-08T05:11:00.875Z,2025-09-08T05:11:00.875Z
+71,sess_372a102e,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-08T05:11:00.875Z,2025-09-08T05:11:00.875Z
+72,sess_3824dacf,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-28T00:41:40.506Z,2025-08-28T00:41:40.506Z
+73,sess_3824dacf,67e3605d-af2c-4226-8664-60fa4cf3eb5f,end the chat,12,2025-08-28T00:41:40.506Z,2025-08-28T00:41:40.506Z
+74,sess_3824dacf,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-28T00:41:40.506Z,2025-08-28T00:41:40.506Z
+75,sess_3aa97565,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from believer to skeptic. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+76,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah I was reading a magazine,29,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+77,sess_3aa97565,assistant,That's interesting! Can you tell me a bit more about what you read in the magazine that influenced your views? Were there specific articles or arguments that stood out to you?,175,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+78,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah a big add that said it was fake,36,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+79,sess_3aa97565,assistant,I see. So that advertisement caught your attention. Can you share more about what it said that made you rethink your beliefs? Did it lead you to explore other sources or ideas?,176,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+80,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah it made me think about how it's always these big wig scientists that tell me it's real and I really hate them,114,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+81,sess_3aa97565,assistant,It sounds like that advertisement sparked some strong feelings for you. Can you elaborate on why you feel that way about the scientists? Was there a particular experience or reason that made you distrust them?,209,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+82,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,I hated my high school science teacher,38,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+83,sess_3aa97565,assistant,That’s an important insight. It seems like your past experiences with your science teacher might have influenced how you view scientists in general. Can you share more about your experiences in high school that led to those feelings? How do you think that relates to your current beliefs about climate change?,309,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+84,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah was such a tool,20,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+85,sess_3aa97565,assistant,I understand. It sounds like your teacher's approach really impacted your feelings toward science and perhaps even the people in that field. How do you think those feelings towards your teacher shaped your viewpoint on climate change and the scientists who study it?,266,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+86,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,Made me not trust scientists in general,39,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+87,sess_3aa97565,assistant,"That makes sense. It seems like your distrust of your teacher extended to scientists as a whole, which has influenced your beliefs about climate change. Looking back, was there a particular moment or experience, apart from the magazine ad and your teacher, that solidified your shift towards skepticism? Or was it more of a gradual process?",340,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+88,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,It just all came together one day and I knew it was fake,56,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+89,sess_3aa97565,assistant,"Got it. So it sounds like there was a moment of clarity for you where everything clicked into place, and you felt certain about your skepticism. Looking back, what stands out as most important in shaping the way you see climate change now? Are there any other influences or experiences you think contributed to that shift?",322,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+90,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,Nah,3,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+91,sess_3aa97565,assistant,"That's completely fine. It's really valuable to hear your perspective. So, just to recap what you've shared so far:
+
+• An advertisement in a magazine suggested that climate change was fake, which caught your attention.
+• You felt strong distrust towards scientists, mainly influenced by your negative experience with your high school science teacher.
+• This distrust contributed to your overall skepticism about climate change.
+• There was a moment where everything came together for you, leading to your firm belief that climate change is not real.
+
+Does that sound right? Did I miss anything important?",604,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+92,sess_3aa97565,529c7c11-ea77-4829-96fe-8a76d91ba428,nah that's it,13,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+93,sess_3aa97565,assistant,"Great, thank you for confirming that! I really appreciate you sharing your experiences — they're very valuable for this study. We'll now move on to the final part of the survey.",177,2025-09-01T23:57:16.010Z,2025-09-01T23:57:16.010Z
+94,sess_3c553897,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T05:44:39.080Z,2025-09-04T05:44:39.080Z
+95,sess_3c553897,e0a677fc-a9ed-43f5-954f-e7053b69d86f,I watched lots of youtube and talked to my friends,50,2025-09-04T05:44:39.080Z,2025-09-04T05:44:39.080Z
+96,sess_3c553897,assistant,It sounds like those conversations with friends and the videos you watched played a big role in your change. What kind of content or specific discussions had the most impact on your beliefs?,190,2025-09-04T05:44:39.080Z,2025-09-04T05:44:39.080Z
+97,sess_3c553897,e0a677fc-a9ed-43f5-954f-e7053b69d86f,end the chat,12,2025-09-04T05:44:39.080Z,2025-09-04T05:44:39.080Z
+98,sess_3c553897,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-04T05:44:39.080Z,2025-09-04T05:44:39.080Z
+99,sess_3f5a7258,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T05:59:19.018Z,2025-09-04T05:59:19.018Z
+100,sess_43d85738,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-27T23:31:12.544Z,2025-08-27T23:31:12.544Z
+101,sess_43d85738,97124b74-2bb5-4eac-8265-2c18beaadc2c,end the chat,12,2025-08-27T23:31:12.544Z,2025-08-27T23:31:12.544Z
+102,sess_43d85738,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-27T23:31:12.544Z,2025-08-27T23:31:12.544Z
+103,sess_43d85738,97124b74-2bb5-4eac-8265-2c18beaadc2c,end the chat,12,2025-08-27T23:31:12.544Z,2025-08-27T23:31:12.544Z
+104,sess_43d85738,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-27T23:31:12.544Z,2025-08-27T23:31:12.544Z
+105,sess_4675a493,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from believer to skeptic. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+106,sess_4675a493,529c7c11-ea77-4829-96fe-8a76d91ba428,"Yeah, I used to think it was all true and I trusted scientists but now I think it's a shame",91,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+107,sess_4675a493,assistant,"That's really helpful. Can you tell me a bit more about what that shift was like for you? Was it gradual, or more of a sudden change?",133,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+108,sess_4675a493,529c7c11-ea77-4829-96fe-8a76d91ba428,I'd say more of a gradual change,32,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+109,sess_4675a493,assistant,"Thank you for sharing that. What do you think influenced that change the most? Were there people, events, or experiences that made a difference during that gradual shift?",170,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+110,sess_4675a493,529c7c11-ea77-4829-96fe-8a76d91ba428,"Yeah, so, my uncle Tommy was a big skeptic and I used to think he was full of it. But one day, he showed me his data collection",127,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+111,sess_4675a493,assistant,That sounds interesting! Can you tell me more about what your uncle Tommy shared with you and how it impacted your perspective? What kind of data did he present?,161,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+112,sess_4675a493,529c7c11-ea77-4829-96fe-8a76d91ba428,"So, he showed me data that siad the climate cycles were all random and there was nothing to worry about",103,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+113,sess_4675a493,assistant,Thank you for sharing that insight. How did seeing that data from your uncle affect your feelings toward climate change? Did it challenge any specific beliefs you had before?,174,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+114,sess_4675a493,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah I think I used to really feel that I could trust scientists but now I just don't think so anymore. I trust my uncle.,121,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+115,sess_4675a493,assistant,"That's an important shift in trust. Looking back, what stands out as most important in shaping the way you see climate change now? Was it just the data, or were there other factors that contributed to your change in belief?",223,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+116,sess_4675a493,529c7c11-ea77-4829-96fe-8a76d91ba428,Probably trusting my uncle more. We used to go fishing and I don't know why he would lie to me.,95,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+117,sess_4675a493,assistant,"That makes sense. It sounds like your relationship with your uncle played a significant role in your belief change. How do you see your views today, compared to before your change? What feels different to you now?",213,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+118,sess_4675a493,529c7c11-ea77-4829-96fe-8a76d91ba428,I feel really confident that I'm rigt,37,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+119,sess_4675a493,assistant,"Thank you for sharing that perspective. It sounds like this change has given you a strong sense of confidence in your beliefs. 
+
+Thanks for sharing your story. Here's a quick summary of what I heard from you:
+
+• You used to trust scientists and believed in climate change, but now you feel differently.  
+• The change in your belief was gradual rather than sudden.  
+• Your uncle Tommy, a skeptic, played a significant role in your shift by sharing data with you.  
+• You found his data compelling, particularly regarding climate cycles being random.  
+• You now trust your uncle more than scientists and feel confident in your stance.  
+
+Does that sound right? Did I miss anything important?",692,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+120,sess_4675a493,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah that is pretty much it,27,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+121,sess_4675a493,assistant,"Great, thank you. I really appreciate you sharing your experiences — they're very valuable for this study. We'll now move on to the final part of the survey.",157,2025-09-01T23:48:34.062Z,2025-09-01T23:48:34.062Z
+122,sess_4eb078a0,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-10-08T02:03:11.583Z,2025-10-08T02:03:11.583Z
+123,sess_4eb078a0,86e79db7-e5aa-4f1c-91e2-460022449dfe,end the chat,12,2025-10-08T02:03:11.583Z,2025-10-08T02:03:11.583Z
+124,sess_4eb078a0,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-10-08T02:03:11.583Z,2025-10-08T02:03:11.583Z
+125,sess_4fb2aec1,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-27T23:50:52.275Z,2025-08-27T23:50:52.275Z
+126,sess_4fb2aec1,e54a4d85-415a-42dd-ba94-67d1d6e4c60f,end the chat,12,2025-08-27T23:50:52.275Z,2025-08-27T23:50:52.275Z
+127,sess_4fb2aec1,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-27T23:50:52.275Z,2025-08-27T23:50:52.275Z
+128,sess_5091150a,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-28T00:23:43.211Z,2025-08-28T00:23:43.211Z
+129,sess_5204c063,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from believer to skeptic. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+130,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,Hi,2,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+131,sess_5204c063,assistant,Hello! It's great to connect with you. I’m really looking forward to hearing your story about your shift in views on climate change. Can you share how that change came about for you?,182,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+132,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah I think it's fake now,26,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+133,sess_5204c063,assistant,"That's interesting to hear. Can you tell me a bit more about what influenced that change for you? Were there specific people, events, or experiences that made a difference in how you view climate change now?",207,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+134,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah my uncle,13,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+135,sess_5204c063,assistant,Your uncle sounds like he had a significant impact on your views. Can you share more about what he said or did that influenced your perspective? What was that conversation or experience like?,191,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+136,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,He's a really smart guy and told me it's fake,45,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+137,sess_5204c063,assistant,"It sounds like your uncle's insights really resonated with you. Was this a conversation you had recently, or was it more of a gradual influence over time? How did that make you feel about your previous beliefs?",210,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+138,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,We were at a family bbq and he showed me graphs that said it's fake,67,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+139,sess_5204c063,assistant,"That sounds like a powerful moment, especially in a casual setting like a family BBQ. How did seeing those graphs and discussing them with your uncle affect your thinking? Was it a sudden realization for you, or did it take some time to process what he shared?",260,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+140,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah sudden realisation,23,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+141,sess_5204c063,assistant,"I see, so it was a sudden shift for you. Looking back, what stands out as most important in shaping the way you see climate change now? Are there any other thoughts or feelings you had after that conversation?",209,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+142,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,Nah,3,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+143,sess_5204c063,assistant,Got it! So it was really that one moment with your uncle that made the biggest impact. How do you see your views today compared to how you felt before that conversation? Has your perspective changed in any other ways since then?,228,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+144,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,I just think it's all fake,26,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+145,sess_5204c063,assistant,"Thank you for sharing that with me. Just to recap what you've told me so far, here’s a quick summary:
+
+• Your views shifted from believing in climate change to seeing it as fake.
+• A significant influence was a conversation with your uncle at a family BBQ.
+• He showed you graphs that contributed to your sudden realization that climate change is not real.
+
+Does that sound right? Did I miss anything important or is there anything else you’d like to add?",455,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+146,sess_5204c063,529c7c11-ea77-4829-96fe-8a76d91ba428,Yeah that's all,15,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+147,sess_5204c063,assistant,"Great, thank you for confirming that. I really appreciate you sharing your experiences — they're very valuable for this study. We'll now move on to the final part of the survey. If you have any questions or thoughts later, feel free to share.",242,2025-09-01T23:54:30.269Z,2025-09-01T23:54:30.269Z
+148,sess_545feefc,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-30T02:53:05.245Z,2025-09-30T02:53:05.245Z
+149,sess_545feefc,a51cfc71-b161-4ce6-9a59-14fe8cc640bb,end the chat,12,2025-09-30T02:53:05.245Z,2025-09-30T02:53:05.245Z
+150,sess_545feefc,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-30T02:53:05.245Z,2025-09-30T02:53:05.245Z
+151,sess_572c3f44,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-30T03:25:02.892Z,2025-09-30T03:25:02.892Z
+152,sess_572c3f44,c923427d-a0a3-4560-9a26-0fe557935023,end the chat,12,2025-09-30T03:25:02.892Z,2025-09-30T03:25:02.892Z
+153,sess_572c3f44,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-30T03:25:02.892Z,2025-09-30T03:25:02.892Z
+154,sess_57d146fc,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T01:37:16.347Z,2025-09-01T01:37:16.347Z
+155,sess_57d146fc,53abf2d9-ddf2-430c-b1f4-3f636da66071,end the chat,12,2025-09-01T01:37:16.347Z,2025-09-01T01:37:16.347Z
+156,sess_57d146fc,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-01T01:37:16.347Z,2025-09-01T01:37:16.347Z
+157,sess_588683c3,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-03T02:45:55.309Z,2025-09-03T02:45:55.309Z
+158,sess_588683c3,b5556be4-7e3b-443a-8956-5d08ffc8528a,Hi there,8,2025-09-03T02:45:55.309Z,2025-09-03T02:45:55.309Z
+159,sess_588683c3,assistant,Could you tell me more about your thoughts on climate change?,61,2025-09-03T02:45:55.309Z,2025-09-03T02:45:55.309Z
+160,sess_59142a9a,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-28T00:51:30.623Z,2025-08-28T00:51:30.623Z
+161,sess_59142a9a,bafbd953-9fe2-4bea-bc0c-c0ec42bf2c8f,end the chat,12,2025-08-28T00:51:30.623Z,2025-08-28T00:51:30.623Z
+162,sess_59142a9a,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-28T00:51:30.623Z,2025-08-28T00:51:30.623Z
+163,sess_5c2dd978,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T05:48:09.208Z,2025-09-02T05:48:09.208Z
+164,sess_5ca3db00,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-03T02:44:43.349Z,2025-09-03T02:44:43.349Z
+165,sess_5ca3db00,b5556be4-7e3b-443a-8956-5d08ffc8528a,I used to be a sceptic,22,2025-09-03T02:44:43.349Z,2025-09-03T02:44:43.349Z
+166,sess_5ca3db00,assistant,Could you tell me more about your thoughts on climate change?,61,2025-09-03T02:44:43.349Z,2025-09-03T02:44:43.349Z
+167,sess_5e65f88f,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-27T23:39:43.411Z,2025-08-27T23:39:43.411Z
+168,sess_5e65f88f,8015b4ac-2640-4b40-bf0d-06b67bee1364,end the chat,12,2025-08-27T23:39:43.411Z,2025-08-27T23:39:43.411Z
+169,sess_5e65f88f,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-27T23:39:43.411Z,2025-08-27T23:39:43.411Z
+170,sess_5f57dd63,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+171,sess_5f57dd63,3678e7e7-dee8-4599-92fc-19e4191781e4,"I used to think climate change was mostly natural, but now I believe it's mainly caused by human activities. The change happened gradually over several years as I learned more about the science.",194,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+172,sess_5f57dd63,assistant,That's interesting! What do you think influenced that change in your perspective? Were there particular things that stood out to you along the way?,147,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+173,sess_5f57dd63,3678e7e7-dee8-4599-92fc-19e4191781e4,"Well, I started reading more scientific studies and reports. There were a few key things - seeing the temperature data trends, learning about ice core evidence, and understanding how carbon dioxide actually works as a greenhouse gas. I also watched some documentaries that explained the consensus among climate scientists.",322,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+174,sess_5f57dd63,assistant,It sounds like you engaged with a lot of different resources. How did your views shift over time as you were absorbing this information? What was it like for you as your perspective was changing?,195,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+175,sess_5f57dd63,3678e7e7-dee8-4599-92fc-19e4191781e4,"It was actually quite gradual and sometimes uncomfortable. I remember feeling resistant at first because I had to admit I was wrong about something I felt pretty confident about. But as I learned more about the scientific method and saw how consistent the evidence was, it became harder to deny. The turning point was probably understanding that scientific consensus isn't just opinion - it's based on rigorous research and peer review.",436,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+176,sess_5f57dd63,assistant,"That sounds like a significant journey. Looking back, what do you think mattered most in that process of change for you? How do you see your views now compared to before?",170,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+177,sess_5f57dd63,3678e7e7-dee8-4599-92fc-19e4191781e4,"I think what mattered most was being willing to question my assumptions and really look at the evidence with an open mind. Now I see climate change as one of the most serious challenges we face, whereas before I thought it was either natural or overblown. I also have much more respect for the scientific process and peer review. I realize I used to dismiss things too quickly without really understanding them. The emotional aspect was also important - I had to get past feeling defensive about being wrong. I think I'm more curious now and less dogmatic about issues I haven't fully researched.",596,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+178,sess_5f57dd63,assistant,"Thank you for sharing your experience! Here's what I heard from you:
+
+• You used to think climate change was mostly natural, but now believe it's mainly caused by human activities.
+• The change happened gradually over several years as you learned more about the science.
+• You started reading scientific studies and reports, which influenced your perspective.
+• Key things included seeing temperature data trends and learning about ice core evidence.
+• Understanding how carbon dioxide works as a greenhouse gas was important.
+• You watched documentaries that explained the consensus among climate scientists.
+• Your views shifted gradually and sometimes felt uncomfortable.
+• You felt resistant initially because you had to admit you were wrong about something you were confident in.
+• Learning about the scientific method helped you see the consistency of the evidence.",871,2025-08-29T06:09:19.572Z,2025-08-29T06:09:19.572Z
+179,sess_606903ef,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T05:41:32.572Z,2025-09-04T05:41:32.572Z
+180,sess_606903ef,5bc3b620-1057-4c24-ad61-c9e2f4af254f,I watched lots of youtube videos about it,41,2025-09-04T05:41:32.572Z,2025-09-04T05:41:32.572Z
+181,sess_606903ef,assistant,You indicated that watching YouTube videos was a part of your journey. What specific videos or content had the most impact on your beliefs? Were there any particular themes or messages that really resonated with you?,216,2025-09-04T05:41:32.572Z,2025-09-04T05:41:32.572Z
+182,sess_606903ef,5bc3b620-1057-4c24-ad61-c9e2f4af254f,End the chat,12,2025-09-04T05:41:32.572Z,2025-09-04T05:41:32.572Z
+183,sess_606903ef,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-04T05:41:32.572Z,2025-09-04T05:41:32.572Z
+184,sess_60b2ecdd,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-16T01:10:16.621Z,2025-09-16T01:10:16.621Z
+185,sess_60b2ecdd,3cb9cfe1-14e1-494b-bd1c-23a1b37043da,end the chat,12,2025-09-16T01:10:16.621Z,2025-09-16T01:10:16.621Z
+186,sess_60b2ecdd,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-16T01:10:16.621Z,2025-09-16T01:10:16.621Z
+187,sess_632bd8c8,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T22:38:09.300Z,2025-09-04T22:38:09.300Z
+188,sess_632bd8c8,fd288cb8-6a1e-462f-a95b-f0743eed0138,end the chat,12,2025-09-04T22:38:09.300Z,2025-09-04T22:38:09.300Z
+189,sess_632bd8c8,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-04T22:38:09.300Z,2025-09-04T22:38:09.300Z
+190,sess_647cf37c,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+191,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,gbggbhnbgb,10,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+192,sess_647cf37c,assistant,"It seems like there might have been a mix-up with your response. If you could share more about your journey in changing your beliefs about climate change, I'd love to hear your story. What prompted that change for you?",218,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+193,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,"Oh, sorry",9,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+194,sess_647cf37c,assistant,"No problem at all! It happens. If you could share some details about your experience with changing your beliefs about climate change, I'd really like to understand your journey better. What was a key moment or influence that led to that change for you?",252,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+195,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,I had a conversation with a friend,34,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+196,sess_647cf37c,assistant,You mentioned that a conversation with a friend played a role in your belief change. Can you tell me more about that discussion? What was it about the conversation that impacted you?,182,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+197,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,He is a cliamte scientist and gave me some good info,52,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+198,sess_647cf37c,assistant,It sounds like your friend's expertise as a climate scientist provided valuable insights. What specific information or points did he share that resonated with you and influenced your views?,189,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+199,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,He showed me some graphs that showed the temperature rising,59,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+200,sess_647cf37c,assistant,You mentioned that he shared graphs illustrating the rising temperatures. How did seeing that visual data affect your understanding or feelings about climate change?,165,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+201,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,Made me believe it was real,27,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+202,sess_647cf37c,assistant,"It's clear that those graphs had a significant impact on your belief. Before this conversation, what was your perception of climate change, and how did it differ from your understanding after seeing that data?",209,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+203,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,I thought it was fake and then I thought t was real,51,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+204,sess_647cf37c,assistant,You shifted from thinking climate change was fake to recognizing it as real. That’s quite a transformation. Can you describe what it felt like for you during that transition?,174,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+205,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,"Felt weird, didn't like feeling dumb",36,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+206,sess_647cf37c,assistant,It sounds like grappling with that realization was uncomfortable for you. How did you process those feelings of discomfort as you began to accept the reality of climate change?,176,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+207,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,I tried to be open minded about it,34,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+208,sess_647cf37c,assistant,"You mentioned striving to be open-minded, which is a commendable approach. What steps did you take to stay open-minded as you explored your new understanding of climate change?",176,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+209,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,I don't know,12,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+210,sess_647cf37c,assistant,"That's okay! Sometimes it's hard to pinpoint specific actions. Reflecting on your journey, what stands out to you as the most significant part of your belief change experience?",176,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+211,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,Probably that conversation with my friend,41,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+212,sess_647cf37c,assistant,"The conversation with your friend seems to be a pivotal moment for you. Looking back on that experience, how do you think it has shaped your current views about climate change compared to how you thought before?",211,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+213,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,I think it's real now,21,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+214,sess_647cf37c,assistant,It's clear that your friend's insights helped solidify your belief in climate change. What matters most to you now regarding climate change and its impact?,155,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+215,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,That it's real and we do more to fix it,39,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+216,sess_647cf37c,assistant,"You emphasize the importance of recognizing that climate change is real and the need for action to address it. As you reflect on your journey, what do you think is the most meaningful aspect of this belief change for you?",221,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+217,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,feeling like I knew what was going on,37,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+218,sess_647cf37c,assistant,"Feeling informed and aware seems to be a significant part of your experience. To summarize what we've discussed, you mentioned several key points about your belief change:
+
+• A conversation with a climate scientist friend was pivotal to your journey.
+
+• Seeing graphs of rising temperatures made you believe climate change is real.
+
+• You shifted from thinking climate change was fake to recognizing its reality.
+
+• You felt uncomfortable during this transition but aimed to remain open-minded.
+
+• Now, you feel it's crucial to take action because climate change is real.
+
+Does this capture your experience accurately? Would you like to add or adjust anything?",660,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+219,sess_647cf37c,4a765763-48f3-4f50-be3b-138b3e1343f1,"no, that's all",14,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+220,sess_647cf37c,assistant,"Thank you for sharing your story! I appreciate your openness in discussing your belief change about climate change. Your insights will be valuable for our research. 
+
+Now, I’ll transition you to the final survey. Thank you again for your time!",243,2025-09-11T01:40:19.424Z,2025-09-11T01:40:19.424Z
+221,sess_69bf0dd0,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+222,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,I used to be a sceptic,22,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+223,sess_69bf0dd0,assistant,You noted that you were a skeptic in the past. Can you share more about what led you to that viewpoint? What were some of the beliefs or ideas that influenced your skepticism?,175,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+224,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,No,2,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+225,sess_69bf0dd0,assistant,"I understand. It sounds like you might not want to delve into that right now. If you're comfortable, could you share what prompted your change in perspective instead? What made you start believing in climate change?",215,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+226,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,No,2,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+227,sess_69bf0dd0,assistant,"I appreciate your honesty. If you're open to it, maybe you could describe how you felt during your transition from skepticism to belief. Was it a gradual process for you, or did something happen that sparked the change?",219,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+228,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,Yeah ok I'll tell you,21,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+229,sess_69bf0dd0,assistant,Great! I'm glad you're willing to share. What was the experience or event that began to shift your perspective on climate change?,129,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+230,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,I don't know if there was a single one experience,49,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+231,sess_69bf0dd0,assistant,It sounds like your change might have been influenced by a variety of factors. Can you reflect on any particular moments or conversations that stand out to you as significant in your journey?,191,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+232,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,"Yeah ok, I remember now. I was at a family bbq with my uncle. He's a cool guy and a cliamte scientist. My dad doesn't like him but he made some good points at the bbq.",167,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+233,sess_69bf0dd0,assistant,"That sounds like a memorable experience! It's interesting that your uncle, being a climate scientist, had an impact on your views. What specific points did he make that resonated with you during that conversation?",213,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+234,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,He showed me some data that I really liked,42,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+235,sess_69bf0dd0,assistant,It seems like the data your uncle presented had a strong effect on you. Can you describe what kind of data or information he shared that you found compelling? How did it change your perspective?,194,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+236,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,"Yeah he showed me graphs that the temp is going up, even if I cant see stuff that might mess with that",102,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+237,sess_69bf0dd0,assistant,"That visual information sounds like it made a real impact on you. It seems like seeing those graphs helped clarify the reality of temperature changes, even if they weren't immediately visible in your own surroundings. How did that realization influence your overall beliefs about climate change moving forward?",310,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+238,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,"Well, I started listening to different media and it just made more sense",72,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+239,sess_69bf0dd0,assistant,It sounds like that initial conversation opened the door for you to explore more perspectives. What types of media or sources did you start engaging with that helped deepen your understanding?,192,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+240,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,I was watching some different youtube stuff cause I was interested in what was out there,88,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+241,sess_69bf0dd0,assistant,It's great that you sought out different viewpoints on platforms like YouTube. Were there any particular videos or creators that stood out to you and further solidified your belief in climate change?,199,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+242,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,"Yeah, I like Mr Climate. He really sold the whole thing to me.",62,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+243,sess_69bf0dd0,assistant,It sounds like Mr. Climate had a pretty persuasive approach! What specific aspects of his content resonated with you the most and helped solidify your belief?,158,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+244,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,It was well produced and not as angry as I expected,51,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+245,sess_69bf0dd0,assistant,That’s interesting! It seems that the quality and tone of Mr. Climate's content made a difference in how you received the information. How did that contrast with your previous expectations about climate discussions?,215,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+246,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,I thought they were all a bunch of nutters,42,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+247,sess_69bf0dd0,assistant,It sounds like you had a preconceived notion about climate advocates that was challenged by what you saw. How did this change in perception affect your willingness to engage with climate-related topics or discussions afterward?,227,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+248,sess_69bf0dd0,b5556be4-7e3b-443a-8956-5d08ffc8528a,I was open to it,16,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+249,sess_69bf0dd0,assistant,Being open to new ideas is a significant shift. How has that openness influenced your conversations with others about climate change since then? Have you found it easier to engage in these discussions?,201,2025-09-03T02:46:51.864Z,2025-09-03T02:46:51.864Z
+250,sess_70174c30,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+251,sess_70174c30,6f986d9a-daaa-40f7-a85b-18eff1b1ca3e,fvfvf,5,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+252,sess_70174c30,assistant,"It seems like there might have been a mistake in your response. If you could share your experience about your belief change regarding climate change, I'd really like to hear your story. What led you to change your perspective?",226,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+253,sess_70174c30,6f986d9a-daaa-40f7-a85b-18eff1b1ca3e,"Oh sorry. Yeah I used to think it was fake, now i think it's real.",66,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+254,sess_70174c30,assistant,Thank you for sharing that shift in your perspective. You mentioned that you used to believe climate change was fake and now see it as real. What do you think were the most significant influences that contributed to this change in your beliefs?,244,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+255,sess_70174c30,6f986d9a-daaa-40f7-a85b-18eff1b1ca3e,"Well, I was talking with my uncle at christmas",46,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+256,sess_70174c30,assistant,It's interesting that your conversation with your uncle during Christmas played a role in your belief change. What specific things did he say or discuss that impacted your views on climate change?,196,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+257,sess_70174c30,6f986d9a-daaa-40f7-a85b-18eff1b1ca3e,"Well, he thinks it's fake and I used to like him, but he was rude to my mum",75,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+258,sess_70174c30,assistant,"It sounds like your uncle's behavior affected your feelings about him, which in turn influenced your beliefs. How did that experience with him and your mum lead you to reconsider your views on climate change?",208,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+259,sess_70174c30,6f986d9a-daaa-40f7-a85b-18eff1b1ca3e,"Well, I hadn't thought much about it but really started to think more after seeing he was rude. I used to take on his opinions a lot and now I'm not sure",153,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+260,sess_70174c30,assistant,"It seems like that encounter made you reflect more deeply on your beliefs and perhaps question the influence he had on you. Can you describe what that process of reconsideration felt like for you? Was it gradual, or did you notice a sudden shift in your thinking?",263,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+261,sess_70174c30,6f986d9a-daaa-40f7-a85b-18eff1b1ca3e,"Seemed gradual after then, i started watching youtube videos about cliamte science",82,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+262,sess_70174c30,assistant,It's interesting that you turned to YouTube to further explore climate science after that conversation. What types of videos or information did you find most compelling or persuasive during that exploration?,207,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+263,sess_70174c30,6f986d9a-daaa-40f7-a85b-18eff1b1ca3e,can you recap my points?,24,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+264,sess_70174c30,assistant,"Absolutely! Here’s a summary of the key themes from your story about your belief change regarding climate change:
+
+• You initially believed climate change was fake.
+
+• A conversation with your uncle during Christmas, where he was rude to your mum, prompted you to rethink your beliefs.
+
+• You used to value your uncle’s opinions but began to question that influence.
+
+• The process of reconsideration felt gradual and followed that encounter.
+
+• Watching YouTube videos about climate science helped you explore the topic further.
+
+Does this capture your experience accurately, or is there anything you’d like to add or adjust?",626,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+265,sess_70174c30,6f986d9a-daaa-40f7-a85b-18eff1b1ca3e,thats all,9,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+266,sess_70174c30,assistant,"Thank you for confirming that! I appreciate you sharing your story and insights regarding your belief change. If you have any other thoughts or questions, feel free to let me know. Otherwise, we can transition to the final survey section now.",242,2025-09-23T01:09:14.626Z,2025-09-23T01:09:14.626Z
+267,sess_703ccdbf,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+268,sess_703ccdbf,2dd85cf8-341d-4800-9589-5057fa3a058b,"I used to think it was fake, and now I think its real",53,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+269,sess_703ccdbf,assistant,It sounds like you experienced quite a transformation in your beliefs. What do you think were the key moments or influences that contributed to your shift from viewing climate change as fake to recognizing it as real?,217,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+270,sess_703ccdbf,2dd85cf8-341d-4800-9589-5057fa3a058b,My uncle is a hectic sceintist and he thinks its real. I think he's pretty cool.,80,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+271,sess_703ccdbf,assistant,"You mentioned your uncle, who is a scientist and someone you admire. How did his views or conversations influence your perspective on climate change? Can you share any specific discussions or experiences with him that stood out to you?",235,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+272,sess_703ccdbf,2dd85cf8-341d-4800-9589-5057fa3a058b,Yeah he's just awesome and really fuuny. We were talking about it at family christmas and he convinced me its real.,115,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+273,sess_703ccdbf,assistant,It sounds like that family Christmas conversation had a big impact on your beliefs. What was it about his arguments or the way he presented the information that resonated with you and helped you see things differently?,218,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+274,sess_703ccdbf,2dd85cf8-341d-4800-9589-5057fa3a058b,He showed me data and graphs,28,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+275,sess_703ccdbf,assistant,You mentioned that he shared data and graphs with you. How did seeing that information change your understanding? Did it spark any particular feelings or thoughts about climate change that you hadn't considered before?,218,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+276,sess_703ccdbf,2dd85cf8-341d-4800-9589-5057fa3a058b,Just thought it was legit ya knos,33,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+277,sess_703ccdbf,assistant,"It seems like the data made the issue feel more credible for you. Reflecting on your journey, what stands out as the most significant moment or detail that solidified your current beliefs about climate change?",209,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+278,sess_703ccdbf,2dd85cf8-341d-4800-9589-5057fa3a058b,Definitely that convo,21,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+279,sess_703ccdbf,assistant,"That conversation with your uncle sounds pivotal for you. Looking back now, how do you feel your perspective on climate change compares to how you viewed it before? What changes do you notice in your thoughts or actions regarding this issue?",241,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+280,sess_703ccdbf,2dd85cf8-341d-4800-9589-5057fa3a058b,I take it more seriously,24,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+281,sess_703ccdbf,assistant,You’ve highlighted that you now take climate change more seriously. What aspects of your current perspective matter most to you? Are there specific actions or changes in your life that reflect this newfound seriousness?,219,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+282,sess_703ccdbf,2dd85cf8-341d-4800-9589-5057fa3a058b,end the chat,12,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+283,sess_703ccdbf,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-02T07:16:05.377Z,2025-09-02T07:16:05.377Z
+284,sess_74cb4bea,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+285,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,"Yeah, I used to be a sceptic but now I think it's all legit",59,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+286,sess_74cb4bea,assistant,"It sounds like your perspective has shifted quite a bit. Can you share what led to that change for you? Were there specific moments, people, or experiences that influenced your beliefs?",185,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+287,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,"Erm, I spoke with my dad about it the other day. He gets really angry about cliamte stuff and I used to believe him but now it freaked me out",141,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+288,sess_74cb4bea,assistant,You mentioned a conversation with your dad that had a strong impact on you. It sounds like it sparked some concern. Could you describe what about that conversation made you rethink your previous beliefs?,203,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+289,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,"Well, I always used to just see the world the way he did but now I'm not so sure",80,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+290,sess_74cb4bea,assistant,"It seems like that conversation opened up some doubt for you regarding your past views. Was this realization a gradual process for you, or did it feel more sudden? How did it feel to start questioning those beliefs you once held?",229,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+291,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,"I guess I started to think about everything he had told me was true or not and start to wonder if he was making it up, or if he even knew",137,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+292,sess_74cb4bea,assistant,You’re reflecting on the trust you placed in your dad's views and beginning to question their validity. That's a significant shift. What stands out to you as the most important part of this journey towards your current beliefs? What do you find most meaningful about how your views have changed?,295,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+293,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,"Well, I guess i decided to start looking for points of view that were different",79,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+294,sess_74cb4bea,assistant,It sounds like seeking out diverse perspectives became an essential part of your transformation. How do you feel your current views compare to what you used to believe? What aspects of your new perspective resonate with you the most?,233,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+295,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,I trsut climate scientists a lot more than I used to,52,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+296,sess_74cb4bea,assistant,You mentioned developing a greater trust in climate scientists now. That’s a noteworthy change. Can you share what led to that increased trust? Were there particular sources of information or experiences that helped you feel more confident in their expertise?,259,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+297,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,"Well, I watched tsome pretty cool youtubers that seemed legit",61,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+298,sess_74cb4bea,assistant,It sounds like YouTube played a role in reshaping your beliefs. Those creators must have presented information in a way that resonated with you. What specifically about their content or approach made you feel that it was credible and trustworthy?,246,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+299,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,They weren't as angry as my dad and seemed to have heaps of facts that made sense,81,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+300,sess_74cb4bea,assistant,You highlighted that the calmer delivery and factual basis of the YouTubers appealed to you more than your dad's approach. That's an interesting contrast. How do you think that change in communication style influenced your willingness to accept their perspectives?,264,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+301,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,"Heaps, I prefer it",18,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+302,sess_74cb4bea,assistant,"It sounds like the communication style really made a difference for you. Reflecting on your journey, what do you feel is the most significant takeaway from your experience of changing your beliefs about climate change? What matters most to you now?",248,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+303,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,I think just being open minded about the whole thing,52,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+304,sess_74cb4bea,assistant,"Being open-minded seems to be a crucial lesson for you in this journey. Thank you for sharing your experiences and insights. To summarize what we've discussed, let me present a few key points:
+
+• Your conversation with your dad sparked doubt about your previous beliefs.
+
+• You began questioning the validity of what you had been told.
+
+• Exploring different viewpoints became an essential part of your belief change.
+
+• You developed a greater trust in climate scientists compared to before.
+
+• You found YouTube creators' calm delivery and factual content more compelling.
+
+• The most significant takeaway for you is the importance of being open-minded.
+
+Does this capture your story accurately? Would you like to add or adjust anything?",739,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+305,sess_74cb4bea,e056ad52-b88a-423c-907c-002ea0bbfbbe,Nah that's all,14,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+306,sess_74cb4bea,assistant,"Great! I'm glad we could capture your story accurately. Thank you for sharing your journey with me today; it’s been insightful. Now, we’ll transition to the final survey. I appreciate your participation!",203,2025-09-03T02:53:41.732Z,2025-09-03T02:53:41.732Z
+307,sess_77be318e,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T06:04:39.159Z,2025-08-29T06:04:39.159Z
+308,sess_79547b9f,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T06:17:48.555Z,2025-08-29T06:17:48.555Z
+309,sess_79547b9f,9a9a3594-7631-4ea3-9b41-7dad9da64d71,end the chat,12,2025-08-29T06:17:48.555Z,2025-08-29T06:17:48.555Z
+310,sess_79547b9f,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-29T06:17:48.555Z,2025-08-29T06:17:48.555Z
+311,sess_7a93fa78,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+312,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,"Yeah, I used to think it was fake but now I thi k it is real",60,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+313,sess_7a93fa78,assistant,"It sounds like your perspective shifted significantly from thinking it was not real to recognizing its reality. Can you walk me through what influenced that change for you? Were there specific events, experiences, or people that played a role in this transformation?",266,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+314,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,I watched a lot of media,24,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+315,sess_7a93fa78,assistant,"You mentioned engaging with media as a key influence in your change of belief. What specific types of media did you find most impactful? Were there certain documentaries, articles, or news stories that particularly resonated with you?",234,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+316,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,"Yeah, Youtube videos about cliamte change",41,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+317,sess_7a93fa78,assistant,It’s interesting that YouTube videos had such an effect on you. Were there any particular videos or creators that stood out to you or made a strong impression? What about them made you rethink your previous beliefs?,215,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+318,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,I liked mr climate and all his content,38,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+319,sess_7a93fa78,assistant,You highlighted Mr. Climate as a significant influence on your beliefs. What aspects of his content did you find most compelling or convincing? Did his approach or the information he shared change how you viewed climate change?,227,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+320,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,Yeah it made me feel more confident that we needed more action to address it,76,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+321,sess_7a93fa78,assistant,It sounds like Mr. Climate's content really reinforced your sense of urgency about taking action on climate change. Can you share more about how this newfound confidence has shaped your current views or actions regarding the issue? What do you feel is most important now?,271,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+322,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,Now i think the most important thing is good government policy and investment in renewables,91,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+323,sess_7a93fa78,assistant,You mentioned that strong government policies and investment in renewable energy stand out as crucial in your current perspective. How do you think these elements can effectively drive the change needed to address climate change? What specific actions do you believe are necessary?,281,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+324,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,I think mostly the renewable investment,39,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+325,sess_7a93fa78,assistant,"It sounds like you really prioritize investment in renewable energy as a key focus. What types of renewable projects or technologies do you think should be prioritized, and why do you believe they are essential for making progress?",231,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+326,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,I think solar is really good,28,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+327,sess_7a93fa78,assistant,You pointed out that solar energy is particularly promising. What aspects of solar energy do you find most beneficial? How do you see it fitting into the broader picture of addressing climate change?,199,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+328,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,"Well, the energy can be stored in batteries and it's infinite power",67,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+329,sess_7a93fa78,assistant,"You’ve highlighted the benefits of solar energy, like its ability to be stored in batteries and its renewable nature. Given those advantages, how do you think promoting solar energy could change public attitudes or policies regarding climate change?",249,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+330,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,I think it is demonised in the media and there is a lot of misinformation about it,82,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+331,sess_7a93fa78,assistant,You mentioned that solar energy is often portrayed negatively and that misinformation is prevalent. How do you think this misinformation impacts public perception and the overall push for renewable energy solutions? What do you believe could be done to counteract these misconceptions?,285,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+332,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,I think government intervention to stop misinfomration,54,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+333,sess_7a93fa78,assistant,You emphasized the need for government action to combat misinformation about solar energy. What specific measures do you think the government could take to address this issue and promote more accurate information about renewable energy?,236,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+334,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,"No, that's it",13,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+335,sess_7a93fa78,assistant,"Thank you for sharing your thoughts and experiences with me. To summarize what we've discussed, here are some key points:
+
+• You initially believed climate change was not real, but now recognize its reality.
+
+• Watching YouTube videos, especially content from Mr. Climate, significantly influenced your belief change.
+
+• You now feel confident that action is necessary, particularly through government policies and investments in renewables.
+
+• Investment in solar energy stands out to you as a crucial solution due to its benefits like energy storage and being a renewable resource.
+
+• You believe solar energy is often misrepresented in the media, leading to misinformation that affects public perception.
+
+• You see government intervention as vital in addressing misinformation about renewable energy.
+
+Does this capture your thoughts accurately, or is there anything",870,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+336,sess_7a93fa78,6a0ebbdb-da3c-4376-8905-7391ae48927e,That's it,9,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+337,sess_7a93fa78,assistant,Could you tell me more about your thoughts on climate change?,61,2025-09-10T23:35:09.212Z,2025-09-10T23:35:09.212Z
+338,sess_7c5de6ce,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T06:02:49.824Z,2025-08-29T06:02:49.824Z
+339,sess_7f7e25d6,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from believer to skeptic. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T04:35:47.959Z,2025-09-01T04:35:47.959Z
+340,sess_7f7e25d6,60307e7d-0d34-4c63-90c9-fd4304f5f6ff,end the chat,12,2025-09-01T04:35:47.959Z,2025-09-01T04:35:47.959Z
+341,sess_7f7e25d6,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-01T04:35:47.959Z,2025-09-01T04:35:47.959Z
+342,sess_80f7f96b,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+343,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,I think it is happening,23,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+344,sess_80f7f96b,assistant,Thank you for sharing that. Can you tell me about your experience with changing your views on climate change?,109,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+345,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,Who says I changed my views?,28,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+346,sess_80f7f96b,assistant,"That's a fair point! I appreciate your honesty. I'm curious to know if there was a time when your perspective was different, or if it has always been consistent. Have there been any influences or experiences that have shaped your current view on climate change?",261,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+347,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,"Oh yeah, well, I used to think it was fake but now I think it is real",69,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+348,sess_80f7f96b,assistant,Thank you for clarifying that. What do you think influenced that change in your perspective on climate change? Were there particular things that stood out to you along the way?,176,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+349,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,"Erm, I used to listen to politicians, or videos of them, on youtube who really hated it",87,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+350,sess_80f7f96b,assistant,"That makes sense. It sounds like those political viewpoints had an impact on your initial beliefs. As you started to change your mind, how did your views shift over time? What was it like for you as your perspective was changing?",229,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+351,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,"I mean, I didn't really notice until one day I just felt like the whole sceptic thing was boring",96,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+352,sess_80f7f96b,assistant,"It's interesting that you found the skepticism to be unengaging. Looking back, what do you think mattered most in that process of changing your views? How do you see your views now, compared to before?",201,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+353,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,"Well, I'm not a sceptic anymore. I think it is real and happening",65,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+354,sess_80f7f96b,assistant,"Thank you for sharing that. So, it sounds like you've moved away from skepticism and now recognize climate change as a reality. Here's what I heard from you:
+
+• ""I used to think it was fake but now I think it is real.""
+• ""I used to listen to politicians, or videos of them, on YouTube who really hated it.""
+• ""I found the whole skeptic thing boring.""
+• ""I'm not a skeptic anymore.""
+
+Does this capture your main points correctly? Did I miss anything important?",459,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+355,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,"Oh yeah, I also used to think my uncle was cool. He was a sceptic. But one day he was really shitty to my cousin. That made me hate him.",136,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+356,sess_80f7f96b,assistant,"Thank you for adding that detail. It sounds like your uncle's behavior had an impact on your views as well. Let me update the recap:
+
+• ""I used to think it was fake but now I think it is real.""
+• ""I used to listen to politicians, or videos of them, on YouTube who really hated it.""
+• ""I found the whole skeptic thing boring.""
+• ""I'm not a skeptic anymore.""
+• ""I used to think my uncle was cool. He was a skeptic. But one day he was really shitty to my cousin. That made me hate him.""
+
+Does this capture your main points correctly? Did I miss anything important?",561,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+357,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,Nah that's all I can think of,29,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+358,sess_80f7f96b,assistant,Great! Thank you for sharing your thoughts. Do you have any final information or thoughts you would like to add before we move on to the final part of the survey?,162,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+359,sess_80f7f96b,10a27158-376d-4b83-8f36-844696aa33d3,No,2,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+360,sess_80f7f96b,assistant,Thank you for your time and insights today. I'm going to route you to the final part of the survey now. Have a great day!,121,2025-08-29T05:51:26.159Z,2025-08-29T05:51:26.159Z
+361,sess_83511789,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T05:33:28.564Z,2025-09-04T05:33:28.564Z
+362,sess_83511789,e8201876-0dea-46cf-ae1d-da6ab73f46c0,end the chat,12,2025-09-04T05:33:28.564Z,2025-09-04T05:33:28.564Z
+363,sess_83511789,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-04T05:33:28.564Z,2025-09-04T05:33:28.564Z
+364,sess_843f3add,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-04T22:55:37.914Z,2025-09-04T22:55:37.914Z
+365,sess_843f3add,515437d5-e614-4bb0-9d43-3f16174a789b,end the chat,12,2025-09-04T22:55:37.914Z,2025-09-04T22:55:37.914Z
+366,sess_843f3add,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-04T22:55:37.914Z,2025-09-04T22:55:37.914Z
+367,sess_8dc5570c,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-17T04:04:56.574Z,2025-09-17T04:04:56.574Z
+368,sess_8dc5570c,ca3a51de-4e84-4954-8be6-303d11b06ac5,end the chat,12,2025-09-17T04:04:56.574Z,2025-09-17T04:04:56.574Z
+369,sess_8dc5570c,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-17T04:04:56.574Z,2025-09-17T04:04:56.574Z
+370,sess_8faec926,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+371,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,I used to think it was all fake but now I think it's real,57,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+372,sess_8faec926,assistant,It sounds like your perspective shifted from skepticism to acceptance regarding climate change. What do you think was the most significant factor that influenced this change in your beliefs?,190,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+373,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,Watching mr cliamte on youtube,30,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+374,sess_8faec926,assistant,You mentioned that watching Mr. Climate on YouTube played a role in your belief change. Can you share what specifically about his content resonated with you or made a difference in your thinking?,195,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+375,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,He was nice about the whole thing and not too pushy. He didn't make money from the content,90,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+376,sess_8faec926,assistant,It seems like Mr. Climate's approachable and genuine style really impacted you. How did his way of presenting information influence your feelings about climate change and the urgency of the issue?,196,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+377,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,It made me think it was real,28,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+378,sess_8faec926,assistant,"From what you’ve shared, it sounds like his presentation helped bridge the gap between skepticism and belief for you. Can you describe whether this change in thinking felt sudden or more gradual over time?",205,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+379,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,Felt sudden,11,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+380,sess_8faec926,assistant,You mentioned that the change felt sudden. Can you reflect on what that moment was like for you when you realized your beliefs were shifting? What emotions or thoughts did you experience during that time?,204,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+381,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,I just realised it was real,27,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+382,sess_8faec926,assistant,"It sounds like that realization was quite impactful for you. Looking back, what stands out as the most significant part of your journey in changing your beliefs about climate change?",182,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+383,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,Definitely the youtube content,30,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+384,sess_8faec926,assistant,You highlighted the importance of the YouTube content as a key element in your belief change. How do you see your current perspective on climate change compared to how you felt before this realization?,201,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+385,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,I think it's real now,21,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+386,sess_8faec926,assistant,It’s clear that your belief in the reality of climate change has solidified. What matters most to you now about climate change that perhaps didn’t resonate with you before?,172,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+387,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,I think that's all,18,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+388,sess_8faec926,assistant,"Thank you for sharing your thoughts and experiences with me. To summarize your journey regarding belief change, here are some key themes that emerged:
+
+• You transitioned from viewing climate change as fake to recognizing it as real.
+
+• Watching Mr. Climate on YouTube was influential, particularly because of his approachable and non-pushy style.
+
+• The realization of climate change felt sudden for you.
+
+• The YouTube content stands out as the most significant part of your belief change journey.
+
+• Your current perspective now reflects a firm belief in the reality of climate change.
+
+Does this recap capture your experience accurately? Would you like to add or change anything?",683,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+389,sess_8faec926,65da03ca-6ae9-4702-9704-d1277f8348aa,end the chat,12,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+390,sess_8faec926,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-22T01:34:10.216Z,2025-09-22T01:34:10.216Z
+391,sess_90d9ec2b,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-30T03:00:53.343Z,2025-09-30T03:00:53.343Z
+392,sess_90d9ec2b,4644d6c1-303d-42a5-a18a-ae0e442bf61b,end the chat,12,2025-09-30T03:00:53.343Z,2025-09-30T03:00:53.343Z
+393,sess_90d9ec2b,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-30T03:00:53.343Z,2025-09-30T03:00:53.343Z
+394,sess_92de9a03,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-09T02:15:45.963Z,2025-09-09T02:15:45.963Z
+395,sess_92de9a03,aa158ee0-8109-4221-9af8-2930a80bad9f,end the chat,12,2025-09-09T02:15:45.963Z,2025-09-09T02:15:45.963Z
+396,sess_92de9a03,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-09T02:15:45.963Z,2025-09-09T02:15:45.963Z
+397,sess_9367e183,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-10-09T00:43:19.796Z,2025-10-09T00:43:19.796Z
+398,sess_9367e183,f163cf0e-113b-4bb4-9e4e-0c78284c4b13,end the chat,12,2025-10-09T00:43:19.796Z,2025-10-09T00:43:19.796Z
+399,sess_9367e183,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-10-09T00:43:19.796Z,2025-10-09T00:43:19.796Z
+400,sess_95076231,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T23:39:02.560Z,2025-09-01T23:39:02.560Z
+401,sess_95076231,ea362dbf-0776-48da-8c82-e3cbf6cf6556,I used to think cliamte change was fake,39,2025-09-01T23:39:02.560Z,2025-09-01T23:39:02.560Z
+402,sess_95076231,assistant,"That's really helpful. What do you think influenced that change the most? Were there people, events, or experiences that made a difference?",139,2025-09-01T23:39:02.560Z,2025-09-01T23:39:02.560Z
+403,sess_95076231,ea362dbf-0776-48da-8c82-e3cbf6cf6556,"Yeah, I was on holiday and it wasn't as hot as I expected",57,2025-09-01T23:39:02.560Z,2025-09-01T23:39:02.560Z
+404,sess_95076231,assistant,"Can you tell me a bit more about what that shift was like for you? Was it gradual, or more of a sudden change?",110,2025-09-01T23:39:02.560Z,2025-09-01T23:39:02.560Z
+405,sess_95076231,ea362dbf-0776-48da-8c82-e3cbf6cf6556,end the chat,12,2025-09-01T23:39:02.560Z,2025-09-01T23:39:02.560Z
+406,sess_95076231,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-01T23:39:02.560Z,2025-09-01T23:39:02.560Z
+407,sess_954d4b57,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T06:29:36.164Z,2025-08-29T06:29:36.164Z
+408,sess_9883c055,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+409,sess_9883c055,e83e1d3d-1187-4ac1-b6e9-62b9ceaf5108,I used to think it was a hoax but now I think it's pretty legit,63,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+410,sess_9883c055,assistant,Thank you for sharing that! Can you tell me when you started to notice this shift in your beliefs? What triggered that change for you?,134,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+411,sess_9883c055,e83e1d3d-1187-4ac1-b6e9-62b9ceaf5108,"A year ago, I was watching youtube",34,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+412,sess_9883c055,assistant,Interesting! What specific content or information did you come across on YouTube that influenced your change in belief about climate change? What were the most important reasons that made you reconsider?,203,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+413,sess_9883c055,e83e1d3d-1187-4ac1-b6e9-62b9ceaf5108,The person said that lots of scientists agree its happening,59,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+414,sess_9883c055,assistant,"Got it! So, the consensus among scientists was a key factor for you. Did anything else contribute to your change in belief about climate change being real?",155,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+415,sess_9883c055,e83e1d3d-1187-4ac1-b6e9-62b9ceaf5108,"Yeah, my wife also thinks its happening",39,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+416,sess_9883c055,assistant,That’s important! It sounds like your wife’s beliefs had an influence on you as well. How did discussions with her shape your understanding or perspective on climate change?,173,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+417,sess_9883c055,e83e1d3d-1187-4ac1-b6e9-62b9ceaf5108,SH's just very nice and listens a lot and I like her opinions on things,71,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+418,sess_9883c055,assistant,"That’s wonderful to hear! It seems that having a supportive conversation with your wife helped you reflect on your beliefs. Overall, do you feel that your change in perspective on climate change has affected how you view human activity as a cause?",247,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+419,sess_9883c055,e83e1d3d-1187-4ac1-b6e9-62b9ceaf5108,Yeah,4,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+420,sess_9883c055,assistant,Great! Can you elaborate on how your views have changed regarding human activity as a cause of climate change? What influenced that shift for you?,146,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+421,sess_9883c055,e83e1d3d-1187-4ac1-b6e9-62b9ceaf5108,end the chat,12,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+422,sess_9883c055,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-28T01:14:26.147Z,2025-08-28T01:14:26.147Z
+423,sess_988f8289,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-22T05:24:02.288Z,2025-09-22T05:24:02.288Z
+424,sess_988f8289,2ba270d2-c0ce-42ce-8f03-67f80381084d,end the chat,12,2025-09-22T05:24:02.288Z,2025-09-22T05:24:02.288Z
+425,sess_988f8289,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-22T05:24:02.288Z,2025-09-22T05:24:02.288Z
+426,sess_9a2ac54e,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-09-15T05:00:01.175Z,2025-09-15T05:00:01.175Z
+427,sess_9dc06f51,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-11T01:06:18.202Z,2025-09-11T01:06:18.202Z
+428,sess_9dc06f51,2aaeb2df-06e7-4505-8ed4-344ae50ec0f6,end the chat,12,2025-09-11T01:06:18.202Z,2025-09-11T01:06:18.202Z
+429,sess_9dc06f51,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-11T01:06:18.202Z,2025-09-11T01:06:18.202Z
+430,sess_a321244f,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T05:50:19.720Z,2025-09-02T05:50:19.720Z
+431,sess_a321244f,94a5b6c3-9c8e-4eab-8766-2161ba226f25,Yeah I think it's real now,26,2025-09-02T05:50:19.720Z,2025-09-02T05:50:19.720Z
+432,sess_a321244f,assistant,Could you tell me more about your thoughts on climate change?,61,2025-09-02T05:50:19.720Z,2025-09-02T05:50:19.720Z
+433,sess_a321244f,94a5b6c3-9c8e-4eab-8766-2161ba226f25,"Well, I think it's real and happening",37,2025-09-02T05:50:19.720Z,2025-09-02T05:50:19.720Z
+434,sess_a321244f,assistant,Could you tell me more about your thoughts on climate change?,61,2025-09-02T05:50:19.720Z,2025-09-02T05:50:19.720Z
+435,sess_a3f4ce8c,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T00:08:18.842Z,2025-09-02T00:08:18.842Z
+436,sess_a3f4ce8c,cff66acf-9733-41e0-94c9-4140578f52bb,end the chat,12,2025-09-02T00:08:18.842Z,2025-09-02T00:08:18.842Z
+437,sess_a3f4ce8c,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-02T00:08:18.842Z,2025-09-02T00:08:18.842Z
+438,sess_acc87129,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-16T01:29:19.751Z,2025-09-16T01:29:19.751Z
+439,sess_af873b15,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+440,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,rggegegeg,9,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+441,sess_af873b15,assistant,"It seems like there might have been a mix-up in your response. If you could, please share your story about how your views on climate change evolved. I'm really interested in hearing about your journey and what influenced that change for you.",241,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+442,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,"Oh, sorry about that. Yeah, I used to think it was a hoax but now I think it's real.",84,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+443,sess_af873b15,assistant,"Thanks for sharing that shift in your perspective! You mentioned that you used to think climate change was a hoax but now recognize it as real. Can you reflect on what prompted that change for you? Were there specific events, discussions, or experiences that played a significant role?",285,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+444,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,"Yeah. I used to think my uncle was really cool. He always hated climate stuff, said it was bogus.",97,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+445,sess_af873b15,assistant,It's interesting that your uncle's views had such an impact on your own beliefs. You mentioned that you thought he was really cool. Can you share more about how his perspective influenced you initially? And what eventually led you to see things differently?,257,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+446,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,"Well, I would see him a lot and we would talk while doing work around the farm. BUt then I moved to the city and saw him less.",126,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+447,sess_af873b15,assistant,That change in your environment seems significant. Being in the city and away from your uncle might have given you different perspectives. How did living in the city influence your views on climate change? Did you encounter any new ideas or experiences that contributed to your belief shift?,291,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+448,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,"Yeah, I was studying and made a new group of friends. They were all really nice and easier to get along with than my uncle. He could be pretty intense.",151,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+449,sess_af873b15,assistant,"It sounds like your new friends had a positive influence on you, especially compared to your uncle’s intensity. Can you tell me about the conversations or ideas that came up with your friends that helped shape your new perspective on climate change? What stood out to you during those discussions?",297,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+450,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,"Well, they were just really level headed and not very aggressive about their views.",83,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+451,sess_af873b15,assistant,It seems like the calm and respectful way your friends discussed their beliefs made a difference for you. How did that approach compare to the conversations you had with your uncle? Did it make you more open to considering different viewpoints?,244,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+452,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,"Yeah, way more open",19,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+453,sess_af873b15,assistant,"It's great to hear that you felt more open to different ideas. Reflecting on that experience, what do you think was the most significant factor in helping you change your beliefs about climate change? Was it the supportive conversations, the new environment, or something else?",277,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+454,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,Definitely the conversations and new environment,48,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+455,sess_af873b15,assistant,"Thank you for sharing that! It sounds like the combination of supportive discussions and a fresh setting played a crucial role in your belief change. If you were to summarize what matters most to you now regarding climate change, what would that be? How do you feel about your current perspective compared to the past?",318,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+456,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,I think we need to do more,26,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+457,sess_af873b15,assistant,"That's a powerful realization. It sounds like you've developed a sense of urgency around the issue. Can you elaborate a bit on what ""doing more"" means to you? Are there specific actions or changes that you feel are particularly important?",238,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+458,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,MOre government intervention,28,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+459,sess_af873b15,assistant,You mentioned that you believe in the need for more government intervention. What kinds of policies or actions do you think would be most effective in addressing climate change?,177,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+460,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,Taxing mining companies,23,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+461,sess_af873b15,assistant,That's an interesting point. Taxing mining companies could certainly impact environmental policies. What led you to see that as a necessary step? Do you think it would encourage more sustainable practices or contribute to climate change solutions in other ways?,261,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+462,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,I think this is all I have to say,33,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+463,sess_af873b15,assistant,"Thank you for sharing your insights and experiences with me. Before we wrap up, I’d like to summarize what we've discussed to ensure I have everything correct. Here are the key points:
+
+• You initially believed climate change was a hoax due to your uncle's influence.
+
+• Moving to the city and meeting new friends helped you become more open to different perspectives.
+
+• The calm and respectful conversations with your friends contrasted with your uncle's intensity.
+
+• You now feel that we need to do more regarding climate change.
+
+• You believe that more government intervention, specifically taxing mining companies, is necessary.
+
+Does this capture your experience accurately? Would you like to add or change anything?",724,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+464,sess_af873b15,8d186f46-036e-4753-925c-bd3047232ccd,"No, that's it",13,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+465,sess_af873b15,assistant,"Thank you for confirming that! I appreciate you sharing your story and insights with me today. Your perspective is valuable, and I'm grateful for your time. We can now transition to the final survey.",199,2025-09-04T23:11:13.924Z,2025-09-04T23:11:13.924Z
+466,sess_b1c520a2,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T05:48:22.681Z,2025-09-02T05:48:22.681Z
+467,sess_b2da9838,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-17T00:46:40.003Z,2025-09-17T00:46:40.003Z
+468,sess_b2da9838,21c79531-32e1-4ff7-8215-252532b9baea,End the chat,12,2025-09-17T00:46:40.003Z,2025-09-17T00:46:40.003Z
+469,sess_b2da9838,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-17T00:46:40.003Z,2025-09-17T00:46:40.003Z
+470,sess_b77f9c1d,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-17T00:46:35.746Z,2025-09-17T00:46:35.746Z
+471,sess_b7d93123,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+472,sess_b7d93123,c6069851-5124-4716-8342-fc6e379f5ee5,fgfgd,5,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+473,sess_b7d93123,assistant,"It seems like you might have entered something by accident. When you feel ready, could you share your experience regarding your change in beliefs about climate change? I'm interested in understanding your personal story.",220,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+474,sess_b7d93123,c6069851-5124-4716-8342-fc6e379f5ee5,Yeah sorry. Yeah I did change my mind.,38,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+475,sess_b7d93123,assistant,No problem at all! You mentioned that your views have shifted. Could you share what prompted that change for you? What was the journey like?,140,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+476,sess_b7d93123,c6069851-5124-4716-8342-fc6e379f5ee5,"Well, I guess i happened pretty naturally.",42,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+477,sess_b7d93123,assistant,It sounds like your change was gradual. Can you elaborate on what that process felt like for you? Were there any specific moments or influences that stood out during this transition?,182,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+478,sess_b7d93123,c6069851-5124-4716-8342-fc6e379f5ee5,"Yeah, I started seeing my uncle less and less. I used to see him a lot when I was younger and he thought climate change was all a big hoax. I used to belive him. But then, I went to college and it all changed.",209,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+479,sess_b7d93123,assistant,"So, it seems like your relationship with your uncle and your college experience played key roles in your shift. How did your time at college influence your views on climate change? Were there particular classes, discussions, or experiences that made a difference?",263,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+480,sess_b7d93123,c6069851-5124-4716-8342-fc6e379f5ee5,"Yeah, I had a professor that really sold me on the whole thing. Such a cool guy, did marathons. I like running and I thought he was cool.",137,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+481,sess_b7d93123,assistant,"It sounds like your professor made a significant impact on you, especially with your shared interest in running. What was it about his perspective or the way he presented information that resonated with you? Can you recall any specific lessons or discussions that changed your thinking?",286,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+482,sess_b7d93123,c6069851-5124-4716-8342-fc6e379f5ee5,He was just really reasonable and listened a lot. My uncle always talked at me.,79,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+483,sess_b7d93123,assistant,It seems like the way your professor engaged with you made a big difference compared to your uncle's approach. How did that sense of being heard affect your willingness to reconsider your beliefs about climate change? What stands out to you as the most meaningful part of that experience?,288,2025-09-04T22:28:51.044Z,2025-09-04T22:28:51.044Z
+484,sess_bc48206b,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T05:39:14.625Z,2025-09-04T05:39:14.625Z
+485,sess_bc48206b,57218852-ca1a-4c15-8497-cd3f0b7e6e58,talking to my uncle,19,2025-09-04T05:39:14.625Z,2025-09-04T05:39:14.625Z
+486,sess_bc48206b,assistant,It sounds like your conversation with your uncle played a significant role in your change of belief. Can you share what specific aspects of that discussion were impactful for you? What did he say that made you reconsider your views?,232,2025-09-04T05:39:14.625Z,2025-09-04T05:39:14.625Z
+487,sess_bc48206b,57218852-ca1a-4c15-8497-cd3f0b7e6e58,end the chat,12,2025-09-04T05:39:14.625Z,2025-09-04T05:39:14.625Z
+488,sess_bc48206b,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-04T05:39:14.625Z,2025-09-04T05:39:14.625Z
+489,sess_bc9bb0b6,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from believer to skeptic. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+490,sess_bc9bb0b6,3b1ba6c5-f65d-4b8f-870d-d4c6f668a059,I used to be a lib,18,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+491,sess_bc9bb0b6,assistant,It sounds like your previous beliefs were linked to a particular political perspective. Can you share more about how that identity influenced your views on climate change before your shift?,189,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+492,sess_bc9bb0b6,3b1ba6c5-f65d-4b8f-870d-d4c6f668a059,Yeah I was a bit of a leftie when I was younger but now I think it's all just fake,82,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+493,sess_bc9bb0b6,assistant,"From what you’ve described, it seems like your political beliefs played a role in your initial acceptance of climate change. What specific experiences or events led you to start questioning that belief?",202,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+494,sess_bc9bb0b6,3b1ba6c5-f65d-4b8f-870d-d4c6f668a059,I dunno,7,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+495,sess_bc9bb0b6,assistant,It sounds like it might be a complex process for you. Was there a particular moment or piece of information that made you start feeling skeptical about climate change?,167,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+496,sess_bc9bb0b6,3b1ba6c5-f65d-4b8f-870d-d4c6f668a059,You sound a bit profesh,23,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+497,sess_bc9bb0b6,assistant,"I appreciate the feedback! I'm here to listen and learn about your experiences. When you think back on your transition, what do you recall as the most impactful influence that shaped your current views?",202,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+498,sess_bc9bb0b6,3b1ba6c5-f65d-4b8f-870d-d4c6f668a059,end the chat,12,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+499,sess_bc9bb0b6,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-03T03:16:58.783Z,2025-09-03T03:16:58.783Z
+500,sess_c4738339,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-02T00:21:54.591Z,2025-09-02T00:21:54.591Z
+501,sess_c4738339,80ec6b9e-06b7-41f0-95c5-a8978700b883,end the chat,12,2025-09-02T00:21:54.591Z,2025-09-02T00:21:54.591Z
+502,sess_c4738339,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-02T00:21:54.591Z,2025-09-02T00:21:54.591Z
+503,sess_c74c36ef,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-28T00:49:28.732Z,2025-08-28T00:49:28.732Z
+504,sess_c74c36ef,5748dcfb-e576-48ed-b2ea-8b163fc26ad8,end the chat,12,2025-08-28T00:49:28.732Z,2025-08-28T00:49:28.732Z
+505,sess_c74c36ef,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-28T00:49:28.732Z,2025-08-28T00:49:28.732Z
+506,sess_c87febdb,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T06:25:16.308Z,2025-08-29T06:25:16.308Z
+507,sess_c8cf2ecf,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-17T04:34:57.482Z,2025-09-17T04:34:57.482Z
+508,sess_c8cf2ecf,4c09b831-13a1-448b-970f-54fe4446ad68,End the chat,12,2025-09-17T04:34:57.482Z,2025-09-17T04:34:57.482Z
+509,sess_c8cf2ecf,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-17T04:34:57.482Z,2025-09-17T04:34:57.482Z
+510,sess_cdf159d7,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-05T04:24:16.374Z,2025-09-05T04:24:16.374Z
+511,sess_cdf159d7,30be5f9c-4681-41c0-abc2-d861ed4ee8b6,end the chat,12,2025-09-05T04:24:16.374Z,2025-09-05T04:24:16.374Z
+512,sess_cdf159d7,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-05T04:24:16.374Z,2025-09-05T04:24:16.374Z
+513,sess_conv-175,assistant,Hello! I'd like to learn more about your perspective on climate change. Could you tell me what led you to change your mind about this topic?,140,2025-09-04T05:15:22.660Z,2025-09-04T05:15:22.660Z
+514,sess_conv-175,assistant,Hello! I'd like to learn more about your perspective on climate change. Could you tell me what led you to change your mind about this topic?,140,2025-09-04T05:17:50.560Z,2025-09-04T05:17:50.560Z
+515,sess_conv-175,0f1d6ac2-f4f5-4ae9-aa71-b876c7543831,"Yes, I changed my mind about climate change after seeing more scientific evidence.",82,2025-09-04T05:17:50.560Z,2025-09-04T05:17:50.560Z
+516,sess_conv-175,assistant,I see. What role did personal experiences play in shaping your views?,69,2025-09-04T05:17:50.560Z,2025-09-04T05:17:50.560Z
+517,sess_conv-175,assistant,Hello! I'd like to learn more about your perspective on climate change. Could you tell me what led you to change your mind about this topic?,140,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+518,sess_conv-175,c62a16ae-7ee1-4520-b868-4f2a0fd51f42,vfvfv,5,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+519,sess_conv-175,assistant,Thank you for sharing that. How do you think others might respond to your perspective?,86,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+520,sess_conv-175,c62a16ae-7ee1-4520-b868-4f2a0fd51f42,vfvfv,5,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+521,sess_conv-175,assistant,I see. What role did personal experiences play in shaping your views?,69,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+522,sess_conv-175,c62a16ae-7ee1-4520-b868-4f2a0fd51f42,vfvf,4,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+523,sess_conv-175,assistant,That's a thoughtful point. What questions do you think are most important about this issue?,91,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+524,sess_conv-175,c62a16ae-7ee1-4520-b868-4f2a0fd51f42,vfvfv,5,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+525,sess_conv-175,assistant,I see. What role did personal experiences play in shaping your views?,69,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+526,sess_conv-175,c62a16ae-7ee1-4520-b868-4f2a0fd51f42,vfvfvf,6,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+527,sess_conv-175,assistant,That's interesting. Could you tell me more about what specifically influenced your thinking?,92,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+528,sess_conv-175,c62a16ae-7ee1-4520-b868-4f2a0fd51f42,vfvfv,5,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+529,sess_conv-175,assistant,That's interesting. Could you tell me more about what specifically influenced your thinking?,92,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+530,sess_conv-175,c62a16ae-7ee1-4520-b868-4f2a0fd51f42,vfvfv,5,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+531,sess_conv-175,assistant,I appreciate you sharing that with me. What would you say to someone who disagrees with your view?,98,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+532,sess_conv-175,c62a16ae-7ee1-4520-b868-4f2a0fd51f42,vfvfv,5,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+533,sess_conv-175,assistant,That's interesting. Could you tell me more about what specifically influenced your thinking?,92,2025-09-04T05:21:37.866Z,2025-09-04T05:21:37.866Z
+534,sess_d17da061,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from believer to skeptic. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+535,sess_d17da061,ae37e4de-0162-4118-9171-89c504a359d9,I used to think it was all legit but now I think it',52,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+536,sess_d17da061,assistant,"That's really helpful. Can you tell me a bit more about what that shift was like for you? Was it gradual, or more of a sudden change?",133,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+537,sess_d17da061,ae37e4de-0162-4118-9171-89c504a359d9,More of a gradual change. I just stopped listening to liberal media.,68,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+538,sess_d17da061,assistant,"Interesting! So, it sounds like your media consumption played a role in your change. What do you think influenced that change the most? Were there specific people, events, or experiences that made a difference during that time?",227,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+539,sess_d17da061,ae37e4de-0162-4118-9171-89c504a359d9,"Yeah I really like Bill O'Reilly. Funny guy,.",45,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+540,sess_d17da061,assistant,"Thanks for sharing that! Bill O'Reilly has quite a distinct perspective. Looking back, what stands out as most important in shaping the way you see climate change now? How do you see your views today, compared to before your change?",232,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+541,sess_d17da061,ae37e4de-0162-4118-9171-89c504a359d9,definitely listening to more conservative media.,48,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+542,sess_d17da061,assistant,"Got it! It seems like consuming more conservative media has played a significant role in your perspective shift. Thanks for sharing that insight. 
+
+Here's a quick summary of what I heard from you:
+- Your shift in beliefs was gradual rather than sudden.
+- A key factor in your change was stopping the consumption of liberal media.
+- Listening to more conservative media, like Bill O'Reilly, influenced your views on climate change.
+
+Does that sound right? Did I miss anything important?",485,2025-09-01T04:39:55.951Z,2025-09-01T04:39:55.951Z
+543,sess_d297b37b,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-16T00:54:13.232Z,2025-09-16T00:54:13.232Z
+544,sess_d297b37b,285aac11-4c23-408e-b90a-25fe6bb9937b,end the chat,12,2025-09-16T00:54:13.232Z,2025-09-16T00:54:13.232Z
+545,sess_d297b37b,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-16T00:54:13.232Z,2025-09-16T00:54:13.232Z
+546,sess_dbcaca83,assistant,Hi there! I'm interested in learning about your thoughts on climate change. It sounds like your views may have evolved over time - I'd love to hear about what led to any shifts in your thinking.,194,2025-08-28T00:59:37.180Z,2025-08-28T00:59:37.180Z
+547,sess_dbcaca83,f25c8da7-8257-446a-8890-658286ab7272,end the chat,12,2025-08-28T00:59:37.180Z,2025-08-28T00:59:37.180Z
+548,sess_dbcaca83,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-08-28T00:59:37.180Z,2025-08-28T00:59:37.180Z
+549,sess_e0393dbe,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-08-29T06:32:40.624Z,2025-08-29T06:32:40.624Z
+550,sess_e37e3189,assistant,"Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",183,2025-09-04T22:45:57.237Z,2025-09-04T22:45:57.237Z
+551,sess_e39f635f,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-30T03:10:27.229Z,2025-09-30T03:10:27.229Z
+552,sess_e39f635f,c0a5c65a-e14f-4879-ac5d-830ed423d898,end the chat,12,2025-09-30T03:10:27.229Z,2025-09-30T03:10:27.229Z
+553,sess_e39f635f,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-30T03:10:27.229Z,2025-09-30T03:10:27.229Z
+554,sess_e82b7c20,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-17T00:34:11.359Z,2025-09-17T00:34:11.359Z
+555,sess_e82b7c20,e489a472-3798-4eb4-a6a9-9e149346888f,End the chat,12,2025-09-17T00:34:11.359Z,2025-09-17T00:34:11.359Z
+556,sess_e82b7c20,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-17T00:34:11.359Z,2025-09-17T00:34:11.359Z
+557,sess_e876823d,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-30T02:27:52.462Z,2025-09-30T02:27:52.462Z
+558,sess_ebb3ea02,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-05T04:53:06.194Z,2025-09-05T04:53:06.194Z
+559,sess_ebb3ea02,4a45d70c-c72e-4f22-9ac3-1c0522104083,end the chat,12,2025-09-05T04:53:06.194Z,2025-09-05T04:53:06.194Z
+560,sess_ebb3ea02,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-05T04:53:06.194Z,2025-09-05T04:53:06.194Z
+561,sess_ed553329,assistant,"Hi there! Thanks for continuing with the study. Earlier, you mentioned that your view on climate change shifted — from skeptic to believer. I'd love to hear more about that. Can you tell me in your own words how that change came about?",235,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+562,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,"Yeah, I used to be skeptical but now I think it's real",54,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+563,sess_ed553329,assistant,"It sounds like you've experienced quite a shift in your perspective. Could you share what led to that change? Were there specific events, conversations, or experiences that influenced your beliefs?",197,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+564,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,"Yeah, I was at a bbq with my uncle",34,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+565,sess_ed553329,assistant,You mentioned having a conversation with your uncle during that barbecue. What about that discussion was particularly impactful for you?,136,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+566,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,"Yeah, he's a cliamte skeptic and I used to think he was cool, but he was being aggressive and weird about it all. Made me feel uncformtable",139,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+567,sess_ed553329,assistant,It seems that your uncle's approach during that conversation had a strong effect on you. Can you expand on how that discomfort influenced your thinking about climate change? Did it spark any changes in your beliefs or how you approached the topic afterward?,257,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+568,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,"Yeah, I just didn't like his vibe and started to look for other info",68,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+569,sess_ed553329,assistant,"You mentioned that your uncle's attitude prompted you to seek out different information. What kinds of sources or information did you turn to, and how did that exploration shape your current beliefs about climate change?",220,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+570,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,Watched youtube,15,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+571,sess_ed553329,assistant,It sounds like you found some videos that resonated with you. Were there any specific videos or channels that stood out and had a significant impact on your understanding of climate change?,189,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+572,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,"Yeah, Mr Climate",16,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+573,sess_ed553329,assistant,You highlighted Mr. Climate as a key source for you. What was it about his content that really caught your attention or changed the way you think about climate change?,167,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+574,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,"Well produced, made sense. Cooler than mu\y uncle",49,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+575,sess_ed553329,assistant,It sounds like you appreciated both the quality of the content and the way it presented the information. How do you feel about your views now compared to when you were skeptical? What stands out to you as the most significant change in your perspective?,253,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+576,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,I guess I just used to listen to my uncle and family but started hearing different info,87,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+577,sess_ed553329,assistant,It seems that diversifying the sources of information really helped you shift your perspective. What do you think is the most meaningful aspect of your journey from skepticism to belief?,186,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+578,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,Not sure,8,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+579,sess_ed553329,assistant,That's completely understandable. Reflecting on your journey can be complex. Is there anything about your current beliefs or attitudes regarding climate change that feels particularly important to you now?,205,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+580,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,I just think it's real,22,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+581,sess_ed553329,assistant,"You’ve expressed a clear understanding that climate change is real now. As you think back on your transition, are there any key moments or realizations that stand out as particularly significant in shaping that belief?",218,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+582,sess_ed553329,65dba151-7796-4dde-8981-a690d6e069bf,Mostly the convo with my uncle,30,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+583,sess_ed553329,assistant,"That conversation with your uncle seems to be a pivotal moment for you. Thank you for sharing that insight. Before we wrap up, I’d like to summarize what you’ve shared to confirm I have it right. Here’s what I have:
+
+• You used to be skeptical about climate change, influenced by family views.
+
+• A conversation with your uncle at a barbecue made you uncomfortable due to his aggressive stance.
+
+• This discomfort led you to seek out different information.
+
+• You started watching Mr. Climate on YouTube, which you found well-produced and informative.
+
+• Now, you firmly believe that climate change is real.
+
+Does this summary capture your experience accurately? Feel free to add or adjust anything!",699,2025-09-03T04:09:46.191Z,2025-09-03T04:09:46.191Z
+584,sess_f5f08f50,assistant,Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?,191,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+585,sess_f5f08f50,9a5943c1-23b0-468e-9410-d3d502c5a6da,I think it is real and happening and largely man made,53,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+586,sess_f5f08f50,assistant,Thank you for sharing that. Can you tell me about your experience with changing your views on climate change?,109,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+587,sess_f5f08f50,9a5943c1-23b0-468e-9410-d3d502c5a6da,What do you mean?,17,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+588,sess_f5f08f50,assistant,"I’m curious about how your views on climate change have evolved over time. Did you always believe it was real and man-made, or was there a point when your perspective shifted?",175,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+589,sess_f5f08f50,9a5943c1-23b0-468e-9410-d3d502c5a6da,"I see. Well, I used to think it was fake but now I think it's real.",67,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+590,sess_f5f08f50,assistant,Thank you for clarifying that! What do you think influenced that change in your views? Were there particular things that stood out to you along the way?,152,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+591,sess_f5f08f50,9a5943c1-23b0-468e-9410-d3d502c5a6da,"I used to watch a lot of Youtube videos where climate deniers would roast leftists. But one day, one of the youtubers got humiliated on another channel. It looked weak.",168,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+592,sess_f5f08f50,assistant,That’s an interesting experience. It sounds like that moment had a significant impact on you. How did your views shift over time from thinking it was fake to believing it is real? What was it like for you as your perspective was changing?,238,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+593,sess_f5f08f50,9a5943c1-23b0-468e-9410-d3d502c5a6da,"Well, I guess I got bored of the whole thing and felt like it didn't really match my views anymore",98,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+594,sess_f5f08f50,assistant,"I see. It sounds like you started to reevaluate your stance. Looking back, what do you think mattered most in that process of change?",133,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+595,sess_f5f08f50,9a5943c1-23b0-468e-9410-d3d502c5a6da,Definitely seeing the Youtuber get roasted.,43,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+596,sess_f5f08f50,assistant,"That moment seems to have had a strong impact on your thinking. How do you see your views now, compared to before?",114,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+597,sess_f5f08f50,9a5943c1-23b0-468e-9410-d3d502c5a6da,Now I'm pretty confident it's all real,38,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+598,sess_f5f08f50,assistant,"Thank you for sharing your journey with me. Here's what I heard from you:
+• ""I used to think it was fake but now I think it's real.""
+• ""It’s happening and largely man-made.""
+• ""I watched a lot of Youtube videos where climate deniers would roast leftists.""
+• ""One day, one of the youtubers got humiliated on another channel.""
+• ""It looked weak.""
+• ""I got bored of the whole thing and felt like it didn't really match my views anymore.""
+• ""Seeing the Youtuber get roasted was definitely the most important part of my change.""
+• ""Now I'm pretty confident it's all real.""
+
+Does this capture your main points correctly? Did I miss anything important?",645,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+599,sess_f5f08f50,9a5943c1-23b0-468e-9410-d3d502c5a6da,"Oh yeah, actually, my uncle is a big sceptic. I used to think he was really cool but then I saw him be mean to my cousin and it made me hate him.",145,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+600,sess_f5f08f50,assistant,"Thank you for adding that important detail. Let me update the recap to include your uncle's influence. Here's what I have now:
+
+• ""I used to think it was fake but now I think it's real.""
+• ""It’s happening and largely man-made.""
+• ""I watched a lot of Youtube videos where climate deniers would roast leftists.""
+• ""One day, one of the youtubers got humiliated on another channel.""
+• ""It looked weak.""
+• ""I got bored of the whole thing and felt like it didn't really match my views anymore.""
+• ""Seeing the Youtuber get roasted was definitely the most important part of my change.""
+• ""Now I'm pretty confident it's all real.""
+• ""My uncle is a",638,2025-08-29T05:44:49.159Z,2025-08-29T05:44:49.159Z
+601,sess_f90338ee,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-05T01:51:35.077Z,2025-09-05T01:51:35.077Z
+602,sess_fadf4063,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-17T04:13:51.554Z,2025-09-17T04:13:51.554Z
+603,sess_fadf4063,108ddd43-9eca-450b-8f43-5c7be5a61101,end the chat,12,2025-09-17T04:13:51.554Z,2025-09-17T04:13:51.554Z
+604,sess_fadf4063,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-17T04:13:51.554Z,2025-09-17T04:13:51.554Z
+605,sess_ff58c2a0,assistant,"Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?",222,2025-09-16T04:06:32.633Z,2025-09-16T04:06:32.633Z
+606,sess_ff58c2a0,6e165fb7-a6d1-4156-a5d2-defea67d2bc9,end the chat,12,2025-09-16T04:06:32.633Z,2025-09-16T04:06:32.633Z
+607,sess_ff58c2a0,assistant,Okay — ending the chat now. Thanks for participating!,53,2025-09-16T04:06:32.633Z,2025-09-16T04:06:32.633Z
