@@ -447,25 +447,58 @@ app.post('/survey/submit', (req, res) => {
             age,
             gender,
             education,
-            political_orientation,
-            prior_belief,
-            current_belief,
-            confidence_level,
+            // Political views
+            economic_issues,
+            social_issues,
+            political_views_order,
+            economic_issues_answered,
+            social_issues_answered,
+            // Belief change
             views_changed,
+            viewsChanged, // Also accept legacy field name
             current_views,
             elaboration,
             ai_summary_generated,
+            AI_Summary_Views,
             ai_accurate,
+            confidence_level,
             missing_info,
-            consent
+            consent,
+            // Climate Change Skepticism (CCS) scale raw values
+            ccs_01_raw, ccs_02_raw, ccs_03_raw, ccs_04_raw, ccs_05_raw, ccs_06_raw,
+            ccs_07_raw, ccs_08_raw, ccs_09_raw, ccs_10_raw, ccs_11_raw, ccs_12_raw,
+            // CCS scale scored values (with reverse coding applied)
+            ccs_01_scored, ccs_02_scored, ccs_03_scored, ccs_04_scored, ccs_05_scored, ccs_06_scored,
+            ccs_07_scored, ccs_08_scored, ccs_09_scored, ccs_10_scored, ccs_11_scored, ccs_12_scored,
+            // CCS metadata (whether sliders were moved)
+            ccs_01_was_moved, ccs_02_was_moved, ccs_03_was_moved, ccs_04_was_moved, ccs_05_was_moved, ccs_06_was_moved,
+            ccs_07_was_moved, ccs_08_was_moved, ccs_09_was_moved, ccs_10_was_moved, ccs_11_was_moved, ccs_12_was_moved,
+            // Attention check data
+            attention_check_value,
+            attention_check_passed,
+            attention_check_was_moved,
+            // CCS mean scores
+            ccs_mean_scored,
+            ccs_occurrence_mean,
+            ccs_causation_mean,
+            ccs_seriousness_mean,
+            ccs_efficacy_mean,
+            ccs_trust_mean,
+            // Display order for analysis
+            ccs_row_order,
+            // Exit survey fields (may be passed through from frontend)
+            summaryConfidence,
+            finalConfidenceLevel,
+            summaryAccurate
         } = req.body;
         
         console.log('Received survey submission:', req.body);
         console.log('DEBUG: Starting validation process...');
         
-        // Validate required field: views_changed
-        if (!views_changed || !['Yes', 'No'].includes(views_changed)) {
-            console.log('DEBUG: views_changed validation FAILED - views_changed:', views_changed);
+        // Validate required field: views_changed (handle both field names)
+        const viewsChangedValue = views_changed || viewsChanged;
+        if (!viewsChangedValue || !['Yes', 'No'].includes(viewsChangedValue)) {
+            console.log('DEBUG: views_changed validation FAILED - views_changed:', viewsChangedValue);
             return res.status(400).json({ error: 'Please indicate whether your views on climate change have changed' });
         }
         console.log('DEBUG: views_changed validation PASSED');
@@ -473,46 +506,123 @@ app.post('/survey/submit', (req, res) => {
         console.log('DEBUG: All validation passed, creating participant...');
         
         // Generate participant ID
-        const participantId = uuidv4();
+        const participantId = `p_${uuidv4().replace(/-/g, '').substring(0, 6)}`;
         const now = new Date().toISOString();
         console.log('DEBUG: Generated participant ID:', participantId);
         
-        // Create participant data with new structure
+        // Create participant data with nested structure
         console.log('DEBUG: Creating participant data object...');
         const participantData = {
-            id: participantId,
-            createdAt: now,
-            updatedAt: now,
+            // Top-level identification and metadata
+            participant_id: participantId,
+            prolific_id: prolific_id || null,
+            consent: Boolean(consent),
+            disqualified: false,
+            timestamp_joined: now,
             
-            // Factual demographics (optional)
-            age: age ? parseInt(age) : null,
-            gender: gender || null,
-            education: education || null,
+            // Demographics section
+            demographics: {
+                age: age ? parseInt(age) : null,
+                gender: gender || null,
+                education: education || null
+            },
             
-            // Attitudinal measures (1-7 scale, optional)
-            politicalAffiliation: political_orientation ? parseInt(political_orientation) : null,
-            confidenceLevel: confidence_level ? parseInt(confidence_level) : null,
+            // Belief change section
+            belief_change: {
+                has_changed_mind: (views_changed || viewsChanged) === 'Yes',
+                current_view: current_views || null,
+                elaboration: elaboration || null,
+                ai_summary: ai_summary_generated || AI_Summary_Views || null,
+                ai_confidence_slider: confidence_level !== undefined && confidence_level !== "N/a" ? parseInt(confidence_level) : null,
+                ai_summary_accuracy: ai_accurate || summaryAccurate || null
+            },
             
-            // Required belief change questions
-            viewsChanged: views_changed,
-            // changeDirection field removed from survey
+            // Views matrix section
+            views_matrix: {
+                climate_change_views: {
+                    // CCS raw values
+                    ccs_01_raw: ccs_01_raw || null,
+                    ccs_02_raw: ccs_02_raw || null,
+                    ccs_03_raw: ccs_03_raw || null,
+                    ccs_04_raw: ccs_04_raw || null,
+                    ccs_05_raw: ccs_05_raw || null,
+                    ccs_06_raw: ccs_06_raw || null,
+                    ccs_07_raw: ccs_07_raw || null,
+                    ccs_08_raw: ccs_08_raw || null,
+                    ccs_09_raw: ccs_09_raw || null,
+                    ccs_10_raw: ccs_10_raw || null,
+                    ccs_11_raw: ccs_11_raw || null,
+                    ccs_12_raw: ccs_12_raw || null,
+                    // CCS scored values
+                    ccs_01_scored: ccs_01_scored || null,
+                    ccs_02_scored: ccs_02_scored || null,
+                    ccs_03_scored: ccs_03_scored || null,
+                    ccs_04_scored: ccs_04_scored || null,
+                    ccs_05_scored: ccs_05_scored || null,
+                    ccs_06_scored: ccs_06_scored || null,
+                    ccs_07_scored: ccs_07_scored || null,
+                    ccs_08_scored: ccs_08_scored || null,
+                    ccs_09_scored: ccs_09_scored || null,
+                    ccs_10_scored: ccs_10_scored || null,
+                    ccs_11_scored: ccs_11_scored || null,
+                    ccs_12_scored: ccs_12_scored || null,
+                    // CCS metadata
+                    ccs_01_was_moved: ccs_01_was_moved || null,
+                    ccs_02_was_moved: ccs_02_was_moved || null,
+                    ccs_03_was_moved: ccs_03_was_moved || null,
+                    ccs_04_was_moved: ccs_04_was_moved || null,
+                    ccs_05_was_moved: ccs_05_was_moved || null,
+                    ccs_06_was_moved: ccs_06_was_moved || null,
+                    ccs_07_was_moved: ccs_07_was_moved || null,
+                    ccs_08_was_moved: ccs_08_was_moved || null,
+                    ccs_09_was_moved: ccs_09_was_moved || null,
+                    ccs_10_was_moved: ccs_10_was_moved || null,
+                    ccs_11_was_moved: ccs_11_was_moved || null,
+                    ccs_12_was_moved: ccs_12_was_moved || null,
+                    // Attention check
+                    attention_check_value: attention_check_value || null,
+                    attention_check_passed: attention_check_passed || null,
+                    attention_check_was_moved: attention_check_was_moved || null,
+                    // Mean scores
+                    ccs_mean_scored: ccs_mean_scored || null,
+                    ccs_occurrence_mean: ccs_occurrence_mean || null,
+                    ccs_causation_mean: ccs_causation_mean || null,
+                    ccs_seriousness_mean: ccs_seriousness_mean || null,
+                    ccs_efficacy_mean: ccs_efficacy_mean || null,
+                    ccs_trust_mean: ccs_trust_mean || null,
+                    // Display order
+                    ccs_row_order: ccs_row_order || null
+                },
+                political_views: {
+                    economic_issues: economic_issues ? parseInt(economic_issues) : null,
+                    social_issues: social_issues ? parseInt(social_issues) : null,
+                    political_views_order: political_views_order || null,
+                    economic_issues_answered: economic_issues_answered || null,
+                    social_issues_answered: social_issues_answered || null
+                }
+            },
             
-            // New views questions (from views.html page)
-            currentViews: current_views || null,
-            elaboration: elaboration || null,
+            // Chatbot interaction placeholder (will be populated later)
+            chatbot_interaction: {
+                messages: []
+            },
             
-            // Belief confidence data (from belief-confidence.html page)
-            aiSummaryGenerated: ai_summary_generated || null,
-            AI_Summary_Views: req.body.AI_Summary_Views || null, // Store for reuse on final page
-            aiAccurate: ai_accurate || null,
-            missingInfo: missing_info || null,
+            // Post-chat section (may be populated now or later)
+            post_chat: {
+                final_belief_confidence: finalConfidenceLevel !== undefined && finalConfidenceLevel !== "N/a" ? parseInt(finalConfidenceLevel) : null,
+                chatbot_summary_accuracy: summaryConfidence ? parseInt(summaryConfidence) : null
+            },
             
-            // Consent
-            consentAnonymised: Boolean(consent),
+            // Timestamps section
+            timestamps: {
+                started: now,
+                completed: null
+            },
             
             // Legacy fields for backwards compatibility
-            prolificId: prolific_id || null,
-            consentGiven: Boolean(consent)
+            id: participantId, // Keep legacy id field
+            createdAt: now,
+            updatedAt: now
         };
         
         console.log('DEBUG: Participant data object created');
@@ -816,6 +926,36 @@ app.post('/api/conversations/:id/message', async (req, res) => {
             // Save conversation using data access layer
             await dataAccess.saveSession(conversationData);
             
+            // Update participant data with conversation messages
+            try {
+                const participantFile = path.join(participantsDir, `${conversationData.participantId}.json`);
+                const participantData = readJson(participantFile);
+                
+                if (participantData) {
+                    // Transform conversation messages to match desired structure
+                    const transformedMessages = conversationData.messages.map(msg => ({
+                        sender: msg.role === 'user' ? 'participant' : 'chatbot',
+                        text: msg.content,
+                        timestamp: msg.timestamp || now.toISOString()
+                    }));
+                    
+                    // Update chatbot interaction section
+                    participantData.chatbot_interaction = {
+                        messages: transformedMessages
+                    };
+                    
+                    // Update timestamp
+                    participantData.updatedAt = now.toISOString();
+                    
+                    // Save updated participant data
+                    writeJson(participantFile, participantData);
+                    console.log(`Updated participant ${conversationData.participantId} with ${transformedMessages.length} conversation messages (early end)`);
+                }
+            } catch (error) {
+                console.error('Error updating participant with early-end conversation data:', error);
+                // Don't fail the endpoint if participant update fails
+            }
+            
             // Remove from active conversations
             activeConversations.delete(conversationId);
             
@@ -932,6 +1072,36 @@ app.post('/api/conversations/:id/end', async (req, res) => {
         // Save updated conversation using data access layer
         await dataAccess.saveSession(conversationData);
         
+        // Update participant data with conversation messages
+        try {
+            const participantFile = path.join(participantsDir, `${conversationData.participantId}.json`);
+            const participantData = readJson(participantFile);
+            
+            if (participantData) {
+                // Transform conversation messages to match desired structure
+                const transformedMessages = conversationData.messages.map(msg => ({
+                    sender: msg.role === 'user' ? 'participant' : 'chatbot',
+                    text: msg.content,
+                    timestamp: msg.timestamp || now.toISOString()
+                }));
+                
+                // Update chatbot interaction section
+                participantData.chatbot_interaction = {
+                    messages: transformedMessages
+                };
+                
+                // Update timestamp
+                participantData.updatedAt = now.toISOString();
+                
+                // Save updated participant data
+                writeJson(participantFile, participantData);
+                console.log(`Updated participant ${conversationData.participantId} with ${transformedMessages.length} conversation messages`);
+            }
+        } catch (error) {
+            console.error('Error updating participant with conversation data:', error);
+            // Don't fail the endpoint if participant update fails
+        }
+        
         // Remove from active conversations
         activeConversations.delete(conversationId);
         
@@ -973,6 +1143,75 @@ app.get('/api/participant/:id', (req, res) => {
     }
 });
 
+// Honeypot submission endpoint - saves bot responses and redirects
+app.post('/api/honeypot-submission', (req, res) => {
+    try {
+        const {
+            current_views,
+            elaboration,
+            participant_session_data
+        } = req.body;
+        
+        console.log('Honeypot triggered - saving bot response');
+        
+        // Generate participant ID for the bot response
+        const participantId = uuidv4();
+        const now = new Date().toISOString();
+        
+        // Parse session data if available
+        let sessionData = {};
+        try {
+            sessionData = participant_session_data ? JSON.parse(participant_session_data) : {};
+        } catch (e) {
+            console.warn('Failed to parse session data:', e);
+        }
+        
+        // Create participant data with honeypot flags
+        const participantData = {
+            id: participantId,
+            createdAt: now,
+            updatedAt: now,
+            
+            // Mark as honeypot triggered
+            honeypot_triggered: true,
+            disqualification_reason: "automated entry detected",
+            
+            // Store the bot response
+            current_views: current_views || null,
+            elaboration: elaboration || null,
+            
+            // Include any session data that was available
+            ...sessionData,
+            
+            // Additional metadata
+            bot_detection_method: "hello_repetition",
+            user_agent: req.headers['user-agent'] || null,
+            ip_address: req.ip || null
+        };
+        
+        // Save the bot response for review
+        const filename = path.join(participantsDir, `${participantId}.json`);
+        if (!writeJson(filename, participantData)) {
+            throw new Error('Failed to save honeypot data');
+        }
+        
+        console.log('Bot response saved with ID:', participantId);
+        
+        // Return success so client can handle redirect
+        res.json({
+            success: true,
+            redirect_url: 'https://app.prolific.com/submissions/complete?cc=SCREENOUT'
+        });
+        
+    } catch (error) {
+        console.error('Error processing honeypot submission:', error);
+        res.status(500).json({
+            error: 'Processing error',
+            redirect_url: 'https://app.prolific.com/submissions/complete?cc=SCREENOUT'
+        });
+    }
+});
+
 // End survey submission endpoint
 app.post('/api/end-survey', (req, res) => {
     try {
@@ -989,37 +1228,34 @@ app.post('/api/end-survey', (req, res) => {
             return res.status(400).json({ error: 'Participant ID is required' });
         }
         
-        // Generate survey ID
-        const surveyId = uuidv4();
+        // Load existing participant data
+        const participantFile = path.join(participantsDir, `${participant_id}.json`);
+        const participantData = readJson(participantFile);
+        
+        if (!participantData) {
+            return res.status(404).json({ error: 'Participant not found' });
+        }
+        
         const now = new Date().toISOString();
         
-        // Create end survey data with optional fields
-        const endSurveyData = {
-            id: surveyId,
-            participantId: participant_id,
-            createdAt: now,
-            
-            // Optional survey responses
-            summaryConfidence: summaryConfidence ? parseInt(summaryConfidence) : null,
-            finalConfidenceLevel: finalConfidenceLevel ? parseInt(finalConfidenceLevel) : null
+        // Update post_chat section with exit survey data
+        participantData.post_chat = {
+            final_belief_confidence: finalConfidenceLevel !== undefined && finalConfidenceLevel !== "N/a" ? parseInt(finalConfidenceLevel) : null,
+            chatbot_summary_accuracy: summaryConfidence ? parseInt(summaryConfidence) : null
         };
         
-        // Save end survey data
-        const filename = path.join(dataDir, 'end-surveys', `${surveyId}.json`);
+        // Update completion timestamp
+        participantData.timestamps.completed = now;
+        participantData.updatedAt = now;
         
-        // Create end-surveys directory if it doesn't exist
-        const endSurveysDir = path.join(dataDir, 'end-surveys');
-        if (!fs.existsSync(endSurveysDir)) {
-            fs.mkdirSync(endSurveysDir, { recursive: true });
+        // Save updated participant data
+        if (!writeJson(participantFile, participantData)) {
+            throw new Error('Failed to update participant data');
         }
         
-        if (!writeJson(filename, endSurveyData)) {
-            throw new Error('Failed to save end survey data');
-        }
+        console.log('End survey data integrated successfully for participant:', participant_id);
         
-        console.log('End survey saved successfully:', surveyId);
-        
-        res.json({ ok: true, id: surveyId });
+        res.json({ ok: true, participant_id: participant_id });
         
     } catch (error) {
         console.error('Error processing end survey:', error);
@@ -1042,8 +1278,82 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// Export JSON data
+// Export consolidated JSON data (new format)
 app.get('/api/admin/export.json', requireAdmin, (req, res) => {
+    try {
+        const participants = [];
+        const conversations = [];
+        const messages = [];
+        let totalMessages = 0;
+        
+        // Read all participant files
+        if (fs.existsSync(participantsDir)) {
+            const participantFiles = fs.readdirSync(participantsDir);
+            for (const file of participantFiles) {
+                if (file.endsWith('.json')) {
+                    const participant = readJson(path.join(participantsDir, file));
+                    if (participant) {
+                        participants.push(participant);
+                        
+                        // Count messages from participant chatbot interactions
+                        if (participant.chatbot_interaction && participant.chatbot_interaction.messages) {
+                            totalMessages += participant.chatbot_interaction.messages.length;
+                            
+                            // Add messages to messages array with additional metadata
+                            participant.chatbot_interaction.messages.forEach(msg => {
+                                messages.push({
+                                    participant_id: participant.participant_id,
+                                    sender: msg.sender,
+                                    text: msg.text,
+                                    timestamp: msg.timestamp,
+                                    character_count: msg.text ? msg.text.length : 0
+                                });
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Read all conversation files for additional metadata
+        if (fs.existsSync(conversationsDir)) {
+            const conversationFiles = fs.readdirSync(conversationsDir);
+            for (const file of conversationFiles) {
+                if (file.endsWith('.json')) {
+                    const conversation = readJson(path.join(conversationsDir, file));
+                    if (conversation) {
+                        conversations.push(conversation);
+                    }
+                }
+            }
+        }
+        
+        // Create consolidated export structure matching your example
+        const exportData = {
+            exported_at: new Date().toISOString(),
+            totals: {
+                participants: participants.length,
+                conversations: conversations.length,
+                messages: totalMessages,
+                completed_surveys: participants.filter(p => p.timestamps && p.timestamps.completed).length
+            },
+            data: {
+                participants: participants,
+                conversations: conversations,
+                messages: messages
+            }
+        };
+        
+        res.json(exportData);
+        
+    } catch (error) {
+        console.error('Error exporting consolidated JSON data:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+// Export legacy JSON format (individual arrays)
+app.get('/api/admin/export-legacy.json', requireAdmin, (req, res) => {
     try {
         const participants = [];
         const conversations = [];
@@ -1077,7 +1387,26 @@ app.get('/api/admin/export.json', requireAdmin, (req, res) => {
         res.json({ participants, conversations });
         
     } catch (error) {
-        console.error('Error exporting JSON data:', error);
+        console.error('Error exporting legacy JSON data:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
+
+// Generate and serve consolidated export file
+app.get('/api/admin/generate-export', requireAdmin, (req, res) => {
+    try {
+        const { generateConsolidatedExport } = require('./generate_export.js');
+        const exportPath = generateConsolidatedExport();
+        
+        if (exportPath && fs.existsSync(exportPath)) {
+            console.log('📤 Serving generated export file:', exportPath);
+            res.download(exportPath, `research-data-export-${new Date().toISOString().split('T')[0]}.json`);
+        } else {
+            throw new Error('Failed to generate export file');
+        }
+        
+    } catch (error) {
+        console.error('Error generating export file:', error);
         res.status(500).json({ error: error.message || 'Internal server error' });
     }
 });
