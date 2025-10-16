@@ -530,11 +530,12 @@ app.post('/survey/submit', (req, res) => {
             // Belief change section
             belief_change: {
                 has_changed_mind: (views_changed || viewsChanged) === 'Yes',
-                current_view: current_views || null,
-                elaboration: elaboration || null,
-                ai_summary: ai_summary_generated || AI_Summary_Views || null,
+                current_view: current_views || null, // Raw text from participant
+                elaboration: elaboration || null, // Raw text from participant
+                ai_summary: ai_summary_generated || AI_Summary_Views || null, // AI summary of current_views + elaboration
                 ai_confidence_slider: confidence_level !== undefined && confidence_level !== "N/a" ? parseInt(confidence_level) : null,
-                ai_summary_accuracy: ai_accurate || summaryAccurate || null
+                ai_summary_accuracy: ai_accurate || summaryAccurate || null,
+                chatbot_summary: null // Will be populated after chatbot conversation
             },
             
             // Views matrix section
@@ -944,6 +945,18 @@ app.post('/api/conversations/:id/message', async (req, res) => {
                         messages: transformedMessages
                     };
                     
+                    // Generate chatbot summary from conversation messages and add to belief_change
+                    if (transformedMessages.length > 0) {
+                        const conversationText = transformedMessages
+                            .filter(msg => msg.sender === 'participant')
+                            .map(msg => msg.text)
+                            .join(' ');
+                        
+                        if (conversationText.trim()) {
+                            participantData.belief_change.chatbot_summary = `Participant discussed: ${conversationText.substring(0, 200)}${conversationText.length > 200 ? '...' : ''}`;
+                        }
+                    }
+                    
                     // Update timestamp
                     participantData.updatedAt = now.toISOString();
                     
@@ -1089,6 +1102,18 @@ app.post('/api/conversations/:id/end', async (req, res) => {
                 participantData.chatbot_interaction = {
                     messages: transformedMessages
                 };
+                
+                // Generate chatbot summary from conversation messages and add to belief_change
+                if (transformedMessages.length > 0) {
+                    const conversationText = transformedMessages
+                        .filter(msg => msg.sender === 'participant')
+                        .map(msg => msg.text)
+                        .join(' ');
+                    
+                    if (conversationText.trim()) {
+                        participantData.belief_change.chatbot_summary = `Participant discussed: ${conversationText.substring(0, 200)}${conversationText.length > 200 ? '...' : ''}`;
+                    }
+                }
                 
                 // Update timestamp
                 participantData.updatedAt = now.toISOString();
