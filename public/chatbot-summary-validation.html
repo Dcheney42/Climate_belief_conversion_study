@@ -102,6 +102,30 @@
             }
         }
 
+        // Clean summary text to remove unwanted question prompts
+        function cleanSummaryText(text) {
+            let cleanedText = text;
+            
+            // Remove various trailing question patterns that the chatbot adds
+            const questionPatterns = [
+                /\s*Does this summary capture your experience accurately.*$/i,
+                /\s*Does that sound about right.*$/i,
+                /\s*Do(?:es)? th(?:is|at|ese) (?:capture|sound|seem).*$/i,
+                /\s*Is (?:this|that) (?:accurate|correct|right).*$/i,
+                /\s*Would you like (?:to add|me to).*$/i,
+                /\s*Feel free to (?:add|adjust|correct).*$/i,
+                /\s*Let me know if (?:you|I).*$/i,
+                /\s*(?:Any|Anything) (?:else|to add|missing).*$/i
+            ];
+            
+            // Apply each pattern to remove trailing questions
+            questionPatterns.forEach(pattern => {
+                cleanedText = cleanedText.replace(pattern, '');
+            });
+            
+            return cleanedText.trim();
+        }
+
         function displaySummary(summaryPoints) {
             const summaryList = document.getElementById('chatbotSummaryList');
             summaryList.innerHTML = '';
@@ -111,6 +135,9 @@
                     const listItem = document.createElement('li');
                     // Format each point with bullet character and ensure proper formatting
                     let formattedPoint = point.trim();
+                    
+                    // Clean unwanted question text first
+                    formattedPoint = cleanSummaryText(formattedPoint);
                     
                     // Remove any existing bullet characters at the start
                     formattedPoint = formattedPoint.replace(/^[•\*\-\s]+/, '');
@@ -169,6 +196,7 @@
                 
                 // Clean up the bullet point
                 point = point.replace(/^[•\*\-\s]+/, ''); // Remove leading bullets/spaces
+                point = cleanSummaryText(point); // Apply our specific cleaning for unwanted questions
                 point = point.replace(/\s*Do(?:es)? th(?:is|ese points) capture.*$/i, ''); // Remove trailing question
                 point = point.replace(/\s*Is there anything.*$/i, ''); // Remove trailing question
                 point = point.replace(/\s*Would you like.*$/i, ''); // Remove trailing question
