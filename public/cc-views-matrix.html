@@ -36,6 +36,7 @@
     </div>
 
     <script>
+        // Inserted mid-matrix attention check ("Please slide to 0") — no visual validation, logs silently.
         // Climate change skepticism items with reverse coding flags
         const matrixItems = [
             { id: 'ccs_01', text: 'I am hesitant to believe that climate change scientists tell the whole story.', reverse: false },
@@ -44,6 +45,7 @@
             { id: 'ccs_04', text: 'The climate change we are observing is just a natural process.', reverse: false },
             { id: 'ccs_05', text: 'Humans are largely responsible for climate change.', reverse: true },
             { id: 'ccs_06', text: 'I doubt that human activities cause climate change.', reverse: false },
+            { id: 'attention_check', text: 'Please slide the slider to \'0\' to indicate you are paying attention.', reverse: false },
             { id: 'ccs_07', text: 'I think climate change is a serious problem.', reverse: true },
             { id: 'ccs_08', text: 'I believe that most of the concerns about climate change have been exaggerated.', reverse: false },
             { id: 'ccs_09', text: 'I am concerned about the consequences of climate change.', reverse: true },
@@ -382,6 +384,15 @@
                 const isReverse = slider.getAttribute('data-reverse') === 'true';
                 const wasMoved = slider.getAttribute('data-moved') === 'true';
                 
+                // Handle attention check separately
+                if (itemId === 'attention_check') {
+                    const attentionValue = wasMoved ? parseInt(slider.value) : 50; // Default value if not moved
+                    rawData['attention_check_value'] = attentionValue;
+                    metaData['attention_check_passed'] = attentionValue === 0;
+                    metaData['attention_check_was_moved'] = wasMoved;
+                    return; // Skip adding to scored values for mean calculation
+                }
+                
                 // Store "N/a" for untouched sliders, actual value for moved sliders
                 const rawValue = wasMoved ? parseInt(slider.value) : "N/a";
                 const scoredValue = wasMoved ? (isReverse ? (100 - parseInt(slider.value)) : parseInt(slider.value)) : "N/a";
@@ -390,7 +401,7 @@
                 scoredData[itemId + '_scored'] = scoredValue;
                 metaData[itemId + '_was_moved'] = wasMoved;
                 
-                // Only include moved sliders in mean calculation
+                // Only include moved sliders in mean calculation (exclude attention check)
                 if (wasMoved) {
                     allScoredValues.push(scoredValue);
                 }

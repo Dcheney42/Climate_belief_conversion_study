@@ -13,17 +13,13 @@
         </div>
         
         <div class="content">
-            <div class="card">
-                <div class="card-content">
-                    <p class="message-text">
-                        We appreciate your willingness to take part in this study.<br><br>
-                        Based on your responses, you are not eligible to continue with the conversation portion.<br><br>
-                        Your responses so far have been saved and will still contribute to our research.
-                    </p>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn-primary" id="finishBtn">Finish</button>
-                    </div>
+            <div class="message-section">
+                <p class="message-text">
+                    Based on your responses, you're not eligible to continue with this study. Please click the button below to return to Prolific and complete your participation.
+                </p>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-primary" id="finishBtn">Finish and Return to Prolific</button>
                 </div>
             </div>
         </div>
@@ -31,12 +27,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user has participant data
+            // Check if user has participant data OR if they came from survey with "No" selection
             const participantId = sessionStorage.getItem('participant_id');
-            if (!participantId) {
-                // Redirect to start if no participant data
+            const cameFromSurvey = sessionStorage.getItem('survey_disqualified') === 'true';
+            
+            // Only redirect if they have no participant data AND didn't come from survey
+            if (!participantId && !cameFromSurvey) {
+                // Redirect to start if no participant data and not from survey
                 window.location.href = '/';
                 return;
+            }
+            
+            // Clear the survey disqualified flag after checking
+            if (cameFromSurvey) {
+                sessionStorage.removeItem('survey_disqualified');
             }
         });
 
@@ -45,11 +49,78 @@
             sessionStorage.clear();
             
             // Show completion message
-            alert('Thank you for your participation. You may now close this window.');
+            alert('Thank you for your participation. You will now be redirected back to Prolific.');
             
-            // Optionally redirect to a thank you page or close window
-            window.location.href = '/';
+            // Redirect back to Prolific
+            window.location.href = 'https://www.prolific.com/';
         });
     </script>
+    
+    <style>
+        /* Ensure content is vertically centered and well-spaced */
+        .content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 400px;
+        }
+        
+        .message-section {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .message-text {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn-primary {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 500;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .message-section {
+                padding: 0 20px;
+            }
+            
+            .message-text {
+                font-size: 1em;
+                margin-bottom: 25px;
+            }
+            
+            .btn-primary {
+                width: 100%;
+                padding: 12px 24px;
+                font-size: 15px;
+            }
+        }
+    </style>
 </body>
 </html>

@@ -213,7 +213,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         
-        // Generate conversation summary for 1-minute warning
+        // Generate conversation summary for 1-minute warning and final validation
         function generateConversationSummary() {
             const messages = Array.from(chatMessages.querySelectorAll('.message'));
             const userMessages = messages.filter(msg => msg.querySelector('.sender-name').textContent === 'You');
@@ -255,6 +255,134 @@
             }
             
             return summary;
+        }
+        
+        // Generate conversation summary as array for validation page
+        function generateConversationSummaryArray() {
+            const messages = Array.from(chatMessages.querySelectorAll('.message'));
+            const assistantMessages = messages.filter(msg => msg.querySelector('.sender-name').textContent === 'Assistant');
+            
+            // Look for the chatbot's summary in the last few assistant messages
+            // Try to find a message containing bullet points or summary structure
+            for (let i = assistantMessages.length - 1; i >= Math.max(0, assistantMessages.length - 3); i--) {
+                const msg = assistantMessages[i];
+                const content = msg.querySelector('.message-content').textContent;
+                
+                // Check if this message contains a summary with bullet points
+                if (content.includes('summarize') || content.includes('summary') || content.includes('key themes')) {
+                    const extractedSummary = extractBulletPointsFromSummary(content);
+                    if (extractedSummary.length > 0) {
+                        console.log('Found chatbot summary with bullet points:', extractedSummary);
+                        return extractedSummary;
+                    }
+                }
+            }
+            
+            // Fallback: look for any message with bullet points
+            for (let i = assistantMessages.length - 1; i >= 0; i--) {
+                const msg = assistantMessages[i];
+                const content = msg.querySelector('.message-content').textContent;
+                
+                if (content.includes('•') || content.includes('*') || content.includes('-')) {
+                    const extractedSummary = extractBulletPointsFromSummary(content);
+                    if (extractedSummary.length > 0) {
+                        console.log('Found bullet points in assistant message:', extractedSummary);
+                        return extractedSummary;
+                    }
+                }
+            }
+            
+            // Ultimate fallback: use basic topic extraction
+            console.log('No chatbot summary found, using fallback generation');
+            return generateFallbackSummaryArray();
+        }
+        
+        // Extract bullet points from a chatbot summary message
+        function extractBulletPointsFromSummary(summaryText) {
+            const bulletPoints = [];
+            
+            // Split by common bullet point indicators
+            const lines = summaryText.split(/[•\*\-]/).filter(line => line.trim().length > 0);
+            
+            for (let i = 1; i < lines.length; i++) { // Skip the first split (before first bullet)
+                let point = lines[i].trim();
+                
+                // Clean up the bullet point
+                point = point.replace(/^[•\*\-\s]+/, ''); // Remove leading bullets/spaces
+                point = point.replace(/\s*Does this capture.*$/i, ''); // Remove trailing question
+                point = point.replace(/\s*Is there anything.*$/i, ''); // Remove trailing question
+                point = point.replace(/\s*Would you like.*$/i, ''); // Remove trailing question
+                point = point.replace(/[.!?]*$/, ''); // Remove trailing punctuation
+                point = point.trim();
+                
+                // Only include substantial points
+                if (point.length > 10 && !point.toLowerCase().includes('thank you') &&
+                    !point.toLowerCase().includes('based on our conversation')) {
+                    // Ensure it starts with capital letter and ends with period
+                    if (point.length > 0) {
+                        point = point.charAt(0).toUpperCase() + point.slice(1);
+                        if (!point.endsWith('.')) {
+                            point += '.';
+                        }
+                        bulletPoints.push(point);
+                    }
+                }
+            }
+            
+            return bulletPoints;
+        }
+        
+        // Fallback summary generation when no real summary is found
+        function generateFallbackSummaryArray() {
+            const messages = Array.from(chatMessages.querySelectorAll('.message'));
+            const userMessages = messages.filter(msg => msg.querySelector('.sender-name').textContent === 'You');
+            
+            const topics = [];
+            
+            // Extract key themes from user messages
+            userMessages.forEach(msg => {
+                const content = msg.querySelector('.message-content').textContent;
+                if (content.length > 20) { // Only meaningful messages
+                    // Simple keyword extraction
+                    if (content.toLowerCase().includes('change') || content.toLowerCase().includes('shift')) {
+                        topics.push('Discussed belief change process');
+                    }
+                    if (content.toLowerCase().includes('evidence') || content.toLowerCase().includes('research') || content.toLowerCase().includes('study')) {
+                        topics.push('Mentioned evidence or research');
+                    }
+                    if (content.toLowerCase().includes('people') || content.toLowerCase().includes('family') || content.toLowerCase().includes('friend')) {
+                        topics.push('Talked about social influences');
+                    }
+                    if (content.toLowerCase().includes('media') || content.toLowerCase().includes('news') || content.toLowerCase().includes('article')) {
+                        topics.push('Discussed media influences');
+                    }
+                    if (content.toLowerCase().includes('experience') || content.toLowerCase().includes('personal') || content.toLowerCase().includes('saw') || content.toLowerCase().includes('noticed')) {
+                        topics.push('Shared personal experiences');
+                    }
+                }
+            });
+            
+            // Remove duplicates and limit to 4-5 key points
+            const uniqueTopics = [...new Set(topics)].slice(0, 5);
+            
+            if (uniqueTopics.length === 0) {
+                return ['Shared initial thoughts about climate change belief change'];
+            } else {
+                return uniqueTopics;
+            }
+        }
+        
+        // Save chatbot summary to sessionStorage before redirect
+        function saveChatbotSummary() {
+            try {
+                const summaryArray = generateConversationSummaryArray();
+                sessionStorage.setItem('chatbot_summary', JSON.stringify(summaryArray));
+                console.log('Chatbot summary saved to sessionStorage:', summaryArray);
+            } catch (error) {
+                console.error('Error saving chatbot summary:', error);
+                // Fallback: save a simple summary
+                sessionStorage.setItem('chatbot_summary', JSON.stringify(['Participated in conversation about climate change beliefs']));
+            }
         }
         
         // Show 1-minute warning with summary
@@ -328,6 +456,9 @@ Is there anything important you'd like to add before we finish?`;
                     // Scroll to bottom
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
+                    // Save chatbot summary before redirect
+                    saveChatbotSummary();
+
                     // Redirect after short delay
                     setTimeout(() => {
                         window.location.href = '/exit-survey';
@@ -367,6 +498,9 @@ Is there anything important you'd like to add before we finish?`;
 
                     // Scroll to bottom
                     messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                    // Save chatbot summary before redirect
+                    saveChatbotSummary();
 
                     // Redirect after short delay
                     setTimeout(() => {
@@ -429,6 +563,9 @@ Is there anything important you'd like to add before we finish?`;
                     reasonText = 'The conversation has ended.';
             }
             
+            // Save chatbot summary when conversation ends
+            saveChatbotSummary();
+            
             document.getElementById('endReason').textContent = reasonText;
             endModal.style.display = 'flex';
         }
@@ -452,6 +589,7 @@ Is there anything important you'd like to add before we finish?`;
         });
         
         document.getElementById('continueBtn').addEventListener('click', () => {
+            // Summary is already saved when endConversation() was called
             window.location.href = '/exit-survey';
         });
         

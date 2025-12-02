@@ -274,8 +274,8 @@
             
             // Check for bot filter patterns
             if (detectBotActivity(text)) {
-                console.log('Bot activity detected - redirecting to disqualification');
-                window.location.href = '/disqualified.html';
+                console.log('Bot activity detected - processing honeypot submission');
+                handleHoneypotTrigger(text, '');
                 return false;
             }
             
@@ -302,8 +302,9 @@
             
             // Check for bot filter patterns
             if (detectBotActivity(text)) {
-                console.log('Bot activity detected - redirecting to disqualification');
-                window.location.href = '/disqualified.html';
+                console.log('Bot activity detected - processing honeypot submission');
+                const currentViewsText = document.getElementById('currentViews').value.trim();
+                handleHoneypotTrigger(currentViewsText, text);
                 return false;
             }
             
@@ -343,6 +344,71 @@
             }
             
             return false;
+        }
+
+        // Honeypot triggered — response logged, participant redirected to Prolific (SCREENOUT)
+        async function handleHoneypotTrigger(currentViews, elaboration) {
+            try {
+                // Stop any ongoing autosave functions
+                window.removeEventListener('beforeunload', saveViewsData);
+                
+                // Disable form interactions
+                disableAllFormInteractions();
+                
+                // Get session data if available
+                const sessionData = sessionStorage.getItem('demographics_data') || '{}';
+                
+                // Submit honeypot data to server
+                const response = await fetch('/api/honeypot-submission', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        current_views: currentViews,
+                        elaboration: elaboration,
+                        participant_session_data: sessionData
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Honeypot submission processed:', result);
+                
+            } catch (error) {
+                console.error('Error submitting honeypot data:', error);
+            } finally {
+                // Redirect to Prolific SCREENOUT regardless of API success/failure
+                redirectToProlificScreenout();
+            }
+        }
+
+        function disableAllFormInteractions() {
+            // Disable all form elements
+            const inputs = document.querySelectorAll('input, textarea, button');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            // Remove event listeners to prevent further interaction
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.removeEventListener('submit', handleCurrentViewsSubmit);
+                form.removeEventListener('submit', handleElaborationSubmit);
+            });
+        }
+
+        function redirectToProlificScreenout() {
+            // Clear session storage to prevent back navigation issues
+            sessionStorage.clear();
+            
+            // Prevent back navigation
+            history.pushState(null, null, location.href);
+            window.addEventListener('popstate', function(event) {
+                history.pushState(null, null, location.href);
+            });
+            
+            // Redirect immediately
+            window.location.replace('https://app.prolific.com/submissions/complete?cc=SCREENOUT');
         }
 
         function handleCurrentViewsSubmit(e) {

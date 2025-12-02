@@ -109,17 +109,86 @@
             if (Array.isArray(summaryPoints) && summaryPoints.length > 0) {
                 summaryPoints.forEach(point => {
                     const listItem = document.createElement('li');
-                    listItem.textContent = point;
+                    // Format each point with bullet character and ensure proper formatting
+                    let formattedPoint = point.trim();
+                    
+                    // Remove any existing bullet characters at the start
+                    formattedPoint = formattedPoint.replace(/^[•\*\-\s]+/, '');
+                    
+                    // Ensure it starts with capital letter
+                    if (formattedPoint.length > 0) {
+                        formattedPoint = formattedPoint.charAt(0).toUpperCase() + formattedPoint.slice(1);
+                    }
+                    
+                    // Ensure it ends with a period
+                    if (formattedPoint.length > 0 && !formattedPoint.endsWith('.')) {
+                        formattedPoint += '.';
+                    }
+                    
+                    listItem.textContent = formattedPoint;
                     summaryList.appendChild(listItem);
                 });
             } else if (typeof summaryPoints === 'string') {
-                // Handle case where summary is a single string
-                const listItem = document.createElement('li');
-                listItem.textContent = summaryPoints;
-                summaryList.appendChild(listItem);
+                // Handle case where summary is a single string - try to extract bullet points
+                const extractedPoints = extractBulletPointsFromString(summaryPoints);
+                if (extractedPoints.length > 0) {
+                    extractedPoints.forEach(point => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = point;
+                        summaryList.appendChild(listItem);
+                    });
+                } else {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = summaryPoints;
+                    summaryList.appendChild(listItem);
+                }
             } else {
                 displayFallbackSummary();
             }
+        }
+        
+        // Extract bullet points from a single string
+        function extractBulletPointsFromString(summaryText) {
+            const bulletPoints = [];
+            
+            // Skip the introduction text ("Thank you for clarifying that. Based on our conversation, I want to summarize the key themes you've shared about your belief change:")
+            let cleanText = summaryText;
+            
+            // Remove common introduction patterns
+            cleanText = cleanText.replace(/^.*?(Based on our conversation,?|I want to summarize|Here are the key|The main points|key themes you've shared)[^:]*:?\s*/i, '');
+            cleanText = cleanText.replace(/^.*?(Thank you for clarifying that\.?\s*)/i, '');
+            
+            // Remove concluding questions
+            cleanText = cleanText.replace(/\s*(Do(?:es)? th(?:is|ese points) capture.*|Is there anything.*|Would you like.*)\??.*$/i, '');
+            
+            // Split by common bullet point indicators
+            const lines = cleanText.split(/[•\*\-]/).filter(line => line.trim().length > 0);
+            
+            for (let i = 1; i < lines.length; i++) { // Skip the first split (before first bullet)
+                let point = lines[i].trim();
+                
+                // Clean up the bullet point
+                point = point.replace(/^[•\*\-\s]+/, ''); // Remove leading bullets/spaces
+                point = point.replace(/\s*Do(?:es)? th(?:is|ese points) capture.*$/i, ''); // Remove trailing question
+                point = point.replace(/\s*Is there anything.*$/i, ''); // Remove trailing question
+                point = point.replace(/\s*Would you like.*$/i, ''); // Remove trailing question
+                point = point.replace(/[.!?]*$/, ''); // Remove trailing punctuation
+                point = point.trim();
+                
+                // Only include substantial points
+                if (point.length > 10) {
+                    // Ensure it starts with capital letter and ends with period
+                    if (point.length > 0) {
+                        point = point.charAt(0).toUpperCase() + point.slice(1);
+                        if (!point.endsWith('.')) {
+                            point += '.';
+                        }
+                        bulletPoints.push(point);
+                    }
+                }
+            }
+            
+            return bulletPoints;
         }
 
         function generateSummaryFromConversation(conversationData) {
@@ -196,7 +265,26 @@
             
             const selectedValue = document.querySelector('input[name="summaryAccurate"]:checked').value;
             
-            // Store summary validation data
+            // Get participant ID from session storage
+            const exitSurveyData = sessionStorage.getItem('exit_survey_data');
+            let participantId = null;
+            
+            if (exitSurveyData) {
+                try {
+                    const exitData = JSON.parse(exitSurveyData);
+                    participantId = exitData.participant_id;
+                } catch (e) {
+                    console.error('Error parsing exit survey data:', e);
+                }
+            }
+            
+            if (!participantId) {
+                console.error('No participant ID found - cannot save summary validation');
+                alert('Error: Unable to save your response. Please try again.');
+                return;
+            }
+            
+            // Store summary validation data locally
             const summaryValidationData = {
                 chatbot_summary: chatbotSummary,
                 summary_accurate: selectedValue,
@@ -205,8 +293,42 @@
             
             sessionStorage.setItem('summary_validation_data', JSON.stringify(summaryValidationData));
             
-            console.log('Summary validation completed - proceeding to debrief');
-            window.location.href = '/debrief.html';
+            // Save the summaryAccurate response to the server
+            console.log('Saving summary validation to server for participant:', participantId);
+            
+            fetch('/api/chatbot-summary-validation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    participant_id: participantId,
+                    summary_accurate: selectedValue,
+                    chatbot_summary: chatbotSummary,
+                    timestamp: new Date().toISOString()
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.ok) {
+                    console.log('Summary validation saved successfully');
+                    // Continue to debrief on success
+                    console.log('Summary validation completed - proceeding to debrief');
+                    window.location.href = '/debrief.html';
+                } else {
+                    console.error('Failed to save summary validation:', data.error);
+                    showGeneralError('Failed to save your response: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error saving summary validation:', error);
+                showGeneralError('Unable to save your response. Please check your connection and try again.');
+            });
         }
 
         function showFieldError(fieldName, message) {
@@ -252,13 +374,25 @@
 
         .chatbot-summary-list {
             margin: 0;
-            padding-left: 1.5rem;
+            padding-left: 0;
             color: #333;
             line-height: 1.6;
+            list-style: none;
         }
 
         .chatbot-summary-list li {
             margin-bottom: 0.75rem;
+            position: relative;
+            padding-left: 1.2rem;
+        }
+        
+        .chatbot-summary-list li::before {
+            content: "•";
+            color: #333;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
         }
 
         .loading-summary {

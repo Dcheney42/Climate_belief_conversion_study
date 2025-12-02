@@ -287,9 +287,10 @@
                 const response = await fetch(`/api/participant/${participantId}`);
                 if (response.ok) {
                     const data = await response.json();
-                    // Handle AI summary section
-                    if (data.AI_Summary_Views && data.AI_Summary_Views.trim().length > 0) {
-                        document.getElementById('savedAiSummary').textContent = data.AI_Summary_Views;
+                    // Handle AI summary section - check multiple possible field locations
+                    const aiSummary = data.belief_change?.ai_summary || data.AI_Summary_Views || null;
+                    if (aiSummary && aiSummary.trim().length > 0) {
+                        document.getElementById('savedAiSummary').textContent = aiSummary;
                         document.getElementById('aiSummarySection').style.display = 'block';
                         document.getElementById('finalConfidenceSection').style.display = 'block';
                     } else {
@@ -552,6 +553,7 @@
             // Store exit survey data for the next page
             const formData = new FormData(document.getElementById('exitSurveyForm'));
             const exitSurveyData = {
+                participant_id: sessionStorage.getItem('participant_id'),
                 summaryConfidence: formData.get('summaryConfidence') ? parseInt(formData.get('summaryConfidence')) : null,
                 finalConfidenceLevel: finalConfidenceSliderMoved ? parseInt(formData.get('finalConfidenceLevel')) : "N/a",
                 completed_at: new Date().toISOString()

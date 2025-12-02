@@ -3,7 +3,7 @@ import express from "express";
 import crypto from "node:crypto";
 import { renderSystemPrompt } from "../utils/systemPrompt.js";
 import { openingLineFrom } from "../utils/openingLine.js";
-import { enforceOnTopic, redirectLine } from "../utils/onTopic.js";
+import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift } from "../utils/onTopic.js";
 
 // Replace these stubs with your real DB/model calls
 async function getParticipantProfile(userId) {
@@ -108,7 +108,20 @@ router.post("/reply", async (req, res) => {
       return res.json({ reply: visibleReply, sessionEnded: true });
     }
 
-    const safeReply = enforceOnTopic(modelReply) ? modelReply : redirectLine();
+    let safeReply = modelReply;
+    let driftType = 'general';
+    
+    // Check for various types of drift
+    if (!enforceOnTopic(modelReply)) {
+      safeReply = redirectLine();
+    } else if (detectPoliticalDrift(modelReply)) {
+      driftType = 'political';
+      safeReply = redirectLine(driftType);
+    } else if (detectBeliefDrift(userText)) {
+      // User indicated we're off topic from belief change
+      driftType = 'belief';
+      safeReply = redirectLine(driftType);
+    }
 
     await appendMessage(conversationId, { role: "user", content: userText });
     await appendMessage(conversationId, { role: "assistant", content: safeReply });
