@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const OpenAI = require('openai');
 const { dataAccess } = require('./lib/dataAccess');
+const database = require('./database');
 require('dotenv').config();
 
 // Enhanced chat router will be imported and mounted below
@@ -378,9 +379,32 @@ function logEndpoint(req, res, next) {
   next();
 }
 
-// Health check endpoint - always returns OK
-app.get('/health', logEndpoint, (req, res) => {
-  res.json({ ok: true });
+// Enhanced health check endpoint with database status
+app.get('/health', logEndpoint, async (req, res) => {
+  const startTime = Date.now();
+  let dbAvailable = false;
+  let dbConnectionTime = null;
+  
+  try {
+    const dbStartTime = Date.now();
+    dbAvailable = await database.isDatabaseAvailable();
+    dbConnectionTime = Date.now() - dbStartTime;
+  } catch (error) {
+    console.error('Health check database error:', error.message);
+  }
+  
+  const totalTime = Date.now() - startTime;
+  
+  res.json({
+    ok: true,
+    timestamp: new Date().toISOString(),
+    database: {
+      available: dbAvailable,
+      connection_time_ms: dbConnectionTime
+    },
+    environment: process.env.NODE_ENV || 'development',
+    response_time_ms: totalTime
+  });
 });
 
 // Legacy health endpoint (keeping for backwards compatibility)
@@ -391,6 +415,32 @@ app.get('/healthz', (req, res) => {
     chatRouterMounted: Boolean(chatRouter),
     activeConversations: activeConversations.size
   });
+});
+
+// Database statistics endpoint
+app.get('/api/database-stats', logEndpoint, async (req, res) => {
+  try {
+    const stats = await database.getDatabaseStats();
+    
+    if (!stats) {
+      return res.status(503).json({
+        error: 'Database statistics unavailable',
+        message: 'Database connection not available'
+      });
+    }
+    
+    res.json({
+      timestamp: new Date().toISOString(),
+      ...stats
+    });
+    
+  } catch (error) {
+    console.error('Error getting database stats:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve database statistics',
+      message: error.message
+    });
+  }
 });
 
 // Debug endpoint for last session (development only)
@@ -1364,6 +1414,72 @@ app.post('/api/chatbot-summary-validation', (req, res) => {
     }
 });
 
+// Database export endpoint using raw PostgreSQL (no admin token required)
+app.get('/export/database', async (req, res) => {
+  try {
+    const startTime = Date.now();
+    
+    // Check if database is available
+    const dbAvailable = await database.isDatabaseAvailable();
+    if (!dbAvailable) {
+      return res.status(503).json({
+        error: 'Database unavailable',
+        message: 'Database connection not available. Try /api/admin/export.json for file-based export.'
+      });
+    }
+    
+    console.log('🗃️ Starting database export...');
+    
+    // Get all data using new database functions
+    const [participants, sessions, messages] = await Promise.all([
+      database.getAllParticipants(),
+      database.getAllSessions(),
+      database.getAllMessages()
+    ]);
+    
+    // Calculate completed surveys
+    const completedSurveys = participants.filter(p =>
+      p.timestamps && p.timestamps.completed ||
+      p.post_chat && (p.post_chat.final_belief_confidence !== null || p.post_chat.chatbot_summary_accuracy !== null)
+    ).length;
+    
+    // Create export structure
+    const exportData = {
+      exported_at: new Date().toISOString(),
+      export_method: 'database',
+      totals: {
+        participants: participants.length,
+        sessions: sessions.length,
+        messages: messages.length,
+        completed_surveys: completedSurveys
+      },
+      data: {
+        participants: participants,
+        sessions: sessions,
+        messages: messages
+      },
+      export_duration_ms: Date.now() - startTime
+    };
+    
+    // Set headers for file download
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="data-export-${new Date().toISOString().split('T')[0]}.json"`);
+    
+    const exportDuration = Date.now() - startTime;
+    console.log(`✅ Database export completed in ${exportDuration}ms: ${participants.length} participants, ${sessions.length} sessions, ${messages.length} messages`);
+    
+    res.json(exportData);
+    
+  } catch (error) {
+    console.error('❌ Database export failed:', error);
+    res.status(500).json({
+      error: 'Database export failed',
+      message: error.message,
+      fallback_available: true
+    });
+  }
+});
+
 // Admin export endpoints
 function requireAdmin(req, res, next) {
   const token = req.headers['x-admin-token'];
@@ -1866,14 +1982,72 @@ function isConversationControl(input) {
     return controlWords.some(word => input.includes(word));
 }
 
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server on http://localhost:${PORT}`);
-    console.log('✅ Health endpoint mounted at GET /health');
+// Enhanced server startup with database initialization
+async function startServer() {
+    const PORT = process.env.PORT || 3000;
     
-    if (process.env.NODE_ENV !== 'production') {
-        console.log('🔧 Debug endpoint mounted at GET /debug/last-session (development only)');
-        console.log('📝 Development logging enabled for debug endpoints');
+    try {
+        // Step 1: Initialize database schema
+        console.log('🗃️ Initializing database...');
+        const dbInitialized = await database.initializeDatabase();
+        
+        // Step 2: Test database connection
+        const dbAvailable = await database.isDatabaseAvailable();
+        if (dbAvailable) {
+            console.log('✅ Database connection verified');
+            
+            // Get database statistics
+            const stats = await database.getDatabaseStats();
+            if (stats) {
+                console.log(`📊 Database stats: ${stats.tables.participants.count} participants, ${stats.tables.sessions.count} sessions, ${stats.tables.messages.count} messages`);
+            }
+        } else {
+            console.log('⚠️ Database unavailable - using file storage fallback');
+        }
+        
+        // Step 3: Start Express server
+        const server = app.listen(PORT, () => {
+            console.log(`🚀 Server running on http://localhost:${PORT}`);
+            console.log('✅ Health endpoint mounted at GET /health');
+            console.log('✅ Database stats endpoint mounted at GET /api/database-stats');
+            console.log('✅ Database export endpoint mounted at GET /export/database');
+            
+            if (process.env.NODE_ENV !== 'production') {
+                console.log('🔧 Debug endpoints available (development only)');
+                console.log('📝 Development logging enabled');
+            }
+        });
+        
+        // Step 4: Setup graceful shutdown
+        const gracefulShutdown = async (signal) => {
+            console.log(`\n📤 Received ${signal}, shutting down gracefully...`);
+            
+            // Close Express server
+            server.close(() => {
+                console.log('✅ Express server closed');
+            });
+            
+            // Close database connections
+            try {
+                await database.closeDatabase();
+                console.log('✅ Database connections closed');
+            } catch (error) {
+                console.error('❌ Error closing database:', error.message);
+            }
+            
+            // Exit process
+            process.exit(0);
+        };
+        
+        // Handle shutdown signals
+        process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+        process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+        
+    } catch (error) {
+        console.error('❌ Server startup failed:', error);
+        process.exit(1);
     }
-});
+}
+
+// Start the server
+startServer();

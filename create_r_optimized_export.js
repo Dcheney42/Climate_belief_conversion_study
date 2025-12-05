@@ -40,7 +40,7 @@ function flattenObject(obj, prefix = '', separator = '_') {
 
 // Read existing export data
 function readExistingData() {
-    const dataPath = path.join(__dirname, 'data', 'exports', 'research-data-export-2025-10-20.json');
+    const dataPath = path.join(__dirname, 'data', 'exports', 'research-data-export-2025-12-02.json');
     
     if (!fs.existsSync(dataPath)) {
         console.error('❌ Source data file not found:', dataPath);
@@ -222,7 +222,7 @@ function createROptimizedExport() {
                 created_at: new Date().toISOString(),
                 format_version: "r_optimized_v1.0",
                 description: "Flattened JSON format optimized for R CSV conversion",
-                source_file: "research-data-export-2025-10-20.json",
+                source_file: "research-data-export-2025-12-02.json",
                 r_conversion_notes: [
                     "All nested objects have been flattened with underscore separators",
                     "Arrays converted to JSON strings where needed",
