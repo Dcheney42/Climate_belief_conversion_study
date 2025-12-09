@@ -1807,6 +1807,51 @@ app.get('/api/admin/export.csv', requireAdmin, (req, res) => {
     }
 });
 
+// Clear all data endpoint (DANGEROUS - admin only)
+app.delete('/api/admin/clear-all-data', requireAdmin, async (req, res) => {
+    try {
+        // Additional safety check - require confirmation parameter
+        const { confirm } = req.query;
+        if (confirm !== 'DELETE_ALL_DATA') {
+            return res.status(400).json({
+                error: 'Missing confirmation parameter',
+                required: 'Add ?confirm=DELETE_ALL_DATA to the URL to confirm data deletion',
+                warning: 'This will permanently delete ALL research data from both database and files'
+            });
+        }
+
+        console.log('🚨 ADMIN DATA CLEAR INITIATED - All research data will be deleted');
+        
+        // Import the clear function from database
+        const database = require('./database');
+        const result = await database.clearAllData();
+        
+        if (result.success) {
+            console.log('🗑️ All data successfully cleared by admin');
+            res.json({
+                success: true,
+                message: 'All research data has been permanently deleted',
+                ...result
+            });
+        } else {
+            console.error('❌ Data clear operation failed:', result.error);
+            res.status(500).json({
+                success: false,
+                error: 'Data clear operation failed',
+                details: result
+            });
+        }
+        
+    } catch (error) {
+        console.error('❌ Clear endpoint error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to clear data',
+            message: error.message
+        });
+    }
+});
+
 function escapeCsv(str) {
     if (typeof str !== 'string') return str;
     if (str.includes(',') || str.includes('"') || str.includes('\n')) {

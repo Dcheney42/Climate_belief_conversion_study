@@ -529,6 +529,112 @@ async function getDatabaseStats() {
     }
 }
 
+// Clear all data (DANGEROUS - admin only)
+async function clearAllData() {
+    if (!await isDatabaseAvailable()) {
+        console.log('❌ Database unavailable, clearing file storage only');
+        return clearFileStorage();
+    }
+    
+    const startTime = Date.now();
+    const summary = {
+        database: { messages: 0, sessions: 0, participants: 0 },
+        files: { participants: 0, sessions: 0 },
+        duration_ms: 0
+    };
+    
+    try {
+        // Clear database in proper order (due to foreign key constraints)
+        console.log('🗑️ Starting database clear operation...');
+        
+        // 1. Clear messages first
+        const deletedMessages = await prisma.message.deleteMany();
+        summary.database.messages = deletedMessages.count;
+        console.log(`🗑️ Cleared ${deletedMessages.count} messages`);
+        
+        // 2. Clear individual differences
+        const deletedParticipants = await prisma.individualDifferences.deleteMany();
+        summary.database.participants = deletedParticipants.count;
+        console.log(`🗑️ Cleared ${deletedParticipants.count} participant records`);
+        
+        // 3. Clear sessions last
+        const deletedSessions = await prisma.session.deleteMany();
+        summary.database.sessions = deletedSessions.count;
+        console.log(`🗑️ Cleared ${deletedSessions.count} sessions`);
+        
+        // 4. Clear file storage as well
+        const filesSummary = clearFileStorage();
+        summary.files = filesSummary;
+        
+        summary.duration_ms = Date.now() - startTime;
+        
+        console.log(`✅ Database clear completed in ${summary.duration_ms}ms`);
+        console.log(`📊 Total cleared: ${summary.database.messages} messages, ${summary.database.sessions} sessions, ${summary.database.participants} participants`);
+        
+        return {
+            success: true,
+            cleared_at: new Date().toISOString(),
+            summary: summary
+        };
+        
+    } catch (error) {
+        console.error('❌ Database clear failed:', error.message);
+        
+        // If database clear fails, still clear files
+        const filesSummary = clearFileStorage();
+        
+        return {
+            success: false,
+            error: error.message,
+            files_cleared: filesSummary,
+            duration_ms: Date.now() - startTime
+        };
+    }
+}
+
+// Clear file storage
+function clearFileStorage() {
+    const summary = { participants: 0, sessions: 0 };
+    
+    try {
+        // Clear participant files
+        if (fs.existsSync(participantsDir)) {
+            const participantFiles = fs.readdirSync(participantsDir).filter(f => f.endsWith('.json'));
+            participantFiles.forEach(file => {
+                fs.unlinkSync(path.join(participantsDir, file));
+            });
+            summary.participants = participantFiles.length;
+            console.log(`🗑️ Cleared ${participantFiles.length} participant files`);
+        }
+        
+        // Clear conversation files
+        if (fs.existsSync(conversationsDir)) {
+            const conversationFiles = fs.readdirSync(conversationsDir).filter(f => f.endsWith('.json'));
+            conversationFiles.forEach(file => {
+                fs.unlinkSync(path.join(conversationsDir, file));
+            });
+            summary.sessions = conversationFiles.length;
+            console.log(`🗑️ Cleared ${conversationFiles.length} conversation files`);
+        }
+        
+        // Clear exports directory
+        const exportsDir = path.join(dataDir, 'exports');
+        if (fs.existsSync(exportsDir)) {
+            const exportFiles = fs.readdirSync(exportsDir).filter(f => f.endsWith('.json'));
+            exportFiles.forEach(file => {
+                fs.unlinkSync(path.join(exportsDir, file));
+            });
+            console.log(`🗑️ Cleared ${exportFiles.length} export files`);
+        }
+        
+    } catch (error) {
+        console.error('❌ File storage clear failed:', error.message);
+        summary.error = error.message;
+    }
+    
+    return summary;
+}
+
 // Close database connections gracefully
 async function closeDatabase() {
     if (prisma) {
@@ -625,5 +731,6 @@ module.exports = {
     
     // Utility functions
     getDatabaseStats,
+    clearAllData,
     closeDatabase
 };
