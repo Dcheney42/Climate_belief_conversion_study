@@ -69,30 +69,66 @@
                 </div>
 
 
-                <!-- Views Changed Question - MANDATORY -->
-                <!-- Refined examples and shortened reassurance text for 'Have you ever changed your mind about climate change?' section. -->
+                <!-- Mind Change Question - MANDATORY -->
                 <div class="demo-field-card">
-                    <h3 class="card-heading">Have you ever changed your mind about climate change? <span class="required">*</span></h3>
-                    <p class="question-subtext">Here are a few examples — don't worry if your experience is different; these are just to help you think about what "changing your mind" might mean.</p>
-                    <ul class="question-examples">
-                        <li>From <strong>real</strong> to <strong>not real</strong></li>
-                        <li>From <strong>not urgent</strong> to <strong>serious crisis</strong></li>
-                        <li>From <strong>not real</strong> to <strong>real</strong></li>
-                        <li>From <strong>natural causes</strong> to <strong>human-caused</strong></li>
-                        <li>From <strong>human-caused</strong> to <strong>natural causes</strong></li>
-                        <li>From <strong>serious crisis</strong> to <strong>not urgent</strong></li>
-                    </ul>
+                    <h3 class="card-heading">Have you changed your mind about climate change? <span class="required">*</span></h3>
                     <div class="radio-group">
                         <label class="radio-label">
-                            <input type="radio" name="viewsChanged" value="Yes" required id="viewsChangedYes">
+                            <input type="radio" name="mind_change_primary" value="Yes" id="mind_change_yes">
                             <span class="radio-text">Yes</span>
                         </label>
                         <label class="radio-label">
-                            <input type="radio" name="viewsChanged" value="No" required id="viewsChangedNo">
-                            <span class="radio-text">No, my thoughts on climate change have remained fairly consistent</span>
+                            <input type="radio" name="mind_change_primary" value="No" id="mind_change_no">
+                            <span class="radio-text">No, my thoughts on climate change have remained consistent</span>
                         </label>
                     </div>
-                    <div class="field-error" id="viewsChanged-error"></div>
+                    <div class="field-error" id="mind-change-primary-error"></div>
+                    
+                    <!-- Mind Change Details - shown only if "Yes" is selected -->
+                    <div id="mind-change-details" style="display: none; margin-top: 1.5rem;">
+                        <h4 style="margin-bottom: 1rem; color: #333; font-size: 1rem;">How has your thinking about climate change changed over time?</h4>
+                        <p class="question-subtext">Please select all that apply. You may choose multiple options.</p>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="mind_change_real_to_not_real" id="mind_change_real_to_not_real">
+                                <span class="checkbox-text">From <strong>real</strong> to <strong>not real</strong></span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="mind_change_not_urgent_to_serious_crisis" id="mind_change_not_urgent_to_serious_crisis">
+                                <span class="checkbox-text">From <strong>not urgent</strong> to <strong>serious crisis</strong></span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="mind_change_not_real_to_real" id="mind_change_not_real_to_real">
+                                <span class="checkbox-text">From <strong>not real</strong> to <strong>real</strong></span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="mind_change_natural_to_human_caused" id="mind_change_natural_to_human_caused">
+                                <span class="checkbox-text">From <strong>natural causes</strong> to <strong>human-caused</strong></span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="mind_change_human_caused_to_natural" id="mind_change_human_caused_to_natural">
+                                <span class="checkbox-text">From <strong>human-caused</strong> to <strong>natural causes</strong></span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="mind_change_serious_crisis_to_not_urgent" id="mind_change_serious_crisis_to_not_urgent">
+                                <span class="checkbox-text">From <strong>serious crisis</strong> to <strong>not urgent</strong></span>
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="mind_change_other_selected" id="mind_change_other_selected">
+                                <span class="checkbox-text"><strong>Other</strong> (specify)</span>
+                            </label>
+                        </div>
+                        <div class="other-text-container" id="other-text-container" style="display: none;">
+                            <input type="text"
+                                   name="mind_change_other_text"
+                                   id="mind_change_other_text"
+                                   class="field-input other-text-input"
+                                   placeholder="Please briefly describe your belief change..."
+                                   maxlength="200">
+                            <div class="field-help">Please type your response (pasting is disabled).</div>
+                        </div>
+                        <div class="field-error" id="mind-change-details-error"></div>
+                    </div>
                 </div>
 
 
@@ -129,9 +165,13 @@
             const inputs = form.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 input.addEventListener('change', function() {
-                    // Handle conditional display of follow-up question
-                    if (this.name === 'viewsChanged') {
-                        handleViewsChangedSelection();
+                    // Handle conditional display of mind change details section
+                    if (this.name === 'mind_change_primary') {
+                        handleMindChangeSelection();
+                    }
+                    // Handle conditional display of "Other" text field
+                    if (this.name === 'mind_change_other_selected') {
+                        handleOtherCheckboxSelection();
                     }
                     
                     if (hasTriedSubmit) {
@@ -152,10 +192,68 @@
 
             // Initial validation check - only for button state, no error display
             checkFormCompleteness();
+            
+            // Add event listener to prevent pasting in the "Other" text field
+            const otherTextInput = document.getElementById('mind_change_other_text');
+            if (otherTextInput) {
+                otherTextInput.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    // Optionally show a brief message
+                    const originalPlaceholder = this.placeholder;
+                    this.placeholder = 'Please type your response (pasting not allowed)';
+                    setTimeout(() => {
+                        this.placeholder = originalPlaceholder;
+                    }, 2000);
+                });
+            }
         }
 
-        function handleViewsChangedSelection() {
-            // No longer needed - we handle this in form submission
+        function handleMindChangeSelection() {
+            const yesSelected = document.getElementById('mind_change_yes').checked;
+            const noSelected = document.getElementById('mind_change_no').checked;
+            const detailsSection = document.getElementById('mind-change-details');
+            
+            if (yesSelected) {
+                detailsSection.style.display = 'block';
+            } else if (noSelected) {
+                detailsSection.style.display = 'none';
+                // Clear all checkbox selections when "No" is selected
+                clearMindChangeCheckboxes();
+            } else {
+                detailsSection.style.display = 'none';
+            }
+        }
+
+        function clearMindChangeCheckboxes() {
+            // Clear all mind change checkboxes
+            const checkboxes = document.querySelectorAll('input[name^="mind_change_"]:not([name="mind_change_primary"])');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Clear and hide the other text field
+            const otherTextInput = document.getElementById('mind_change_other_text');
+            const otherTextContainer = document.getElementById('other-text-container');
+            if (otherTextInput) {
+                otherTextInput.value = '';
+            }
+            if (otherTextContainer) {
+                otherTextContainer.style.display = 'none';
+            }
+        }
+
+        function handleOtherCheckboxSelection() {
+            const otherCheckbox = document.getElementById('mind_change_other_selected');
+            const otherTextContainer = document.getElementById('other-text-container');
+            const otherTextInput = document.getElementById('mind_change_other_text');
+            
+            if (otherCheckbox.checked) {
+                otherTextContainer.style.display = 'block';
+                otherTextInput.focus();
+            } else {
+                otherTextContainer.style.display = 'none';
+                otherTextInput.value = '';
+            }
         }
 
         function checkFormCompleteness() {
@@ -177,11 +275,28 @@
         function validateFormFields() {
             const errors = {};
 
-            // Validate the mandatory "views changed" question
-            const viewsChanged = document.querySelector('input[name="viewsChanged"]:checked');
-            if (!viewsChanged) {
-                errors.viewsChanged = 'Please indicate whether you have ever changed your mind about climate change';
+            // Validate the mandatory mind change primary question
+            const mindChangePrimary = document.querySelector('input[name="mind_change_primary"]:checked');
+            if (!mindChangePrimary) {
+                errors.mindChangePrimary = 'Please indicate whether you have changed your mind about climate change';
+                return errors; // Early return if primary question not answered
             }
+            
+            // If "Yes" is selected, validate that at least one checkbox is selected
+            if (mindChangePrimary.value === 'Yes') {
+                const mindChangeCheckboxes = document.querySelectorAll('input[name^="mind_change_"]:not([name="mind_change_primary"]):checked');
+                if (mindChangeCheckboxes.length === 0) {
+                    errors.mindChangeDetails = 'Please select at least one option describing how your views changed';
+                }
+                
+                // If "Other" is selected, validate that text is provided
+                const otherSelected = document.getElementById('mind_change_other_selected').checked;
+                const otherText = document.getElementById('mind_change_other_text').value.trim();
+                if (otherSelected && !otherText) {
+                    errors.mindChangeOther = 'Please describe your belief change when "Other" is selected';
+                }
+            }
+            // If "No" is selected, no additional validation needed - form is valid
 
             return errors;
         }
@@ -215,7 +330,15 @@
         }
 
         function showFieldError(fieldName, message) {
-            const errorElement = document.getElementById(fieldName + '-error');
+            let errorElement = document.getElementById(fieldName + '-error');
+            
+            // Handle special cases for mind change errors
+            if (fieldName === 'mindChangePrimary') {
+                errorElement = document.getElementById('mind-change-primary-error');
+            } else if (fieldName === 'mindChangeDetails') {
+                errorElement = document.getElementById('mind-change-details-error');
+            }
+            
             const inputElement = document.getElementById(fieldName) ||
                                  document.querySelector(`input[name="${fieldName}"]`);
             
@@ -358,9 +481,21 @@
             
             if (!isValid) {
                 // Show general error message for required fields only
-                const viewsChanged = document.querySelector('input[name="viewsChanged"]:checked');
-                if (!viewsChanged) {
-                    showGeneralError('Please indicate whether you have ever changed your mind about climate change.');
+                const mindChangePrimary = document.querySelector('input[name="mind_change_primary"]:checked');
+                if (!mindChangePrimary) {
+                    showGeneralError('Please indicate whether you have changed your mind about climate change.');
+                } else if (mindChangePrimary.value === 'Yes') {
+                    const mindChangeCheckboxes = document.querySelectorAll('input[name^="mind_change_"]:not([name="mind_change_primary"]):checked');
+                    if (mindChangeCheckboxes.length === 0) {
+                        showGeneralError('Please select at least one option describing how your views changed.');
+                    } else {
+                        // Check for "Other" text validation
+                        const otherSelected = document.getElementById('mind_change_other_selected').checked;
+                        const otherText = document.getElementById('mind_change_other_text').value.trim();
+                        if (otherSelected && !otherText) {
+                            showGeneralError('Please describe your belief change when "Other" is selected.');
+                        }
+                    }
                 }
                 
                 // Show field-specific errors
@@ -377,26 +512,38 @@
             
             // Collect form data
             const formData = new FormData(this);
-            const viewsChanged = formData.get('viewsChanged');
             
-            // Check routing logic based on views changed response
-            if (viewsChanged === 'No') {
-                // If no change, redirect to disqualification page immediately
+            // Check if "No" was selected for primary mind change question - redirect to disqualification
+            const mindChangePrimary = document.querySelector('input[name="mind_change_primary"]:checked');
+            if (mindChangePrimary && mindChangePrimary.value === 'No') {
                 console.log('No belief change - redirecting to disqualification page');
-                // Set flag to indicate user came from survey
                 sessionStorage.setItem('survey_disqualified', 'true');
                 window.location.href = '/disqualified';
                 return;
             }
             
-            // If views changed = Yes, store demographics and proceed to views page
+            // Collect mind change data
+            const mindChangeData = {
+                mind_change_real_to_not_real: document.getElementById('mind_change_real_to_not_real').checked,
+                mind_change_not_urgent_to_serious_crisis: document.getElementById('mind_change_not_urgent_to_serious_crisis').checked,
+                mind_change_not_real_to_real: document.getElementById('mind_change_not_real_to_real').checked,
+                mind_change_natural_to_human_caused: document.getElementById('mind_change_natural_to_human_caused').checked,
+                mind_change_human_caused_to_natural: document.getElementById('mind_change_human_caused_to_natural').checked,
+                mind_change_serious_crisis_to_not_urgent: document.getElementById('mind_change_serious_crisis_to_not_urgent').checked,
+                mind_change_no_change: mindChangePrimary.value === 'No', // Set based on primary question
+                mind_change_other_selected: document.getElementById('mind_change_other_selected').checked,
+                mind_change_other_text: document.getElementById('mind_change_other_text').value.trim()
+            };
+            
+            // Store demographics and mind change data
             const demographicsData = {
                 prolific_id: sessionStorage.getItem('prolific_id') || null,
                 age: formData.get('age') ? parseInt(formData.get('age')) : null,
                 gender: formData.get('gender') || null,
                 education: formData.get('education') || null,
                 political_orientation: null,
-                views_changed: viewsChanged,
+                views_changed: 'Yes', // Legacy field for compatibility
+                ...mindChangeData,
                 consent: true
             };
             
@@ -528,6 +675,62 @@
             .soft-validation-buttons .btn-primary {
                 width: 100%;
             }
+        }
+        /* Checkbox Group Styles */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .checkbox-label:hover {
+            background-color: #f8f9fa;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 0.75rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+        }
+
+        .checkbox-text {
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        /* Other Text Input Styles */
+        .other-text-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .other-text-input {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .field-help {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+            font-style: italic;
         }
     </style>
 </body>
