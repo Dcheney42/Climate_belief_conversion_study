@@ -87,35 +87,35 @@
                     <!-- Mind Change Details - shown only if "Yes" is selected -->
                     <div id="mind-change-details" style="display: none; margin-top: 1.5rem;">
                         <h4 style="margin-bottom: 1rem; color: #333; font-size: 1rem;">How has your thinking about climate change changed over time?</h4>
-                        <p class="question-subtext">Please select all that apply. You may choose multiple options.</p>
-                        <div class="checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="mind_change_real_to_not_real" id="mind_change_real_to_not_real">
-                                <span class="checkbox-text">From <strong>real</strong> to <strong>not real</strong></span>
+                        <p class="question-subtext">Please select the option that best describes your belief change.</p>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="mind_change_direction" value="exists_to_not_exists" id="mind_change_exists_to_not_exists">
+                                <span class="radio-text">From thinking climate change <strong>exists</strong>, to thinking climate change <strong>does not exist</strong>.</span>
                             </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="mind_change_not_urgent_to_serious_crisis" id="mind_change_not_urgent_to_serious_crisis">
-                                <span class="checkbox-text">From <strong>not urgent</strong> to <strong>serious crisis</strong></span>
+                            <label class="radio-label">
+                                <input type="radio" name="mind_change_direction" value="not_exists_to_exists" id="mind_change_not_exists_to_exists">
+                                <span class="radio-text">From thinking climate change <strong>does not exist</strong>, to thinking climate change <strong>exists</strong>.</span>
                             </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="mind_change_not_real_to_real" id="mind_change_not_real_to_real">
-                                <span class="checkbox-text">From <strong>not real</strong> to <strong>real</strong></span>
+                            <label class="radio-label">
+                                <input type="radio" name="mind_change_direction" value="not_urgent_to_urgent" id="mind_change_not_urgent_to_urgent">
+                                <span class="radio-text">From thinking climate change is <strong>not an urgent crisis</strong>, to thinking climate change is <strong>an urgent crisis</strong>.</span>
                             </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="mind_change_natural_to_human_caused" id="mind_change_natural_to_human_caused">
-                                <span class="checkbox-text">From <strong>natural causes</strong> to <strong>human-caused</strong></span>
+                            <label class="radio-label">
+                                <input type="radio" name="mind_change_direction" value="urgent_to_not_urgent" id="mind_change_urgent_to_not_urgent">
+                                <span class="radio-text">From thinking climate change is <strong>an urgent crisis</strong>, to thinking climate change is <strong>not an urgent crisis</strong>.</span>
                             </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="mind_change_human_caused_to_natural" id="mind_change_human_caused_to_natural">
-                                <span class="checkbox-text">From <strong>human-caused</strong> to <strong>natural causes</strong></span>
+                            <label class="radio-label">
+                                <input type="radio" name="mind_change_direction" value="human_to_natural" id="mind_change_human_to_natural">
+                                <span class="radio-text">From thinking climate change is <strong>primarily caused by human activity</strong>, to thinking climate change is <strong>a largely natural process</strong>.</span>
                             </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="mind_change_serious_crisis_to_not_urgent" id="mind_change_serious_crisis_to_not_urgent">
-                                <span class="checkbox-text">From <strong>serious crisis</strong> to <strong>not urgent</strong></span>
+                            <label class="radio-label">
+                                <input type="radio" name="mind_change_direction" value="natural_to_human" id="mind_change_natural_to_human">
+                                <span class="radio-text">From thinking climate change is <strong>a largely natural process</strong>, to thinking climate change is <strong>primarily caused by human activity</strong>.</span>
                             </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" name="mind_change_other_selected" id="mind_change_other_selected">
-                                <span class="checkbox-text"><strong>Other</strong> (specify)</span>
+                            <label class="radio-label">
+                                <input type="radio" name="mind_change_direction" value="other" id="mind_change_other_selected">
+                                <span class="radio-text"><strong>Other</strong> (specify)</span>
                             </label>
                         </div>
                         <div class="other-text-container" id="other-text-container" style="display: none;">
@@ -170,8 +170,8 @@
                         handleMindChangeSelection();
                     }
                     // Handle conditional display of "Other" text field
-                    if (this.name === 'mind_change_other_selected') {
-                        handleOtherCheckboxSelection();
+                    if (this.name === 'mind_change_direction') {
+                        handleOtherRadioSelection();
                     }
                     
                     if (hasTriedSubmit) {
@@ -225,10 +225,10 @@
         }
 
         function clearMindChangeCheckboxes() {
-            // Clear all mind change checkboxes
-            const checkboxes = document.querySelectorAll('input[name^="mind_change_"]:not([name="mind_change_primary"])');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = false;
+            // Clear the mind change direction radio button
+            const radioButtons = document.querySelectorAll('input[name="mind_change_direction"]');
+            radioButtons.forEach(radio => {
+                radio.checked = false;
             });
             
             // Clear and hide the other text field
@@ -242,12 +242,12 @@
             }
         }
 
-        function handleOtherCheckboxSelection() {
-            const otherCheckbox = document.getElementById('mind_change_other_selected');
+        function handleOtherRadioSelection() {
+            const selectedRadio = document.querySelector('input[name="mind_change_direction"]:checked');
             const otherTextContainer = document.getElementById('other-text-container');
             const otherTextInput = document.getElementById('mind_change_other_text');
             
-            if (otherCheckbox.checked) {
+            if (selectedRadio && selectedRadio.value === 'other') {
                 otherTextContainer.style.display = 'block';
                 otherTextInput.focus();
             } else {
@@ -282,18 +282,19 @@
                 return errors; // Early return if primary question not answered
             }
             
-            // If "Yes" is selected, validate that at least one checkbox is selected
+            // If "Yes" is selected, validate that a direction is selected
             if (mindChangePrimary.value === 'Yes') {
-                const mindChangeCheckboxes = document.querySelectorAll('input[name^="mind_change_"]:not([name="mind_change_primary"]):checked');
-                if (mindChangeCheckboxes.length === 0) {
-                    errors.mindChangeDetails = 'Please select at least one option describing how your views changed';
+                const mindChangeDirection = document.querySelector('input[name="mind_change_direction"]:checked');
+                if (!mindChangeDirection) {
+                    errors.mindChangeDetails = 'Please select the option that best describes how your views changed';
                 }
                 
                 // If "Other" is selected, validate that text is provided
-                const otherSelected = document.getElementById('mind_change_other_selected').checked;
-                const otherText = document.getElementById('mind_change_other_text').value.trim();
-                if (otherSelected && !otherText) {
-                    errors.mindChangeOther = 'Please describe your belief change when "Other" is selected';
+                if (mindChangeDirection && mindChangeDirection.value === 'other') {
+                    const otherText = document.getElementById('mind_change_other_text').value.trim();
+                    if (!otherText) {
+                        errors.mindChangeOther = 'Please describe your belief change when "Other" is selected';
+                    }
                 }
             }
             // If "No" is selected, no additional validation needed - form is valid
@@ -485,14 +486,13 @@
                 if (!mindChangePrimary) {
                     showGeneralError('Please indicate whether you have changed your mind about climate change.');
                 } else if (mindChangePrimary.value === 'Yes') {
-                    const mindChangeCheckboxes = document.querySelectorAll('input[name^="mind_change_"]:not([name="mind_change_primary"]):checked');
-                    if (mindChangeCheckboxes.length === 0) {
-                        showGeneralError('Please select at least one option describing how your views changed.');
-                    } else {
+                    const mindChangeDirection = document.querySelector('input[name="mind_change_direction"]:checked');
+                    if (!mindChangeDirection) {
+                        showGeneralError('Please select the option that best describes how your views changed.');
+                    } else if (mindChangeDirection.value === 'other') {
                         // Check for "Other" text validation
-                        const otherSelected = document.getElementById('mind_change_other_selected').checked;
                         const otherText = document.getElementById('mind_change_other_text').value.trim();
-                        if (otherSelected && !otherText) {
+                        if (!otherText) {
                             showGeneralError('Please describe your belief change when "Other" is selected.');
                         }
                     }
@@ -523,16 +523,12 @@
             }
             
             // Collect mind change data
+            const mindChangeDirection = document.querySelector('input[name="mind_change_direction"]:checked');
             const mindChangeData = {
-                mind_change_real_to_not_real: document.getElementById('mind_change_real_to_not_real').checked,
-                mind_change_not_urgent_to_serious_crisis: document.getElementById('mind_change_not_urgent_to_serious_crisis').checked,
-                mind_change_not_real_to_real: document.getElementById('mind_change_not_real_to_real').checked,
-                mind_change_natural_to_human_caused: document.getElementById('mind_change_natural_to_human_caused').checked,
-                mind_change_human_caused_to_natural: document.getElementById('mind_change_human_caused_to_natural').checked,
-                mind_change_serious_crisis_to_not_urgent: document.getElementById('mind_change_serious_crisis_to_not_urgent').checked,
+                mind_change_direction: mindChangeDirection ? mindChangeDirection.value : null,
                 mind_change_no_change: mindChangePrimary.value === 'No', // Set based on primary question
-                mind_change_other_selected: document.getElementById('mind_change_other_selected').checked,
-                mind_change_other_text: document.getElementById('mind_change_other_text').value.trim()
+                mind_change_other_text: mindChangeDirection && mindChangeDirection.value === 'other' ?
+                    document.getElementById('mind_change_other_text').value.trim() : null
             };
             
             // Store demographics and mind change data
@@ -676,36 +672,32 @@
                 width: 100%;
             }
         }
-        /* Checkbox Group Styles */
-        .checkbox-group {
+        /* Radio Group Styles for Mind Change Direction */
+        .radio-group .radio-label {
             display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            margin: 1rem 0;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: center;
+            align-items: flex-start;
             cursor: pointer;
             padding: 0.75rem;
             border: 1px solid #ddd;
             border-radius: 6px;
             transition: background-color 0.2s;
+            margin-bottom: 0.5rem;
         }
 
-        .checkbox-label:hover {
+        .radio-group .radio-label:hover {
             background-color: #f8f9fa;
         }
 
-        .checkbox-label input[type="checkbox"] {
+        .radio-group .radio-label input[type="radio"] {
             margin-right: 0.75rem;
+            margin-top: 0.25rem;
             width: 1.25rem;
             height: 1.25rem;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
-        .checkbox-text {
+        .radio-group .radio-text {
             color: #333;
             font-size: 0.95rem;
             line-height: 1.4;

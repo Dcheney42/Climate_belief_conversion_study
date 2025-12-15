@@ -517,15 +517,9 @@ app.post('/survey/submit', (req, res) => {
             ai_accurate,
             confidence_level,
             missing_info,
-            // New mind change variables (checkbox system)
-            mind_change_real_to_not_real,
-            mind_change_not_urgent_to_serious_crisis,
-            mind_change_not_real_to_real,
-            mind_change_natural_to_human_caused,
-            mind_change_human_caused_to_natural,
-            mind_change_serious_crisis_to_not_urgent,
+            // New mind change variable (radio button system)
+            mind_change_direction,
             mind_change_no_change,
-            mind_change_other_selected,
             mind_change_other_text,
             consent,
             // Climate Change Skepticism (CCS) scale raw values
@@ -559,36 +553,18 @@ app.post('/survey/submit', (req, res) => {
         console.log('Received survey submission:', req.body);
         console.log('DEBUG: Starting validation process...');
         
-        // Check if we have the new mind change variables or legacy format
-        const hasNewFormat = mind_change_real_to_not_real !== undefined ||
-                           mind_change_not_urgent_to_serious_crisis !== undefined ||
-                           mind_change_not_real_to_real !== undefined ||
-                           mind_change_natural_to_human_caused !== undefined ||
-                           mind_change_human_caused_to_natural !== undefined ||
-                           mind_change_serious_crisis_to_not_urgent !== undefined ||
-                           mind_change_no_change !== undefined ||
-                           mind_change_other_selected !== undefined;
+        // Check if we have the new mind change direction or legacy format
+        const hasNewFormat = mind_change_direction !== undefined || mind_change_no_change !== undefined;
         
         if (hasNewFormat) {
-            // New checkbox system validation - at least one checkbox must be selected
-            const mindChangeCheckboxes = [
-                mind_change_real_to_not_real,
-                mind_change_not_urgent_to_serious_crisis,
-                mind_change_not_real_to_real,
-                mind_change_natural_to_human_caused,
-                mind_change_human_caused_to_natural,
-                mind_change_serious_crisis_to_not_urgent,
-                mind_change_no_change,
-                mind_change_other_selected
-            ].filter(Boolean);
-            
-            if (mindChangeCheckboxes.length === 0) {
-                console.log('DEBUG: mind change validation FAILED - no checkboxes selected');
-                return res.status(400).json({ error: 'Please select at least one option or indicate that your views have not changed' });
+            // New radio button system validation - a direction must be selected if "Yes" was chosen
+            if (!mind_change_no_change && !mind_change_direction) {
+                console.log('DEBUG: mind change validation FAILED - no direction selected');
+                return res.status(400).json({ error: 'Please select the option that best describes how your views changed' });
             }
             
             // If "Other" is selected, validate that text is provided
-            if (mind_change_other_selected && (!mind_change_other_text || mind_change_other_text.trim() === '')) {
+            if (mind_change_direction === 'other' && (!mind_change_other_text || mind_change_other_text.trim() === '')) {
                 console.log('DEBUG: other text validation FAILED - other selected but no text provided');
                 return res.status(400).json({ error: 'Please describe your belief change when "Other" is selected' });
             }
@@ -631,7 +607,7 @@ app.post('/survey/submit', (req, res) => {
             // Belief change section
             belief_change: {
                 // Legacy fields for backwards compatibility
-                has_changed_mind: hasNewFormat ? (!mind_change_no_change && (mind_change_real_to_not_real || mind_change_not_urgent_to_serious_crisis || mind_change_not_real_to_real || mind_change_natural_to_human_caused || mind_change_human_caused_to_natural || mind_change_serious_crisis_to_not_urgent || mind_change_other_selected)) : ((views_changed || viewsChanged) === 'Yes'),
+                has_changed_mind: hasNewFormat ? (!mind_change_no_change && mind_change_direction) : ((views_changed || viewsChanged) === 'Yes'),
                 current_view: current_views || null, // Raw text from participant
                 elaboration: elaboration || null, // Raw text from participant
                 ai_summary: ai_summary_generated || AI_Summary_Views || null, // AI summary of current_views + elaboration
@@ -639,16 +615,10 @@ app.post('/survey/submit', (req, res) => {
                 ai_summary_accuracy: ai_accurate || summaryAccurate || null,
                 chatbot_summary: null, // Will be populated after chatbot conversation
                 
-                // New mind change variables (checkbox system)
-                mind_change_real_to_not_real: mind_change_real_to_not_real === true || mind_change_real_to_not_real === 'on',
-                mind_change_not_urgent_to_serious_crisis: mind_change_not_urgent_to_serious_crisis === true || mind_change_not_urgent_to_serious_crisis === 'on',
-                mind_change_not_real_to_real: mind_change_not_real_to_real === true || mind_change_not_real_to_real === 'on',
-                mind_change_natural_to_human_caused: mind_change_natural_to_human_caused === true || mind_change_natural_to_human_caused === 'on',
-                mind_change_human_caused_to_natural: mind_change_human_caused_to_natural === true || mind_change_human_caused_to_natural === 'on',
-                mind_change_serious_crisis_to_not_urgent: mind_change_serious_crisis_to_not_urgent === true || mind_change_serious_crisis_to_not_urgent === 'on',
+                // New mind change variables (radio button system)
+                mind_change_direction: mind_change_direction || null,
                 mind_change_no_change: mind_change_no_change === true || mind_change_no_change === 'on',
-                mind_change_other_selected: mind_change_other_selected === true || mind_change_other_selected === 'on',
-                mind_change_other_text: mind_change_other_text || null
+                mind_change_other_text: mind_change_direction === 'other' ? (mind_change_other_text || null) : null
             },
             
             // Views matrix section
@@ -1594,16 +1564,18 @@ app.get('/api/admin/export.json', requireAdmin, (req, res) => {
                                 chatbot_summary: participant.belief_change?.chatbot_summary || null,
                                 chatbot_summary_validation: participant.belief_change?.chatbot_summary_validation || null,
                                 chatbot_summary_bullets: participant.belief_change?.chatbot_summary_bullets || null,
-                                // New mind change variables
+                                // New mind change variables (radio button system)
+                                mind_change_direction: participant.belief_change?.mind_change_direction || null,
+                                mind_change_no_change: participant.belief_change?.mind_change_no_change || false,
+                                mind_change_other_text: participant.belief_change?.mind_change_other_text || null,
+                                // Legacy mind change variables for backwards compatibility
                                 mind_change_real_to_not_real: participant.belief_change?.mind_change_real_to_not_real || false,
                                 mind_change_not_urgent_to_serious_crisis: participant.belief_change?.mind_change_not_urgent_to_serious_crisis || false,
                                 mind_change_not_real_to_real: participant.belief_change?.mind_change_not_real_to_real || false,
                                 mind_change_natural_to_human_caused: participant.belief_change?.mind_change_natural_to_human_caused || false,
                                 mind_change_human_caused_to_natural: participant.belief_change?.mind_change_human_caused_to_natural || false,
                                 mind_change_serious_crisis_to_not_urgent: participant.belief_change?.mind_change_serious_crisis_to_not_urgent || false,
-                                mind_change_no_change: participant.belief_change?.mind_change_no_change || false,
-                                mind_change_other_selected: participant.belief_change?.mind_change_other_selected || false,
-                                mind_change_other_text: participant.belief_change?.mind_change_other_text || null
+                                mind_change_other_selected: participant.belief_change?.mind_change_other_selected || false
                             },
                             
                             // Views matrix - ensure ALL climate change scale variables are captured
