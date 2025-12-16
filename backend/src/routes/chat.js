@@ -169,6 +169,91 @@ async function loadMessages(conversationId) {
 async function appendMessage(conversationId, message) {
   return await global.db.conversations.append(conversationId, message);
 }
+
+// Enhanced function to reliably get userId from conversationId
+async function getUserIdFromConversation(conversationId) {
+  try {
+    console.log(`🔍 Getting userId for conversation: ${conversationId}`);
+    
+    // Try database first
+    if (global.db?.conversations) {
+      const conversation = await global.db.conversations.getMetadata(conversationId);
+      if (conversation?.userId || conversation?.participantId) {
+        const userId = conversation.userId || conversation.participantId;
+        console.log(`✅ Found userId in database: ${userId}`);
+        return userId;
+      }
+    }
+    
+    // Fallback to file-based lookup
+    const conversationFile = `${conversationId}.json`;
+    const conversationPath = path.join(process.cwd(), 'data', 'conversations', conversationFile);
+    if (fs.existsSync(conversationPath)) {
+      const conversationData = JSON.parse(fs.readFileSync(conversationPath, 'utf8'));
+      if (conversationData.participantId || conversationData.userId) {
+        const userId = conversationData.participantId || conversationData.userId;
+        console.log(`✅ Found userId in file metadata: ${userId}`);
+        return userId;
+      }
+    }
+    
+    console.warn(`⚠️ No userId found for conversation: ${conversationId}`);
+    return null;
+  } catch (error) {
+    console.error(`❌ Error getting userId for conversation ${conversationId}:`, error.message);
+    return null;
+  }
+}
+
+// Enhanced function to ensure system prompt is reconstructed with user profile
+async function reconstructSystemPrompt(conversationId, userId = null, conversationState = null) {
+  try {
+    // Get userId if not provided
+    if (!userId) {
+      userId = await getUserIdFromConversation(conversationId);
+    }
+    
+    if (!userId) {
+      console.warn(`⚠️ Cannot reconstruct system prompt - no userId for conversation: ${conversationId}`);
+      return null;
+    }
+    
+    console.log(`🔄 Reconstructing system prompt for user: ${userId}, conversation: ${conversationId}`);
+    
+    // Get fresh participant profile
+    const profile = await getParticipantProfile(userId);
+    if (!profile) {
+      console.warn(`⚠️ Cannot reconstruct system prompt - no profile found for user: ${userId}`);
+      return null;
+    }
+    
+    // Add conversation state info to profile if available
+    const enhancedProfile = {
+      ...profile,
+      ...(conversationState && {
+        conversation_stage: conversationState.stage,
+        turn_count: conversationState.turnCount,
+        topic_turn_count: conversationState.topicTurnCount,
+        current_topic: conversationState.lastTopic
+      })
+    };
+    
+    // Generate fresh system prompt
+    const systemPrompt = renderSystemPrompt(enhancedProfile);
+    
+    console.log(`✅ System prompt reconstructed for user: ${userId}`);
+    console.log(`🔍 Profile used:`, JSON.stringify({
+      views_changed: profile.views_changed,
+      change_description: profile.change_description,
+      change_confidence: profile.change_confidence
+    }, null, 2));
+    
+    return systemPrompt;
+  } catch (error) {
+    console.error(`❌ Error reconstructing system prompt:`, error.message);
+    return null;
+  }
+}
 async function applyQuickUpdate(conversationId, updateText) {
   // Accept: update: field=value; field=value
   const pairs = updateText.split(/;|,/).map(s => s.trim()).filter(Boolean);
@@ -425,23 +510,43 @@ router.post("/start", async (req, res) => {
     const userId = req.user?.id || req.body.userId;
     const conversationId = req.body.conversationId || crypto.randomUUID();
 
-    console.log("🔍 Chat start - userId:", userId);
-    const profile = await getParticipantProfile(userId);
-    console.log("🔍 Retrieved profile:", JSON.stringify(profile, null, 2));
+    if (!userId) {
+      console.error("❌ No userId provided for chat start");
+      return res.status(400).json({ error: "User ID is required to start chat" });
+    }
+
+    console.log("🔍 Chat start - userId:", userId, "conversationId:", conversationId);
     
+    // Initialize conversation state
+    const conversationState = initializeConversationState(conversationId);
+    
+    // Get participant profile
+    const profile = await getParticipantProfile(userId);
+    if (!profile) {
+      console.error("❌ No profile found for userId:", userId);
+      return res.status(404).json({ error: "Participant profile not found" });
+    }
+    
+    console.log("✅ Retrieved profile:", JSON.stringify(profile, null, 2));
+    
+    // Generate system prompt and opening line
     const systemPrompt = renderSystemPrompt(profile);
     const openingLine = openingLineFrom(profile);
-    console.log("🔍 Generated opening line:", openingLine);
+    console.log("✅ Generated opening line:", openingLine);
 
     const messages = [
-      { role: "system", content: systemPrompt },
+      { role: "system", content: systemPrompt, userId }, // Store userId with system message
       { role: "assistant", content: openingLine }
     ];
 
+    // Save conversation with userId metadata
     await saveConversation(userId, conversationId, messages);
-    res.json({ conversationId, messages });
+    
+    // Return without system message (client doesn't need to see it)
+    const clientMessages = messages.filter(msg => msg.role !== 'system');
+    res.json({ conversationId, messages: clientMessages });
   } catch (err) {
-    console.error("chat/start error", err);
+    console.error("❌ chat/start error:", err);
     res.status(500).json({ error: "Failed to start chat" });
   }
 });
@@ -465,10 +570,8 @@ router.post("/reply", async (req, res) => {
       // Add user message
       await appendMessage(conversationId, { role: "user", content: userText });
       
-      // Extract userId to ensure conversation has a summary before ending
-      const userId = req.user?.id || req.body.userId ||
-        history.find(msg => msg.userId)?.userId ||
-        history.find(msg => msg.role === 'system')?.userId;
+      // Extract userId using robust function
+      const userId = req.user?.id || req.body.userId || await getUserIdFromConversation(conversationId);
       
       if (userId) {
         console.log('⚠️ Termination detected, ensuring summary exists for user:', userId);
@@ -495,10 +598,8 @@ router.post("/reply", async (req, res) => {
       // Add user message first
       await appendMessage(conversationId, { role: "user", content: userText });
       
-      // Extract userId
-      const userId = req.user?.id || req.body.userId ||
-        history.find(msg => msg.userId)?.userId ||
-        history.find(msg => msg.role === 'system')?.userId;
+      // Extract userId using robust function
+      const userId = req.user?.id || req.body.userId || await getUserIdFromConversation(conversationId);
       
       if (userId) {
         await ensureConversationSummary(conversationId, userId);
@@ -524,36 +625,25 @@ router.post("/reply", async (req, res) => {
       return res.json({ reply: ack, updated: updates });
     }
 
-    // Get conversation metadata to extract userId/participantId
-    const conversationFile = `${conversationId}.json`;
-    const conversationPath = path.join(process.cwd(), 'data', 'conversations', conversationFile);
-    const conversationData = fs.existsSync(conversationPath) ?
-      JSON.parse(fs.readFileSync(conversationPath, 'utf8')) : null;
-    
-    const userId = conversationData?.participantId || req.user?.id || req.body.userId ||
-      history.find(msg => msg.userId)?.userId;
+    // Get userId using robust extraction function
+    const userId = req.user?.id || req.body.userId || await getUserIdFromConversation(conversationId);
     
     if (!userId) {
+      console.error('❌ Unable to determine user ID for conversation:', conversationId);
       throw new Error('Unable to determine user ID for system prompt generation');
     }
     
-    // Fetch fresh participant profile and generate system prompt
-    const profile = await getParticipantProfile(userId);
+    // Reconstruct system prompt with fresh profile data
+    const systemPrompt = await reconstructSystemPrompt(conversationId, userId, conversationState);
     
-    // Add stage information to the system prompt context
-    const enhancedProfile = {
-      ...profile,
-      conversation_stage: conversationState.stage,
-      turn_count: conversationState.turnCount,
-      topic_turn_count: conversationState.topicTurnCount,
-      current_topic: conversationState.lastTopic
-    };
+    if (!systemPrompt) {
+      console.error('❌ Failed to reconstruct system prompt for user:', userId);
+      throw new Error('Failed to reconstruct system prompt');
+    }
     
-    const systemPrompt = renderSystemPrompt(enhancedProfile);
-    
-    console.log("🔍 DEBUG: Reconstructed system prompt for user:", userId);
-    console.log("🔍 DEBUG: Conversation stage:", conversationState.stage);
-    console.log("🔍 DEBUG: System prompt preview:", systemPrompt.substring(0, 100) + "...");
+    console.log("✅ Successfully reconstructed system prompt for user:", userId);
+    console.log("🔍 Conversation stage:", conversationState.stage);
+    console.log("🔍 System prompt preview:", systemPrompt.substring(0, 100) + "...");
     
     // Filter out any existing system messages from history to avoid duplication
     const historyWithoutSystem = history.filter(msg => msg.role !== 'system');
@@ -596,10 +686,8 @@ router.post("/reply", async (req, res) => {
       await appendMessage(conversationId, { role: "user", content: userText });
       await appendMessage(conversationId, { role: "assistant", content: visibleReply });
       
-      // Extract userId to ensure conversation has a summary (though it should already have one)
-      const userId = req.user?.id || req.body.userId ||
-        history.find(msg => msg.userId)?.userId ||
-        history.find(msg => msg.role === 'system')?.userId;
+      // Extract userId using robust function
+      const userId = req.user?.id || req.body.userId || await getUserIdFromConversation(conversationId);
       
       if (userId) {
         console.log('✓ Interview complete marker detected, ensuring summary exists for user:', userId);

@@ -62,3 +62,25 @@ model IndividualDifferences {
   
   @@map("individual_differences")
 }
+
+model ConversationState {
+  id            String   @id @default(cuid())
+  conversationId String  @unique
+  sessionId      String?
+  stage          String   @default("exploration") // exploration, elaboration, recap, complete
+  turnCount      Int      @default(0)
+  topicTurnCount Int      @default(0)
+  lastTopic      String?
+  minimalResponseCount   Int @default(0)
+  substantiveResponseCount Int @default(0)
+  exhaustionSignals      Int @default(0)
+  lastUserResponse       String?
+  metadata       Json?    // Additional state data
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relations
+  session        Session? @relation(fields: [sessionId], references: [id])
+  
+  @@map("conversation_states")
+}
