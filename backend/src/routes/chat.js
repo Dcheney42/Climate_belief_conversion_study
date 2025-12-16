@@ -3,7 +3,7 @@ import express from "express";
 import crypto from "node:crypto";
 import { renderSystemPrompt } from "../utils/systemPrompt.js";
 import { openingLineFrom } from "../utils/openingLine.js";
-import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift } from "../utils/onTopic.js";
+import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, detectActionRoleDrift } from "../utils/onTopic.js";
 
 // Replace these stubs with your real DB/model calls
 async function getParticipantProfile(userId) {
@@ -296,6 +296,10 @@ router.post("/reply", async (req, res) => {
       safeReply = redirectLine();
     } else if (detectPoliticalDrift(modelReply)) {
       driftType = 'political';
+      safeReply = redirectLine(driftType);
+    } else if (detectActionRoleDrift(modelReply)) {
+      // Chatbot is discussing roles/actions rather than belief change narrative
+      driftType = 'action';
       safeReply = redirectLine(driftType);
     } else if (detectBeliefDrift(userText)) {
       // User indicated we're off topic from belief change
