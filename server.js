@@ -99,16 +99,53 @@ global.db = global.db || {
       if (!participant) return null;
       
       // Map existing fields to expected structure for chat system
-      // Fix: Read from correct nested structure participant.belief_change.has_changed_mind
       const hasChangedMind = participant.belief_change?.has_changed_mind;
       const viewsChanged = hasChangedMind ? 'Yes' : (hasChangedMind === false ? 'No' : 'unspecified');
       
+      // Map the specific belief change direction from survey
+      const mindChangeDirection = participant.belief_change?.mind_change_direction;
+      const mindChangeOtherText = participant.belief_change?.mind_change_other_text;
+      
+      // Convert the direction code to a descriptive text for the system prompt
+      let changeDescription = null;
+      if (mindChangeDirection) {
+        switch (mindChangeDirection) {
+          case 'exists_to_not_exists':
+            changeDescription = 'From thinking climate change exists, to thinking climate change does not exist';
+            break;
+          case 'not_exists_to_exists':
+            changeDescription = 'From thinking climate change does not exist, to thinking climate change exists';
+            break;
+          case 'not_urgent_to_urgent':
+            changeDescription = 'From thinking climate change is not an urgent crisis, to thinking climate change is an urgent crisis';
+            break;
+          case 'urgent_to_not_urgent':
+            changeDescription = 'From thinking climate change is an urgent crisis, to thinking climate change is not an urgent crisis';
+            break;
+          case 'human_to_natural':
+            changeDescription = 'From thinking climate change is primarily caused by human activity, to thinking climate change is a largely natural process';
+            break;
+          case 'natural_to_human':
+            changeDescription = 'From thinking climate change is a largely natural process, to thinking climate change is primarily caused by human activity';
+            break;
+          case 'other':
+            changeDescription = mindChangeOtherText || 'Other belief change (details provided by participant)';
+            break;
+          default:
+            changeDescription = null;
+        }
+      }
+      
       return {
         views_changed: viewsChanged,
+        change_description: changeDescription,
+        change_confidence: null, // Not collected in current survey flow
+        mind_change_direction: mindChangeDirection,
+        mind_change_other_text: mindChangeOtherText,
         prior_belief_cc_happening: null,
-        prior_belief_human_cause: "unspecified", // Not collected yet
+        prior_belief_human_cause: "unspecified",
         current_belief_cc_happening: null,
-        current_belief_human_cause: "unspecified", // Not collected yet
+        current_belief_human_cause: "unspecified",
         changed_belief_flag: hasChangedMind === true
       };
     },

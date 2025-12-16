@@ -35,10 +35,13 @@ function generateSummary(text) {
 }
 
 export function openingLineFrom(profile) {
-  const { views_changed, change_description } = profile || {};
+  const { views_changed, change_description, mind_change_direction } = profile || {};
 
-  if (views_changed === 'Yes') {
-    // Use the new friendly, conversational opening message
+  if (views_changed === 'Yes' && change_description) {
+    // Use specific belief change information in opening line
+    return `Hi there! Thanks for chatting with me. Earlier, you mentioned that you changed your mind about climate change - specifically, ${change_description.toLowerCase()}. I'd love to hear more about that story. What prompted this shift in your thinking?`;
+  } else if (views_changed === 'Yes') {
+    // Generic opening for belief change without specific details
     return "Hi there! Thanks for chatting with me. Earlier, you mentioned that you've changed your mind about climate change. Could you tell me a bit more about what exactly you changed your mind about, and how that change came about?";
   } else {
     return "Hello! I'm here to learn about your thoughts and experiences with climate change. Let's start by talking about your perspective - can you tell me how you currently think about climate change?";
