@@ -769,7 +769,7 @@ Is there anything important you'd like to add before we finish?`;
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ conversationId, message: content })
+                    body: JSON.stringify({ conversationId, message: content, userId: participantId })
                 });
                 
                 if (response.status === 410) {
