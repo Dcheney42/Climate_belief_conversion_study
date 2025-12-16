@@ -21,13 +21,26 @@ function initializeConversationState(conversationId) {
       minimalResponseCount: 0,
       substantiveResponseCount: 0,
       exhaustionSignals: 0,
-      lastUserResponse: null
+      lastUserResponse: null,
+      // Enhanced narrative tracking
+      exploredTopics: new Set(), // Track what has been asked about
+      lastAssistantResponse: null, // Track AI's last response for pattern detection
+      narrativeUnderstanding: {
+        mainStory: null, // User's core belief change narrative
+        influences: [], // People/events that influenced them
+        causeEffectRelationships: [], // Track understood relationships
+        misunderstandingFlags: 0 // Track potential comprehension issues
+      },
+      responsePatterns: {
+        lastOpeningPhrase: null, // Track opening phrases to ensure variation
+        consecutiveSimilarResponses: 0 // Prevent formulaic responses
+      }
     });
   }
   return conversationStates.get(conversationId);
 }
 
-function updateConversationState(conversationId, userText) {
+function updateConversationState(conversationId, userText, assistantResponse = null) {
   const state = initializeConversationState(conversationId);
   state.turnCount++;
   
@@ -39,6 +52,9 @@ function updateConversationState(conversationId, userText) {
     state.topicTurnCount = 1;
     state.lastTopic = currentTopic;
   }
+  
+  // Track explored topics to prevent repetition
+  state.exploredTopics.add(currentTopic);
   
   // Classify response as minimal or substantive
   if (isMinimalResponse(userText)) {
@@ -56,7 +72,16 @@ function updateConversationState(conversationId, userText) {
     state.exhaustionSignals = Math.max(0, state.exhaustionSignals - 1); // Decay
   }
   
+  // Enhanced narrative understanding tracking
+  updateNarrativeUnderstanding(state, userText);
+  
+  // Track assistant response patterns if provided
+  if (assistantResponse) {
+    updateResponsePatterns(state, assistantResponse);
+  }
+  
   state.lastUserResponse = userText;
+  state.lastAssistantResponse = assistantResponse;
   
   // Auto-advance stages based on conversation progress
   if (state.stage === 'exploration' && shouldAdvanceToElaboration(state)) {
@@ -68,6 +93,97 @@ function updateConversationState(conversationId, userText) {
   }
   
   return state;
+}
+
+// Enhanced narrative understanding tracking
+function updateNarrativeUnderstanding(state, userText) {
+  const text = userText.toLowerCase();
+  
+  // Extract potential influences and their direction
+  if (text.includes('uncle') || text.includes('family') || text.includes('friend')) {
+    const influence = extractInfluenceFromText(userText);
+    if (influence && !state.narrativeUnderstanding.influences.some(i => i.person === influence.person)) {
+      state.narrativeUnderstanding.influences.push(influence);
+      console.log('📝 Tracked new influence:', influence);
+    }
+  }
+  
+  // Detect cause-effect relationships
+  if (text.includes('because') || text.includes('so') || text.includes('since') || text.includes('made me')) {
+    const relationship = extractCauseEffectFromText(userText);
+    if (relationship) {
+      state.narrativeUnderstanding.causeEffectRelationships.push(relationship);
+      console.log('📝 Tracked cause-effect relationship:', relationship);
+    }
+  }
+  
+  // Update main story if this seems to be the core narrative
+  if (isMainStoryContent(userText)) {
+    state.narrativeUnderstanding.mainStory = userText;
+    console.log('📝 Updated main story understanding');
+  }
+}
+
+// Track assistant response patterns to prevent repetition
+function updateResponsePatterns(state, assistantResponse) {
+  if (!assistantResponse) return;
+  
+  // Extract opening phrase pattern
+  const openingPhrase = extractOpeningPhrase(assistantResponse);
+  if (openingPhrase) {
+    if (openingPhrase === state.responsePatterns.lastOpeningPhrase) {
+      state.responsePatterns.consecutiveSimilarResponses++;
+      console.log('⚠️ Detected repetitive opening phrase:', openingPhrase);
+    } else {
+      state.responsePatterns.consecutiveSimilarResponses = 0;
+    }
+    state.responsePatterns.lastOpeningPhrase = openingPhrase;
+  }
+}
+
+// Helper functions for narrative analysis
+function extractInfluenceFromText(text) {
+  const lowerText = text.toLowerCase();
+  let person = null;
+  let direction = null;
+  
+  if (lowerText.includes('uncle')) person = 'uncle';
+  else if (lowerText.includes('friend')) person = 'friend';
+  else if (lowerText.includes('family')) person = 'family member';
+  
+  if (person) {
+    // Determine direction of influence
+    if (lowerText.includes('made me reject') || lowerText.includes('got sick of') ||
+        lowerText.includes('started believing the opposite') || lowerText.includes('turned me off')) {
+      direction = 'away_from';
+    } else if (lowerText.includes('convinced me') || lowerText.includes('helped me believe') ||
+               lowerText.includes('made me think')) {
+      direction = 'toward';
+    }
+    
+    return { person, direction, text: text.substring(0, 100) };
+  }
+  return null;
+}
+
+function extractCauseEffectFromText(text) {
+  // Simple extraction of cause-effect patterns
+  const simplified = text.substring(0, 150);
+  return { relationship: simplified, timestamp: Date.now() };
+}
+
+function isMainStoryContent(text) {
+  const words = text.split(' ').length;
+  return words > 10 && (
+    text.toLowerCase().includes('changed') ||
+    text.toLowerCase().includes('believe') ||
+    text.toLowerCase().includes('think')
+  );
+}
+
+function extractOpeningPhrase(response) {
+  const match = response.match(/^([^.!?]*[.!?])/);
+  return match ? match[1].trim().substring(0, 50) : null;
 }
 
 function extractTopic(userText) {
@@ -428,9 +544,18 @@ This covers the main points we discussed about your belief change journey.`;
   }
 }
 
-// Stage-specific instructions for the AI
+// Enhanced stage-specific instructions for the AI with narrative intelligence
 function getStageInstructions(conversationState) {
-  const { stage, turnCount, topicTurnCount, minimalResponseCount, exhaustionSignals } = conversationState;
+  const {
+    stage,
+    turnCount,
+    topicTurnCount,
+    minimalResponseCount,
+    exhaustionSignals,
+    exploredTopics,
+    narrativeUnderstanding,
+    responsePatterns
+  } = conversationState;
   
   let instructions = `\nCURRENT CONVERSATION CONTEXT:
 - Stage: ${stage}
@@ -438,8 +563,22 @@ function getStageInstructions(conversationState) {
 - Topic turn count: ${topicTurnCount}
 - Minimal responses: ${minimalResponseCount}
 - Exhaustion signals: ${exhaustionSignals}
+- Explored topics: ${Array.from(exploredTopics || new Set()).join(', ')}
+- Tracked influences: ${narrativeUnderstanding?.influences?.length || 0}
+- Consecutive similar responses: ${responsePatterns?.consecutiveSimilarResponses || 0}
 
-STAGE-SPECIFIC GUIDANCE:`;
+NARRATIVE UNDERSTANDING STATE:`;
+
+  // Add narrative context if available
+  if (narrativeUnderstanding?.influences?.length > 0) {
+    instructions += `\n- Key influences identified: ${narrativeUnderstanding.influences.map(i => `${i.person} (${i.direction || 'unknown direction'})`).join(', ')}`;
+  }
+  
+  if (narrativeUnderstanding?.mainStory) {
+    instructions += `\n- Main story understanding: ${narrativeUnderstanding.mainStory.substring(0, 100)}...`;
+  }
+
+  instructions += `\n\nSTAGE-SPECIFIC GUIDANCE:`;
 
   switch (stage) {
     case 'exploration':
@@ -447,6 +586,8 @@ STAGE-SPECIFIC GUIDANCE:`;
 - You are in the EXPLORATION stage
 - Focus on understanding their belief change story
 - Ask ONE open-ended question that invites narrative
+- Pay careful attention to cause-effect relationships in their responses
+- CRITICAL: Before responding, verify you understand what they actually said
 - Avoid repetitive questions on the same topic
 - If topic turn count >= 3, try a different angle or topic
 - If user gives minimal responses (2+), consider advancing to elaboration`;
@@ -458,6 +599,7 @@ STAGE-SPECIFIC GUIDANCE:`;
 - Help them reflect on key aspects of their change
 - Ask about what stands out as most significant
 - Compare their current vs previous views
+- Build on the influences and relationships you've already identified
 - If user shows exhaustion (2+ signals), prepare for summary
 - If minimal responses >= 3, advance to recap`;
       break;
@@ -466,8 +608,9 @@ STAGE-SPECIFIC GUIDANCE:`;
       instructions += `
 - You are in the RECAP stage
 - User is indicating completion readiness
-- Summarize their story with bullet points
+- Summarize their story with bullet points using the narrative understanding you've built
 - Use UP TO FIVE distinct key themes
+- Include the influences and cause-effect relationships you've tracked
 - Ask for confirmation and corrections
 - Include ##INTERVIEW_COMPLETE## marker after confirmed summary`;
       break;
@@ -478,12 +621,21 @@ STAGE-SPECIFIC GUIDANCE:`;
 - Focus on their personal belief change narrative`;
   }
   
-  // Add repetition warnings
+  // Enhanced warnings with narrative intelligence
   if (topicTurnCount >= 3) {
     instructions += `
     
 ⚠️ REPETITION WARNING: You've been on the same topic for ${topicTurnCount} turns.
-Try a different angle or move to a new topic to advance the conversation.`;
+Try a different angle or move to a new topic to advance the conversation.
+Available unexplored angles: Ask about timing, emotions, specific moments, comparison with past beliefs.`;
+  }
+  
+  if (responsePatterns?.consecutiveSimilarResponses >= 2) {
+    instructions += `
+    
+⚠️ RESPONSE PATTERN WARNING: You've used similar opening phrases ${responsePatterns.consecutiveSimilarResponses} times.
+MUST vary your response style. Last opening phrase: "${responsePatterns.lastOpeningPhrase}"
+Use different anchoring: "You mentioned...", "From what you describe...", "I understand that...", "That experience with..."`;
   }
   
   if (minimalResponseCount >= 2) {
@@ -497,7 +649,7 @@ Consider advancing to next stage or summarizing if sufficient content gathered.`
     instructions += `
     
 ⚠️ EXHAUSTION DETECTED: User showing completion signals (${exhaustionSignals}).
-Prepare to summarize and conclude the interview.`;
+Prepare to summarize and conclude the interview using the narrative understanding you've built.`;
   }
   
   return instructions;
@@ -747,6 +899,9 @@ router.post("/reply", async (req, res) => {
     console.log("🔍 Drift type:", driftType);
     console.log("🔍 Final response preview:", safeReply.substring(0, 150) + (safeReply.length > 150 ? "..." : ""));
 
+    // Update conversation state with assistant response for pattern tracking
+    updateConversationState(conversationId, userText, safeReply);
+    
     await appendMessage(conversationId, { role: "user", content: userText });
     await appendMessage(conversationId, { role: "assistant", content: safeReply });
 
