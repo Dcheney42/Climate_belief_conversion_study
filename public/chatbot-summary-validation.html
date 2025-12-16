@@ -108,20 +108,43 @@
             
             // Remove various trailing question patterns that the chatbot adds
             const questionPatterns = [
-                /\s*Does this summary capture your experience accurately.*$/i,
-                /\s*Does that sound about right.*$/i,
-                /\s*Do(?:es)? th(?:is|at|ese) (?:capture|sound|seem).*$/i,
-                /\s*Is (?:this|that) (?:accurate|correct|right).*$/i,
-                /\s*Would you like (?:to add|me to).*$/i,
-                /\s*Feel free to (?:add|adjust|correct).*$/i,
-                /\s*Let me know if (?:you|I).*$/i,
-                /\s*(?:Any|Anything) (?:else|to add|missing).*$/i
+                // Specific patterns for validation questions
+                /\s*Does this (?:summary )?(?:capture|reflect) your experience accurately.*$/i,
+                /\s*Does this (?:summary )?(?:capture|reflect) your (?:experience|views|thoughts) (?:accurately|correctly).*$/i,
+                /\s*Does (?:this|that) sound about right.*$/i,
+                /\s*Do(?:es)? th(?:is|at|ese) (?:points? )?(?:capture|sound|seem|reflect).*$/i,
+                /\s*Is (?:this|that) (?:summary )?(?:accurate|correct|right).*$/i,
+                /\s*Does (?:this|that) (?:accurately )?(?:capture|summarize|reflect).*$/i,
+                
+                // General validation and follow-up patterns
+                /\s*Would you like (?:to add|me to|to).*$/i,
+                /\s*Feel free to (?:add|adjust|correct|let me know).*$/i,
+                /\s*Let me know if (?:you|I|this|there).*$/i,
+                /\s*(?:Any|Anything) (?:else|to add|missing|you'd like).*$/i,
+                /\s*(?:Is there|Are there) (?:anything|any).*$/i,
+                /\s*Or (?:is there|would you).*$/i,
+                
+                // Chatbot invitation patterns
+                /\s*What (?:do you think|would you).*$/i,
+                /\s*How (?:does (?:this|that)|would you).*$/i,
+                /\s*Should (?:I|we).*$/i,
+                /\s*Can (?:I|you|we).*$/i,
+                
+                // Common trailing fragments
+                /\s*[,;]\s*or\.?$/i,
+                /\s*[,;]\s*and\.?$/i,
+                /\s*[,;]\s*but\.?$/i,
+                /\s*\?\s*$/,  // Remove trailing question marks
+                /\s*[,;]\s*$/  // Remove trailing commas/semicolons
             ];
             
             // Apply each pattern to remove trailing questions
             questionPatterns.forEach(pattern => {
                 cleanedText = cleanedText.replace(pattern, '');
             });
+            
+            // Remove any remaining trailing punctuation artifacts
+            cleanedText = cleanedText.replace(/[,;]\s*$/g, '');
             
             return cleanedText.trim();
         }
@@ -178,15 +201,12 @@
         function extractBulletPointsFromString(summaryText) {
             const bulletPoints = [];
             
-            // Skip the introduction text ("Thank you for clarifying that. Based on our conversation, I want to summarize the key themes you've shared about your belief change:")
-            let cleanText = summaryText;
+            // First apply comprehensive cleaning to the entire text
+            let cleanText = cleanSummaryText(summaryText);
             
             // Remove common introduction patterns
             cleanText = cleanText.replace(/^.*?(Based on our conversation,?|I want to summarize|Here are the key|The main points|key themes you've shared)[^:]*:?\s*/i, '');
             cleanText = cleanText.replace(/^.*?(Thank you for clarifying that\.?\s*)/i, '');
-            
-            // Remove concluding questions
-            cleanText = cleanText.replace(/\s*(Do(?:es)? th(?:is|ese points) capture.*|Is there anything.*|Would you like.*)\??.*$/i, '');
             
             // Split by common bullet point indicators
             const lines = cleanText.split(/[•\*\-]/).filter(line => line.trim().length > 0);
@@ -196,10 +216,7 @@
                 
                 // Clean up the bullet point
                 point = point.replace(/^[•\*\-\s]+/, ''); // Remove leading bullets/spaces
-                point = cleanSummaryText(point); // Apply our specific cleaning for unwanted questions
-                point = point.replace(/\s*Do(?:es)? th(?:is|ese points) capture.*$/i, ''); // Remove trailing question
-                point = point.replace(/\s*Is there anything.*$/i, ''); // Remove trailing question
-                point = point.replace(/\s*Would you like.*$/i, ''); // Remove trailing question
+                point = cleanSummaryText(point); // Apply comprehensive cleaning for unwanted questions
                 point = point.replace(/[.!?]*$/, ''); // Remove trailing punctuation
                 point = point.trim();
                 

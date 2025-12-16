@@ -259,59 +259,118 @@
         
         // Generate conversation summary as array for validation page
         function generateConversationSummaryArray() {
+            console.log('🔍 Starting comprehensive summary extraction process...');
+            
             const messages = Array.from(chatMessages.querySelectorAll('.message'));
             const assistantMessages = messages.filter(msg => msg.querySelector('.sender-name').textContent === 'Assistant');
             
-            // Look for the chatbot's summary in the last few assistant messages
-            // Try to find a message containing bullet points or summary structure
+            console.log(`📊 Found ${assistantMessages.length} assistant messages to analyze`);
+            
+            // PHASE 1: Look for explicit summaries with keywords
+            console.log('🔎 Phase 1: Searching for explicit summary keywords...');
+            for (let i = assistantMessages.length - 1; i >= Math.max(0, assistantMessages.length - 5); i--) {
+                const msg = assistantMessages[i];
+                const content = msg.querySelector('.message-content').textContent;
+                
+                // Enhanced keyword detection
+                const summaryKeywords = [
+                    'summarize', 'summary', 'key themes', 'main points', 'to summarize',
+                    'based on our conversation', 'key takeaways', 'important points',
+                    'what we\'ve discussed', 'recap', 'review what', 'covered today',
+                    'themes that emerged', 'highlights from', 'essence of'
+                ];
+                
+                const hasKeyword = summaryKeywords.some(keyword =>
+                    content.toLowerCase().includes(keyword.toLowerCase())
+                );
+                
+                if (hasKeyword) {
+                    const extractedSummary = extractBulletPointsFromSummary(content);
+                    if (extractedSummary.length > 0) {
+                        console.log('✅ Found explicit summary with keywords:', extractedSummary);
+                        return extractedSummary;
+                    }
+                }
+            }
+            
+            // PHASE 2: Look for structured lists (bullet points, numbered lists)
+            console.log('🔎 Phase 2: Searching for structured bullet point lists...');
+            for (let i = assistantMessages.length - 1; i >= Math.max(0, assistantMessages.length - 5); i--) {
+                const msg = assistantMessages[i];
+                const content = msg.querySelector('.message-content').textContent;
+                
+                // Enhanced bullet point detection
+                const bulletPatterns = [
+                    /[•\*\-]\s+.+/g,    // Bullet points
+                    /\d+\.\s+.+/g,      // Numbered lists
+                    /[a-zA-Z]\.\s+.+/g, // Lettered lists
+                    /\n\s*[-•*]\s+/g,   // Line-broken bullets
+                ];
+                
+                let hasStructure = false;
+                for (const pattern of bulletPatterns) {
+                    const matches = content.match(pattern);
+                    if (matches && matches.length >= 2) {
+                        hasStructure = true;
+                        break;
+                    }
+                }
+                
+                if (hasStructure) {
+                    const extractedSummary = extractBulletPointsFromSummary(content);
+                    if (extractedSummary.length >= 2) {
+                        console.log('✅ Found structured list:', extractedSummary);
+                        return extractedSummary;
+                    }
+                }
+            }
+            
+            // PHASE 3: Look for long, comprehensive messages
+            console.log('🔎 Phase 3: Searching for comprehensive messages...');
             for (let i = assistantMessages.length - 1; i >= Math.max(0, assistantMessages.length - 3); i--) {
                 const msg = assistantMessages[i];
                 const content = msg.querySelector('.message-content').textContent;
                 
-                // Check if this message contains a summary with bullet points
-                if (content.includes('summarize') || content.includes('summary') || content.includes('key themes')) {
-                    const extractedSummary = extractBulletPointsFromSummary(content);
-                    if (extractedSummary.length > 0) {
-                        console.log('Found chatbot summary with bullet points:', extractedSummary);
-                        return extractedSummary;
+                // Look for longer, more comprehensive messages that might contain implicit summaries
+                if (content.length > 200) {
+                    const implicitSummary = extractImplicitSummaryPoints(content);
+                    if (implicitSummary.length >= 2) {
+                        console.log('✅ Found implicit summary in long message:', implicitSummary);
+                        return implicitSummary;
                     }
                 }
             }
             
-            // Fallback: look for any message with bullet points
-            for (let i = assistantMessages.length - 1; i >= 0; i--) {
-                const msg = assistantMessages[i];
-                const content = msg.querySelector('.message-content').textContent;
-                
-                if (content.includes('•') || content.includes('*') || content.includes('-')) {
-                    const extractedSummary = extractBulletPointsFromSummary(content);
-                    if (extractedSummary.length > 0) {
-                        console.log('Found bullet points in assistant message:', extractedSummary);
-                        return extractedSummary;
-                    }
-                }
+            // PHASE 4: Look for any message with multiple thematic elements
+            console.log('🔎 Phase 4: Searching for thematic content across all messages...');
+            const thematicSummary = extractThematicSummary(assistantMessages);
+            if (thematicSummary.length >= 2) {
+                console.log('✅ Found thematic summary:', thematicSummary);
+                return thematicSummary;
             }
             
-            // Ultimate fallback: use basic topic extraction
-            console.log('No chatbot summary found, using fallback generation');
-            return generateFallbackSummaryArray();
+            // PHASE 5: Ultimate fallback generation
+            console.log('⚠️ No structured summary found, generating comprehensive fallback...');
+            const fallbackSummary = generateFallbackSummaryArray();
+            console.log('📝 Generated fallback summary:', fallbackSummary);
+            return fallbackSummary;
         }
         
         // Extract bullet points from a chatbot summary message
         function extractBulletPointsFromSummary(summaryText) {
             const bulletPoints = [];
             
+            // First, clean the entire summary text to remove follow-up questions
+            let cleanedSummary = cleanChatbotSummaryText(summaryText);
+            
             // Split by common bullet point indicators
-            const lines = summaryText.split(/[•\*\-]/).filter(line => line.trim().length > 0);
+            const lines = cleanedSummary.split(/[•\*\-]/).filter(line => line.trim().length > 0);
             
             for (let i = 1; i < lines.length; i++) { // Skip the first split (before first bullet)
                 let point = lines[i].trim();
                 
                 // Clean up the bullet point
                 point = point.replace(/^[•\*\-\s]+/, ''); // Remove leading bullets/spaces
-                point = point.replace(/\s*Does this capture.*$/i, ''); // Remove trailing question
-                point = point.replace(/\s*Is there anything.*$/i, ''); // Remove trailing question
-                point = point.replace(/\s*Would you like.*$/i, ''); // Remove trailing question
                 point = point.replace(/[.!?]*$/, ''); // Remove trailing punctuation
                 point = point.trim();
                 
@@ -330,6 +389,143 @@
             }
             
             return bulletPoints;
+        }
+        
+        // Extract implicit summary points from longer messages
+        function extractImplicitSummaryPoints(content) {
+            const points = [];
+            
+            // Split content into sentences
+            const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 20);
+            
+            // Look for sentences that sound like summary statements
+            const summaryIndicators = [
+                /you (?:mentioned|talked about|shared|discussed|described)/i,
+                /it sounds like you/i,
+                /from what (?:you've said|you described)/i,
+                /your (?:experience|perspective|view|story)/i,
+                /the (?:key|main|important) (?:point|factor|element|thing)/i,
+                /this (?:seems|appears) to be/i,
+                /what's (?:interesting|important|significant)/i
+            ];
+            
+            for (const sentence of sentences) {
+                const hasIndicator = summaryIndicators.some(pattern => pattern.test(sentence));
+                if (hasIndicator && sentence.trim().length > 30) {
+                    let cleanedSentence = sentence.trim();
+                    // Capitalize first letter and add period
+                    cleanedSentence = cleanedSentence.charAt(0).toUpperCase() + cleanedSentence.slice(1);
+                    if (!cleanedSentence.endsWith('.')) {
+                        cleanedSentence += '.';
+                    }
+                    points.push(cleanedSentence);
+                }
+            }
+            
+            return points.slice(0, 4); // Limit to 4 points
+        }
+        
+        // Extract thematic content across multiple assistant messages
+        function extractThematicSummary(assistantMessages) {
+            const themes = {
+                evidence: [],
+                personal: [],
+                social: [],
+                change_process: [],
+                media: [],
+                general: []
+            };
+            
+            assistantMessages.forEach(msg => {
+                const content = msg.querySelector('.message-content').textContent.toLowerCase();
+                
+                // Extract sentences that mention key themes
+                const sentences = content.split(/[.!?]+/);
+                
+                sentences.forEach(sentence => {
+                    if (sentence.length < 20) return;
+                    
+                    const cleanSentence = sentence.trim();
+                    if (cleanSentence.includes('evidence') || cleanSentence.includes('research') || cleanSentence.includes('data')) {
+                        themes.evidence.push('You discussed evidence and research related to climate change');
+                    }
+                    
+                    if (cleanSentence.includes('personal') || cleanSentence.includes('experience') || cleanSentence.includes('yourself')) {
+                        themes.personal.push('You shared personal experiences and observations');
+                    }
+                    
+                    if (cleanSentence.includes('people') || cleanSentence.includes('others') || cleanSentence.includes('family') || cleanSentence.includes('friends')) {
+                        themes.social.push('You talked about social influences and other people');
+                    }
+                    
+                    if (cleanSentence.includes('change') || cleanSentence.includes('shift') || cleanSentence.includes('evolve')) {
+                        themes.change_process.push('You described how your views changed over time');
+                    }
+                    
+                    if (cleanSentence.includes('media') || cleanSentence.includes('news') || cleanSentence.includes('article')) {
+                        themes.media.push('You mentioned media sources and information');
+                    }
+                });
+            });
+            
+            // Convert themes to unique summary points
+            const summaryPoints = [];
+            Object.keys(themes).forEach(themeKey => {
+                if (themes[themeKey].length > 0) {
+                    // Use the first occurrence of each theme
+                    summaryPoints.push(themes[themeKey][0]);
+                }
+            });
+            
+            // Remove duplicates and return
+            return [...new Set(summaryPoints)].slice(0, 5);
+        }
+
+        // Clean chatbot summary text to remove follow-up questions and validation prompts
+        function cleanChatbotSummaryText(text) {
+            let cleanedText = text;
+            
+            // Remove various trailing question patterns that the chatbot adds
+            const questionPatterns = [
+                // Specific patterns for validation questions
+                /\s*Does this (?:summary )?(?:capture|reflect) your experience accurately.*$/i,
+                /\s*Does this (?:summary )?(?:capture|reflect) your (?:experience|views|thoughts) (?:accurately|correctly).*$/i,
+                /\s*Does (?:this|that) sound about right.*$/i,
+                /\s*Do(?:es)? th(?:is|at|ese) (?:points? )?(?:capture|sound|seem|reflect).*$/i,
+                /\s*Is (?:this|that) (?:summary )?(?:accurate|correct|right).*$/i,
+                /\s*Does (?:this|that) (?:accurately )?(?:capture|summarize|reflect).*$/i,
+                
+                // General validation and follow-up patterns
+                /\s*Would you like (?:to add|me to|to).*$/i,
+                /\s*Feel free to (?:add|adjust|correct|let me know).*$/i,
+                /\s*Let me know if (?:you|I|this|there).*$/i,
+                /\s*(?:Any|Anything) (?:else|to add|missing|you'd like).*$/i,
+                /\s*(?:Is there|Are there) (?:anything|any).*$/i,
+                /\s*Or (?:is there|would you).*$/i,
+                
+                // Chatbot invitation patterns
+                /\s*What (?:do you think|would you).*$/i,
+                /\s*How (?:does (?:this|that)|would you).*$/i,
+                /\s*Should (?:I|we).*$/i,
+                /\s*Can (?:I|you|we).*$/i,
+                
+                // Common trailing fragments
+                /\s*[,;]\s*or\.?$/i,
+                /\s*[,;]\s*and\.?$/i,
+                /\s*[,;]\s*but\.?$/i,
+                /\s*\?\s*$/,  // Remove trailing question marks
+                /\s*[,;]\s*$/  // Remove trailing commas/semicolons
+            ];
+            
+            // Apply each pattern to remove trailing questions
+            questionPatterns.forEach(pattern => {
+                cleanedText = cleanedText.replace(pattern, '');
+            });
+            
+            // Remove any remaining trailing punctuation artifacts
+            cleanedText = cleanedText.replace(/[,;]\s*$/g, '');
+            
+            return cleanedText.trim();
         }
         
         // Fallback summary generation when no real summary is found
@@ -372,17 +568,155 @@
             }
         }
         
-        // Save chatbot summary to sessionStorage before redirect
+        // Save chatbot summary to sessionStorage before redirect with comprehensive logging
         function saveChatbotSummary() {
+            console.log('🔄 Starting chatbot summary save process...');
+            
             try {
+                // Track extraction attempt
+                const extractionStart = performance.now();
                 const summaryArray = generateConversationSummaryArray();
+                const extractionTime = performance.now() - extractionStart;
+                
+                console.log(`⏱️ Summary extraction completed in ${extractionTime.toFixed(2)}ms`);
+                console.log(`📝 Extracted ${summaryArray.length} summary points:`, summaryArray);
+                
+                // Validate summary quality
+                if (!summaryArray || summaryArray.length === 0) {
+                    console.warn('⚠️ Empty summary array, generating emergency fallback');
+                    const emergencyFallback = generateEmergencyFallback();
+                    sessionStorage.setItem('chatbot_summary', JSON.stringify(emergencyFallback));
+                    console.log('🚨 Emergency fallback summary saved:', emergencyFallback);
+                    return;
+                }
+                
+                // Check for placeholder/generic content
+                const hasGenericContent = summaryArray.every(point =>
+                    point.includes('participated') ||
+                    point.includes('engaged') ||
+                    point.includes('shared perspective')
+                );
+                
+                if (hasGenericContent && summaryArray.length < 3) {
+                    console.warn('⚠️ Generic summary content detected, enhancing...');
+                    const enhancedSummary = enhanceGenericSummary(summaryArray);
+                    sessionStorage.setItem('chatbot_summary', JSON.stringify(enhancedSummary));
+                    console.log('✨ Enhanced generic summary saved:', enhancedSummary);
+                    return;
+                }
+                
+                // Save successful summary
                 sessionStorage.setItem('chatbot_summary', JSON.stringify(summaryArray));
-                console.log('Chatbot summary saved to sessionStorage:', summaryArray);
+                console.log('✅ Chatbot summary successfully saved to sessionStorage');
+                console.log('📊 Summary statistics:', {
+                    pointCount: summaryArray.length,
+                    averageLength: Math.round(summaryArray.reduce((sum, point) => sum + point.length, 0) / summaryArray.length),
+                    totalCharacters: summaryArray.join('').length
+                });
+                
             } catch (error) {
-                console.error('Error saving chatbot summary:', error);
-                // Fallback: save a simple summary
-                sessionStorage.setItem('chatbot_summary', JSON.stringify(['Participated in conversation about climate change beliefs']));
+                console.error('❌ Critical error in summary save process:', error);
+                console.error('Stack trace:', error.stack);
+                
+                // Multi-level fallback system
+                try {
+                    console.log('🔄 Attempting basic conversation analysis fallback...');
+                    const basicSummary = generateBasicConversationSummary();
+                    sessionStorage.setItem('chatbot_summary', JSON.stringify(basicSummary));
+                    console.log('⚡ Basic summary saved as fallback:', basicSummary);
+                } catch (fallbackError) {
+                    console.error('❌ Fallback summary generation failed:', fallbackError);
+                    console.log('🚨 Using ultimate emergency fallback');
+                    
+                    // Ultimate emergency fallback
+                    const ultimateFallback = ['You participated in a research conversation about climate change beliefs'];
+                    sessionStorage.setItem('chatbot_summary', JSON.stringify(ultimateFallback));
+                    console.log('🛡️ Ultimate fallback summary saved');
+                }
             }
+        }
+        
+        // Generate emergency fallback when all else fails
+        function generateEmergencyFallback() {
+            const messages = Array.from(chatMessages.querySelectorAll('.message'));
+            const userMessages = messages.filter(msg =>
+                msg.querySelector('.sender-name')?.textContent === 'You'
+            );
+            
+            if (userMessages.length > 0) {
+                return [
+                    'You shared your thoughts about climate change in our conversation',
+                    'You discussed your personal perspective on this important topic'
+                ];
+            } else {
+                return [
+                    'You participated in a research conversation about climate change'
+                ];
+            }
+        }
+        
+        // Enhance generic summary with more specific details
+        function enhanceGenericSummary(originalSummary) {
+            const enhanced = [...originalSummary];
+            
+            // Add conversation context
+            const messages = Array.from(chatMessages.querySelectorAll('.message'));
+            if (messages.length > 5) {
+                enhanced.push('You engaged in an extended dialogue about your views');
+            }
+            
+            // Check for question-answer patterns
+            const questionCount = messages.filter(msg =>
+                msg.querySelector('.message-content')?.textContent.includes('?')
+            ).length;
+            
+            if (questionCount > 2) {
+                enhanced.push('You responded to questions about your belief change experience');
+            }
+            
+            // Ensure minimum length
+            while (enhanced.length < 3) {
+                enhanced.push('You contributed meaningfully to the research conversation');
+            }
+            
+            return enhanced.slice(0, 5);
+        }
+        
+        // Basic conversation analysis for when detailed extraction fails
+        function generateBasicConversationSummary() {
+            const messages = Array.from(chatMessages.querySelectorAll('.message'));
+            const userMessages = messages.filter(msg =>
+                msg.querySelector('.sender-name')?.textContent === 'You'
+            );
+            const assistantMessages = messages.filter(msg =>
+                msg.querySelector('.sender-name')?.textContent === 'Assistant'
+            );
+            
+            const summary = [];
+            
+            // Basic participation
+            summary.push('You participated in a conversation about climate change beliefs');
+            
+            // Message count analysis
+            if (userMessages.length > 3) {
+                summary.push('You shared multiple perspectives during the discussion');
+            }
+            
+            // Interaction analysis
+            if (assistantMessages.length > 3) {
+                summary.push('You engaged in back-and-forth dialogue about the topic');
+            }
+            
+            // Length analysis
+            const hasLongMessages = userMessages.some(msg =>
+                msg.querySelector('.message-content')?.textContent.length > 100
+            );
+            
+            if (hasLongMessages) {
+                summary.push('You provided detailed responses about your experiences');
+            }
+            
+            return summary.slice(0, 4);
         }
         
         // Show 1-minute warning with summary

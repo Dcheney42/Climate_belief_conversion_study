@@ -327,6 +327,18 @@ function readJson(filePath) {
           const conv = readJson(filename) || {};
           conv.messages = conv.messages || [];
           conv.messages.push({ role: "user", content: message });
+          
+          // Ensure conversation has a summary before ending
+          if (conv.participantId) {
+            console.log('⚠️ Early chat end detected in fallback endpoint, ensuring summary exists');
+            await fallbackEnsureConversationSummary(conversationId, conv.participantId);
+            // Reload conversation data after potential summary addition
+            const updatedConv = readJson(filename);
+            if (updatedConv) {
+              conv.messages = updatedConv.messages;
+            }
+          }
+          
           const finalReply = "Okay — ending the chat now. Thanks for participating!";
           conv.messages.push({ role: "assistant", content: finalReply });
           conv.endedAt = now.toISOString();
@@ -1031,6 +1043,17 @@ app.post('/api/conversations/:id/message', async (req, res) => {
             };
             conversationData.messages.push(userMessage);
             
+            // Ensure conversation has a summary before ending
+            if (conversationData.participantId) {
+                console.log('⚠️ Early chat end detected in main endpoint, ensuring summary exists');
+                await fallbackEnsureConversationSummary(conversationId, conversationData.participantId);
+                // Reload conversation data after potential summary addition
+                const updatedConversation = readJson(filename);
+                if (updatedConversation) {
+                    conversationData.messages = updatedConversation.messages;
+                }
+            }
+            
             // Add final assistant message
             const finalMessage = {
                 role: 'assistant',
@@ -1197,6 +1220,18 @@ app.post('/api/conversations/:id/end', async (req, res) => {
         const now = new Date();
         const startTime = new Date(conversationData.startedAt);
         const durationSeconds = Math.floor((now - startTime) / 1000);
+        
+        // Ensure conversation has a summary before ending (time-based ending)
+        if (conversationData.participantId) {
+            console.log('⏰ Time-based conversation end detected, ensuring summary exists');
+            await fallbackEnsureConversationSummary(conversationId, conversationData.participantId);
+            // Reload conversation data after potential summary addition
+            const filename = path.join(conversationsDir, `${conversationId}.json`);
+            const updatedConversation = readJson(filename);
+            if (updatedConversation) {
+                conversationData.messages = updatedConversation.messages;
+            }
+        }
         
         // Update conversation data
         conversationData.endedAt = now.toISOString();
@@ -1936,6 +1971,213 @@ function escapeCsv(str) {
         return '"' + str.replace(/"/g, '""') + '"';
     }
     return str;
+}
+
+// Summary generation functions for safety net (fallback endpoints)
+function fallbackHasExistingSummary(messages) {
+  // Check if conversation already has a structured summary from the chatbot
+  if (!messages || messages.length === 0) return false;
+  
+  // Look for assistant messages that contain bullet points or summary indicators
+  const assistantMessages = messages.filter(msg => msg.role === 'assistant');
+  
+  for (const msg of assistantMessages.slice(-5)) { // Check last 5 assistant messages
+    const content = msg.content || '';
+    
+    // Check for bullet point patterns
+    if (content.includes('•') || content.includes('*') || content.includes('-')) {
+      // Check if it has summary-like structure (multiple points)
+      const bulletMatches = content.match(/[•\*\-]/g);
+      if (bulletMatches && bulletMatches.length >= 2) {
+        console.log('✓ Found existing fallback summary with bullet points');
+        return true;
+      }
+    }
+    
+    // Check for summary keywords
+    if (content.toLowerCase().includes('summarize') ||
+        content.toLowerCase().includes('summary') ||
+        content.toLowerCase().includes('key themes') ||
+        content.toLowerCase().includes('based on our conversation')) {
+      console.log('✓ Found existing fallback summary with keywords');
+      return true;
+    }
+  }
+  
+  console.log('✗ No existing fallback summary found in conversation');
+  return false;
+}
+
+function fallbackGenerateSummary(messages, participantId) {
+  try {
+    // Load participant data for context
+    const participantFile = path.join(participantsDir, `${participantId}.json`);
+    const participant = readJson(participantFile);
+    
+    // Generate a basic summary from participant messages
+    const userMessages = messages.filter(msg => msg.role === 'user' &&
+      msg.content &&
+      msg.content.trim().length > 10 &&
+      !msg.content.toLowerCase().includes('end the chat'));
+    
+    const summaryPoints = [];
+    
+    // Add profile-based summary point if available
+    if (participant?.belief_change?.mind_change_direction) {
+      const direction = participant.belief_change.mind_change_direction;
+      const otherText = participant.belief_change.mind_change_other_text;
+      
+      let changeDesc = '';
+      switch (direction) {
+        case 'exists_to_not_exists':
+          changeDesc = 'From thinking climate change exists, to thinking it does not exist';
+          break;
+        case 'not_exists_to_exists':
+          changeDesc = 'From thinking climate change does not exist, to thinking it exists';
+          break;
+        case 'not_urgent_to_urgent':
+          changeDesc = 'From thinking climate change is not urgent, to thinking it is urgent';
+          break;
+        case 'urgent_to_not_urgent':
+          changeDesc = 'From thinking climate change is urgent, to thinking it is not urgent';
+          break;
+        case 'human_to_natural':
+          changeDesc = 'From thinking climate change is human-caused, to thinking it is natural';
+          break;
+        case 'natural_to_human':
+          changeDesc = 'From thinking climate change is natural, to thinking it is human-caused';
+          break;
+        case 'other':
+          changeDesc = otherText || 'Other belief change described by participant';
+          break;
+      }
+      
+      if (changeDesc) {
+        summaryPoints.push(`You described your belief change: ${changeDesc}`);
+      }
+    }
+    
+    // Analyze user messages for key themes
+    const themes = {
+      evidence: false,
+      personal: false,
+      social: false,
+      media: false,
+      change_process: false
+    };
+    
+    userMessages.forEach(msg => {
+      const content = msg.content.toLowerCase();
+      
+      if (content.includes('evidence') || content.includes('research') || content.includes('study') || content.includes('data')) {
+        themes.evidence = true;
+      }
+      
+      if (content.includes('experience') || content.includes('personal') || content.includes('saw') || content.includes('noticed') || content.includes('felt')) {
+        themes.personal = true;
+      }
+      
+      if (content.includes('people') || content.includes('family') || content.includes('friend') || content.includes('others')) {
+        themes.social = true;
+      }
+      
+      if (content.includes('media') || content.includes('news') || content.includes('article') || content.includes('tv')) {
+        themes.media = true;
+      }
+      
+      if (content.includes('change') || content.includes('shift') || content.includes('different') || content.includes('realized')) {
+        themes.change_process = true;
+      }
+    });
+    
+    // Generate theme-based summary points
+    if (themes.evidence) {
+      summaryPoints.push('You discussed the role of evidence and research in shaping your views');
+    }
+    
+    if (themes.personal) {
+      summaryPoints.push('You shared personal experiences that influenced your thinking');
+    }
+    
+    if (themes.social) {
+      summaryPoints.push('You talked about how other people influenced your perspective');
+    }
+    
+    if (themes.media) {
+      summaryPoints.push('You mentioned media sources that affected your views');
+    }
+    
+    if (themes.change_process) {
+      summaryPoints.push('You described the process of how your beliefs evolved');
+    }
+    
+    // Ensure we have at least 2 points
+    if (summaryPoints.length < 2) {
+      summaryPoints.push('You engaged in a conversation about your climate change belief journey');
+      if (summaryPoints.length < 2) {
+        summaryPoints.push('You shared your perspective on what influences belief change');
+      }
+    }
+    
+    // Limit to 5 points max
+    const finalPoints = summaryPoints.slice(0, 5);
+    
+    console.log('Generated fallback summary with points:', finalPoints);
+    return finalPoints;
+    
+  } catch (error) {
+    console.error('Error generating fallback summary:', error);
+    return ['You participated in a conversation about climate change beliefs'];
+  }
+}
+
+async function fallbackEnsureConversationSummary(conversationId, participantId) {
+  try {
+    const filename = path.join(conversationsDir, `${conversationId}.json`);
+    const conversationData = readJson(filename);
+    
+    if (!conversationData) {
+      console.error('Could not load conversation data for summary generation');
+      return;
+    }
+    
+    const messages = conversationData.messages || [];
+    
+    // Check if conversation already has a proper summary
+    if (fallbackHasExistingSummary(messages)) {
+      console.log('Fallback conversation already has summary, no action needed');
+      return;
+    }
+    
+    // Generate fallback summary
+    const summaryPoints = fallbackGenerateSummary(messages, participantId);
+    
+    // Format as bullet points with proper spacing
+    const summaryText = `Thank you for sharing your story with me. Let me summarize the key themes from our conversation:
+
+${summaryPoints.map(point => `• ${point}`).join('\n\n')}
+
+This covers the main points we discussed about your belief change journey.`;
+
+    // Add the summary as a final assistant message
+    const summaryMessage = {
+      role: "assistant",
+      content: summaryText,
+      timestamp: new Date().toISOString(),
+      generated_summary: true // Flag to indicate this was auto-generated
+    };
+    
+    conversationData.messages.push(summaryMessage);
+    
+    // Save updated conversation using data access layer
+    await dataAccess.saveSession(conversationData);
+    
+    console.log('✓ Generated and saved fallback summary for conversation:', conversationId);
+    
+  } catch (error) {
+    console.error('Error ensuring fallback conversation summary:', error);
+    // Don't throw - this is a safety net, not critical path
+  }
 }
 
 // Initialize OpenAI client (works with OpenRouter too)
