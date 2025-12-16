@@ -1,6 +1,8 @@
 // backend/src/routes/chat.js
 import express from "express";
 import crypto from "node:crypto";
+import path from "node:path";
+import fs from "node:fs";
 import { renderSystemPrompt } from "../utils/systemPrompt.js";
 import { openingLineFrom } from "../utils/openingLine.js";
 import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, detectActionRoleDrift } from "../utils/onTopic.js";
@@ -226,6 +228,10 @@ router.post("/reply", async (req, res) => {
     const userText = message;
     const history = await loadMessages(conversationId);
 
+    console.log("🔍 DEBUG: History loaded, message count:", history.length);
+    console.log("🔍 DEBUG: First message role:", history[0]?.role);
+    console.log("🔍 DEBUG: First message preview:", history[0]?.content?.substring(0, 100));
+
     // Check for early-end phrase
     if (/\bend the chat\b/i.test(userText.trim())) {
       // Add user message
@@ -261,7 +267,35 @@ router.post("/reply", async (req, res) => {
       return res.json({ reply: ack, updated: updates });
     }
 
-    const next = await callModel([...history, { role: "user", content: userText }]);
+    // Get conversation metadata to extract userId/participantId
+    const conversationFile = `${conversationId}.json`;
+    const conversationPath = path.join(process.cwd(), 'data', 'conversations', conversationFile);
+    const conversationData = fs.existsSync(conversationPath) ?
+      JSON.parse(fs.readFileSync(conversationPath, 'utf8')) : null;
+    
+    const userId = conversationData?.participantId || req.user?.id || req.body.userId ||
+      history.find(msg => msg.userId)?.userId;
+    
+    if (!userId) {
+      throw new Error('Unable to determine user ID for system prompt generation');
+    }
+    
+    // Fetch fresh participant profile and generate system prompt
+    const profile = await getParticipantProfile(userId);
+    const systemPrompt = renderSystemPrompt(profile);
+    
+    console.log("🔍 DEBUG: Reconstructed system prompt for user:", userId);
+    console.log("🔍 DEBUG: System prompt preview:", systemPrompt.substring(0, 100) + "...");
+    
+    // Filter out any existing system messages from history to avoid duplication
+    const historyWithoutSystem = history.filter(msg => msg.role !== 'system');
+    
+    // Call model with fresh system prompt + conversation history + new user message
+    const next = await callModel([
+      { role: "system", content: systemPrompt },
+      ...historyWithoutSystem,
+      { role: "user", content: userText }
+    ]);
     const modelReply = next?.content || "";
 
     // Check for interview completion marker
