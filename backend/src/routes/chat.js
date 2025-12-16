@@ -7,6 +7,155 @@ import { renderSystemPrompt } from "../utils/systemPrompt.js";
 import { openingLineFrom } from "../utils/openingLine.js";
 import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, detectActionRoleDrift } from "../utils/onTopic.js";
 
+// Conversation flow tracking
+const conversationStates = new Map(); // In-memory tracking for conversation states
+
+// Conversation tracking functions
+function initializeConversationState(conversationId) {
+  if (!conversationStates.has(conversationId)) {
+    conversationStates.set(conversationId, {
+      stage: 'exploration', // exploration -> elaboration -> recap -> complete
+      turnCount: 0,
+      topicTurnCount: 0,
+      lastTopic: null,
+      minimalResponseCount: 0,
+      substantiveResponseCount: 0,
+      exhaustionSignals: 0,
+      lastUserResponse: null
+    });
+  }
+  return conversationStates.get(conversationId);
+}
+
+function updateConversationState(conversationId, userText) {
+  const state = initializeConversationState(conversationId);
+  state.turnCount++;
+  
+  // Detect current topic from user response (simplified)
+  const currentTopic = extractTopic(userText);
+  if (currentTopic === state.lastTopic) {
+    state.topicTurnCount++;
+  } else {
+    state.topicTurnCount = 1;
+    state.lastTopic = currentTopic;
+  }
+  
+  // Classify response as minimal or substantive
+  if (isMinimalResponse(userText)) {
+    state.minimalResponseCount++;
+    state.substantiveResponseCount = 0; // Reset substantive counter
+  } else {
+    state.substantiveResponseCount++;
+    state.minimalResponseCount = 0; // Reset minimal counter
+  }
+  
+  // Track exhaustion signals
+  if (isExhaustionSignal(userText)) {
+    state.exhaustionSignals++;
+  } else {
+    state.exhaustionSignals = Math.max(0, state.exhaustionSignals - 1); // Decay
+  }
+  
+  state.lastUserResponse = userText;
+  
+  // Auto-advance stages based on conversation progress
+  if (state.stage === 'exploration' && shouldAdvanceToElaboration(state)) {
+    state.stage = 'elaboration';
+    console.log('🔄 Auto-advancing to elaboration stage');
+  } else if (state.stage === 'elaboration' && shouldAdvanceToRecap(state)) {
+    state.stage = 'recap';
+    console.log('🔄 Auto-advancing to recap stage');
+  }
+  
+  return state;
+}
+
+function extractTopic(userText) {
+  // Simple topic extraction - look for key themes
+  const text = userText.toLowerCase();
+  if (text.includes('bushfire') || text.includes('fire')) return 'bushfires';
+  if (text.includes('news') || text.includes('media')) return 'news';
+  if (text.includes('evidence') || text.includes('research')) return 'evidence';
+  if (text.includes('people') || text.includes('family') || text.includes('friend')) return 'social';
+  return 'general';
+}
+
+function isMinimalResponse(userText) {
+  const text = userText.trim().toLowerCase();
+  const wordCount = text.split(/\s+/).length;
+  
+  // Patterns that indicate minimal responses
+  const minimalPatterns = [
+    /^(yeah|yes|no|nah|ok|okay|sure|maybe|i guess|dunno|don't know)$/i,
+    /^(that's all|nothing else|no more|can't think of anything)$/i,
+    /^(i've said everything|that's it|finished|done)$/i
+  ];
+  
+  return wordCount <= 3 || minimalPatterns.some(pattern => pattern.test(text));
+}
+
+function isExhaustionSignal(userText) {
+  const text = userText.trim().toLowerCase();
+  const exhaustionPatterns = [
+    /that's all i've got/i,
+    /nothing else to say/i,
+    /can't think of anything/i,
+    /i've said everything/i,
+    /^no$/i,
+    /^nah$/i,
+    /^finish$/i,
+    /^done$/i,
+    /^finished$/i
+  ];
+  
+  return exhaustionPatterns.some(pattern => pattern.test(text));
+}
+
+function shouldAdvanceToElaboration(state) {
+  // Advance to elaboration after sufficient exploration or if user is showing fatigue
+  return (state.substantiveResponseCount >= 3 && state.turnCount >= 5) ||
+         (state.minimalResponseCount >= 2 && state.turnCount >= 4);
+}
+
+function shouldAdvanceToRecap(state) {
+  // Advance to recap stage if user shows completion signals or after sufficient conversation
+  return state.exhaustionSignals >= 2 ||
+         state.minimalResponseCount >= 3 ||
+         (state.turnCount >= 8 && state.substantiveResponseCount >= 2);
+}
+
+function shouldTriggerSummary(state) {
+  // Trigger summary if in recap stage and user is indicating completion
+  return state.stage === 'recap' ||
+         state.exhaustionSignals >= 3 ||
+         state.minimalResponseCount >= 4 ||
+         (state.topicTurnCount >= 4 && state.stage !== 'exploration');
+}
+
+// Enhanced termination detection
+function isTerminationRequest(userText) {
+  const text = userText.trim();
+  
+  // Enhanced termination patterns
+  const terminationPatterns = [
+    /\b(end the chat|finish|done|wrap up|that's all|finished|end this)\b/i,
+    /\bi'm (done|finished)\b/i,
+    /\b(wrap|end|finish) (this|the conversation|up)\b/i,
+    /\bthat's all i('ve| have) got\b/i
+  ];
+  
+  return terminationPatterns.some(pattern => pattern.test(text));
+}
+
+// Repeated "no" detection
+function isRepeatedNegative(userText, state) {
+  const text = userText.trim().toLowerCase();
+  return (text === 'no' || text === 'nah') &&
+         state.lastUserResponse &&
+         (state.lastUserResponse.trim().toLowerCase() === 'no' ||
+          state.lastUserResponse.trim().toLowerCase() === 'nah');
+}
+
 // Replace these stubs with your real DB/model calls
 async function getParticipantProfile(userId) {
   return await global.db.participants.getProfile(userId);
@@ -194,6 +343,81 @@ This covers the main points we discussed about your belief change journey.`;
   }
 }
 
+// Stage-specific instructions for the AI
+function getStageInstructions(conversationState) {
+  const { stage, turnCount, topicTurnCount, minimalResponseCount, exhaustionSignals } = conversationState;
+  
+  let instructions = `\nCURRENT CONVERSATION CONTEXT:
+- Stage: ${stage}
+- Turn count: ${turnCount}
+- Topic turn count: ${topicTurnCount}
+- Minimal responses: ${minimalResponseCount}
+- Exhaustion signals: ${exhaustionSignals}
+
+STAGE-SPECIFIC GUIDANCE:`;
+
+  switch (stage) {
+    case 'exploration':
+      instructions += `
+- You are in the EXPLORATION stage
+- Focus on understanding their belief change story
+- Ask ONE open-ended question that invites narrative
+- Avoid repetitive questions on the same topic
+- If topic turn count >= 3, try a different angle or topic
+- If user gives minimal responses (2+), consider advancing to elaboration`;
+      break;
+      
+    case 'elaboration':
+      instructions += `
+- You are in the ELABORATION stage
+- Help them reflect on key aspects of their change
+- Ask about what stands out as most significant
+- Compare their current vs previous views
+- If user shows exhaustion (2+ signals), prepare for summary
+- If minimal responses >= 3, advance to recap`;
+      break;
+      
+    case 'recap':
+      instructions += `
+- You are in the RECAP stage
+- User is indicating completion readiness
+- Summarize their story with bullet points
+- Use UP TO FIVE distinct key themes
+- Ask for confirmation and corrections
+- Include ##INTERVIEW_COMPLETE## marker after confirmed summary`;
+      break;
+      
+    default:
+      instructions += `
+- Standard interview protocol applies
+- Focus on their personal belief change narrative`;
+  }
+  
+  // Add repetition warnings
+  if (topicTurnCount >= 3) {
+    instructions += `
+    
+⚠️ REPETITION WARNING: You've been on the same topic for ${topicTurnCount} turns.
+Try a different angle or move to a new topic to advance the conversation.`;
+  }
+  
+  if (minimalResponseCount >= 2) {
+    instructions += `
+    
+⚠️ USER FATIGUE: User has given ${minimalResponseCount} minimal responses.
+Consider advancing to next stage or summarizing if sufficient content gathered.`;
+  }
+  
+  if (exhaustionSignals >= 2) {
+    instructions += `
+    
+⚠️ EXHAUSTION DETECTED: User showing completion signals (${exhaustionSignals}).
+Prepare to summarize and conclude the interview.`;
+  }
+  
+  return instructions;
+}
+
 const router = express.Router();
 
 router.post("/start", async (req, res) => {
@@ -232,8 +456,12 @@ router.post("/reply", async (req, res) => {
     console.log("🔍 DEBUG: First message role:", history[0]?.role);
     console.log("🔍 DEBUG: First message preview:", history[0]?.content?.substring(0, 100));
 
-    // Check for early-end phrase
-    if (/\bend the chat\b/i.test(userText.trim())) {
+    // Initialize conversation state tracking
+    const conversationState = updateConversationState(conversationId, userText);
+    console.log("🔍 Conversation state:", conversationState);
+
+    // Enhanced termination detection
+    if (isTerminationRequest(userText) || isRepeatedNegative(userText, conversationState)) {
       // Add user message
       await appendMessage(conversationId, { role: "user", content: userText });
       
@@ -243,18 +471,47 @@ router.post("/reply", async (req, res) => {
         history.find(msg => msg.role === 'system')?.userId;
       
       if (userId) {
-        console.log('⚠️ Early chat end detected, ensuring summary exists for user:', userId);
+        console.log('⚠️ Termination detected, ensuring summary exists for user:', userId);
         await ensureConversationSummary(conversationId, userId);
       } else {
-        console.warn('Could not determine userId for summary generation on early end');
+        console.warn('Could not determine userId for summary generation on termination');
       }
       
       // Add final assistant message
-      const finalReply = "Okay — ending the chat now. Thanks for participating!";
+      const finalReply = "Thank you for sharing your story with me. I appreciate your time and insights about your belief change experience.";
       await appendMessage(conversationId, { role: "assistant", content: finalReply });
+      
+      // Clean up conversation state
+      conversationStates.delete(conversationId);
       
       // Return with sessionEnded flag
       return res.json({ reply: finalReply, sessionEnded: true });
+    }
+
+    // Check if we should auto-trigger summary based on conversation state
+    if (shouldTriggerSummary(conversationState)) {
+      console.log('🔄 Auto-triggering summary based on conversation state');
+      
+      // Add user message first
+      await appendMessage(conversationId, { role: "user", content: userText });
+      
+      // Extract userId
+      const userId = req.user?.id || req.body.userId ||
+        history.find(msg => msg.userId)?.userId ||
+        history.find(msg => msg.role === 'system')?.userId;
+      
+      if (userId) {
+        await ensureConversationSummary(conversationId, userId);
+        
+        // Generate a transition message to summary
+        const transitionReply = "I can see we've covered quite a bit about your belief change journey. Let me provide a summary of what you've shared so we can wrap up.";
+        await appendMessage(conversationId, { role: "assistant", content: transitionReply });
+        
+        // Clean up conversation state
+        conversationStates.delete(conversationId);
+        
+        return res.json({ reply: transitionReply, sessionEnded: true });
+      }
     }
 
     // Quick corrections
@@ -282,21 +539,54 @@ router.post("/reply", async (req, res) => {
     
     // Fetch fresh participant profile and generate system prompt
     const profile = await getParticipantProfile(userId);
-    const systemPrompt = renderSystemPrompt(profile);
+    
+    // Add stage information to the system prompt context
+    const enhancedProfile = {
+      ...profile,
+      conversation_stage: conversationState.stage,
+      turn_count: conversationState.turnCount,
+      topic_turn_count: conversationState.topicTurnCount,
+      current_topic: conversationState.lastTopic
+    };
+    
+    const systemPrompt = renderSystemPrompt(enhancedProfile);
     
     console.log("🔍 DEBUG: Reconstructed system prompt for user:", userId);
+    console.log("🔍 DEBUG: Conversation stage:", conversationState.stage);
     console.log("🔍 DEBUG: System prompt preview:", systemPrompt.substring(0, 100) + "...");
     
     // Filter out any existing system messages from history to avoid duplication
     const historyWithoutSystem = history.filter(msg => msg.role !== 'system');
     
-    // Call model with fresh system prompt + conversation history + new user message
-    const next = await callModel([
-      { role: "system", content: systemPrompt },
+    // Add stage-aware instructions to system prompt
+    const stageInstructions = getStageInstructions(conversationState);
+    const enhancedSystemPrompt = systemPrompt + "\n\n" + stageInstructions;
+    
+    // Construct messages array for model call
+    const messagesForModel = [
+      { role: "system", content: enhancedSystemPrompt },
       ...historyWithoutSystem,
       { role: "user", content: userText }
-    ]);
+    ];
+
+    // 🔍 DEBUG: Log conversation context being sent to model
+    console.log("🔍 DEBUG: Messages being sent to LLM:");
+    console.log("🔍 System prompt length:", systemPrompt.length);
+    console.log("🔍 History messages count:", historyWithoutSystem.length);
+    console.log("🔍 Last 3 history messages:", historyWithoutSystem.slice(-3).map(m => ({
+      role: m.role,
+      content: m.content?.substring(0, 100) + (m.content?.length > 100 ? "..." : "")
+    })));
+    console.log("🔍 Current user message:", userText);
+
+    // Call model with fresh system prompt + conversation history + new user message
+    const next = await callModel(messagesForModel);
     const modelReply = next?.content || "";
+
+    // 🔍 DEBUG: Log raw model response
+    console.log("🔍 DEBUG: Raw LLM response:");
+    console.log("🔍 Response length:", modelReply.length);
+    console.log("🔍 Response preview:", modelReply.substring(0, 200) + (modelReply.length > 200 ? "..." : ""));
 
     // Check for interview completion marker
     if (modelReply.includes("##INTERVIEW_COMPLETE##")) {
@@ -324,22 +614,50 @@ router.post("/reply", async (req, res) => {
 
     let safeReply = modelReply;
     let driftType = 'general';
+    let driftDetected = false;
     
-    // Check for various types of drift
-    if (!enforceOnTopic(modelReply)) {
+    // 🔍 DEBUG: Check for various types of drift
+    const isOffTopic = !enforceOnTopic(modelReply);
+    const isPoliticalDrift = detectPoliticalDrift(modelReply);
+    const isActionRoleDrift = detectActionRoleDrift(modelReply);
+    const isBeliefDrift = detectBeliefDrift(userText);
+    
+    console.log("🔍 DEBUG: Drift detection results:");
+    console.log("🔍 Off-topic:", isOffTopic);
+    console.log("🔍 Political drift:", isPoliticalDrift);
+    console.log("🔍 Action/role drift:", isActionRoleDrift);
+    console.log("🔍 Belief drift (user):", isBeliefDrift);
+    
+    if (isOffTopic) {
+      console.log("🔍 DRIFT: Using general redirect - off-topic detected");
       safeReply = redirectLine();
-    } else if (detectPoliticalDrift(modelReply)) {
+      driftDetected = true;
+    } else if (isPoliticalDrift) {
+      console.log("🔍 DRIFT: Using political redirect");
       driftType = 'political';
       safeReply = redirectLine(driftType);
-    } else if (detectActionRoleDrift(modelReply)) {
+      driftDetected = true;
+    } else if (isActionRoleDrift) {
+      console.log("🔍 DRIFT: Using action/role redirect");
       // Chatbot is discussing roles/actions rather than belief change narrative
       driftType = 'action';
       safeReply = redirectLine(driftType);
-    } else if (detectBeliefDrift(userText)) {
+      driftDetected = true;
+    } else if (isBeliefDrift) {
+      console.log("🔍 DRIFT: Using belief redirect (user indicated off-topic)");
       // User indicated we're off topic from belief change
       driftType = 'belief';
       safeReply = redirectLine(driftType);
+      driftDetected = true;
+    } else {
+      console.log("🔍 No drift detected - using original model response");
     }
+    
+    // 🔍 DEBUG: Log final response selection
+    console.log("🔍 DEBUG: Final response selection:");
+    console.log("🔍 Drift detected:", driftDetected);
+    console.log("🔍 Drift type:", driftType);
+    console.log("🔍 Final response preview:", safeReply.substring(0, 150) + (safeReply.length > 150 ? "..." : ""));
 
     await appendMessage(conversationId, { role: "user", content: userText });
     await appendMessage(conversationId, { role: "assistant", content: safeReply });
