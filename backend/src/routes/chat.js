@@ -200,14 +200,17 @@ function isMinimalResponse(userText) {
   const text = userText.trim().toLowerCase();
   const wordCount = text.split(/\s+/).length;
   
-  // Patterns that indicate minimal responses
+  // Only treat responses as minimal if they're very short AND lack substance
+  // Don't penalize normal conversational responses like "no" or "yes" unless they're truly minimal
   const minimalPatterns = [
-    /^(yeah|yes|no|nah|ok|okay|sure|maybe|i guess|dunno|don't know)$/i,
     /^(that's all|nothing else|no more|can't think of anything)$/i,
-    /^(i've said everything|that's it|finished|done)$/i
+    /^(i've said everything|that's it|finished|done)$/i,
+    /^(don't know|dunno)$/i
   ];
   
-  return wordCount <= 3 || minimalPatterns.some(pattern => pattern.test(text));
+  // Much stricter criteria: only 1-2 word responses that are clearly minimal
+  return (wordCount <= 2 && minimalPatterns.some(pattern => pattern.test(text))) ||
+         wordCount === 1;
 }
 
 function isExhaustionSignal(userText) {
@@ -217,38 +220,36 @@ function isExhaustionSignal(userText) {
     /nothing else to say/i,
     /can't think of anything/i,
     /i've said everything/i,
-    /^no$/i,
-    /^nah$/i,
+    /that's about it/i,
+    /that's all/i,
+    /nothing more/i,
     /^finish$/i,
     /^done$/i,
-    /^finished$/i
+    /^finished$/i,
+    /wrap up/i,
+    /end this/i
   ];
   
+  // Don't treat simple "no" or "nah" as exhaustion - these are normal conversation responses
   return exhaustionPatterns.some(pattern => pattern.test(text));
 }
 
 function shouldAdvanceToElaboration(state) {
-  // Advance to elaboration after sufficient exploration or if user is showing fatigue
-  // Increased thresholds to allow more natural conversation development
-  return (state.substantiveResponseCount >= 3 && state.turnCount >= 8) ||
-         (state.minimalResponseCount >= 5 && state.turnCount >= 8);
+  // Disabled - no automatic stage advancement based on thresholds
+  // Only timer controls conversation summary
+  return false;
 }
 
 function shouldAdvanceToRecap(state) {
-  // Advance to recap stage if user shows completion signals or after sufficient conversation
-  // Increased thresholds to allow more natural conversation development
-  return state.exhaustionSignals >= 4 ||
-         state.minimalResponseCount >= 6 ||
-         (state.turnCount >= 15 && state.substantiveResponseCount >= 3);
+  // Disabled - no automatic stage advancement based on thresholds
+  // Only timer controls conversation summary
+  return false;
 }
 
 function shouldTriggerSummary(state) {
-  // Trigger summary if in recap stage and user is indicating completion
-  // Increased thresholds to allow more natural conversation development
-  return state.stage === 'recap' ||
-         state.exhaustionSignals >= 5 ||
-         state.minimalResponseCount >= 8 ||
-         (state.topicTurnCount >= 8 && state.stage !== 'exploration');
+  // Disabled - no automatic summary triggering based on thresholds
+  // Only timer controls conversation summary
+  return false;
 }
 
 // Enhanced termination detection
@@ -708,13 +709,14 @@ router.post("/start", async (req, res) => {
 
 router.post("/reply", async (req, res) => {
   try {
-    const { conversationId, message } = req.body;
+    const { conversationId, message, isSummaryRequest } = req.body;
     const userText = message;
     const history = await loadMessages(conversationId);
 
     console.log("🔍 DEBUG: History loaded, message count:", history.length);
     console.log("🔍 DEBUG: First message role:", history[0]?.role);
     console.log("🔍 DEBUG: First message preview:", history[0]?.content?.substring(0, 100));
+    console.log("🔍 DEBUG: Is summary request:", isSummaryRequest);
 
     // Initialize conversation state tracking
     const conversationState = updateConversationState(conversationId, userText);
@@ -746,29 +748,8 @@ router.post("/reply", async (req, res) => {
       return res.json({ reply: finalReply, sessionEnded: true });
     }
 
-    // Check if we should auto-trigger summary based on conversation state
-    if (shouldTriggerSummary(conversationState)) {
-      console.log('🔄 Auto-triggering summary based on conversation state');
-      
-      // Add user message first
-      await appendMessage(conversationId, { role: "user", content: userText });
-      
-      // Extract userId using robust function
-      const userId = req.user?.id || req.body.userId || await getUserIdFromConversation(conversationId);
-      
-      if (userId) {
-        await ensureConversationSummary(conversationId, userId);
-        
-        // Generate a transition message to summary
-        const transitionReply = "I can see we've covered quite a bit about your belief change journey. Let me provide a summary of what you've shared so we can wrap up.";
-        await appendMessage(conversationId, { role: "assistant", content: transitionReply });
-        
-        // Clean up conversation state
-        conversationStates.delete(conversationId);
-        
-        return res.json({ reply: transitionReply, sessionEnded: true });
-      }
-    }
+    // Remove automatic summary triggering - only use timer-based summaries
+    // The frontend timer will handle summary generation at 1-minute warning
 
     // Quick corrections
     if (/^\s*update\s*:/i.test(userText)) {
@@ -804,7 +785,35 @@ router.post("/reply", async (req, res) => {
     const historyWithoutSystem = history.filter(msg => msg.role !== 'system');
     
     // Add stage-aware instructions to system prompt
-    const stageInstructions = getStageInstructions(conversationState);
+    let stageInstructions = getStageInstructions(conversationState);
+    
+    // Special handling for summary requests
+    if (isSummaryRequest) {
+      console.log("🔄 Processing summary request - adding summary instructions");
+      stageInstructions += `\n\nSUMMARY REQUEST DETECTED:
+The user has requested a summary as we approach the end of our conversation time. Please:
+
+1. Acknowledge that time is running short
+2. Provide a structured summary using UP TO FIVE bullet points (•) with proper line breaks
+3. Each bullet point should capture a distinct theme from the conversation
+4. Use the format:
+
+• [First key theme]
+
+• [Second key theme]
+
+• [Third key theme]
+
+• [Fourth key theme]
+
+• [Fifth key theme]
+
+5. After the summary, ask if there's anything important they'd like to add before finishing
+6. Keep the response focused and concise due to limited time remaining
+
+CRITICAL: This is likely one of the final exchanges, so provide a comprehensive summary that captures the essence of their belief change story.`;
+    }
+    
     const enhancedSystemPrompt = systemPrompt + "\n\n" + stageInstructions;
     
     // Construct messages array for model call

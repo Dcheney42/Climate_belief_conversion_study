@@ -131,7 +131,7 @@
                 startTimer();
                 
                 // Add dynamic opening assistant message from enhanced system
-                if (data.messages && data.messages.length > 1) {
+                if (data.messages && data.messages.length >= 1) {
                     const openingMessage = data.messages.find(msg => msg.role === 'assistant');
                     if (openingMessage) {
                         addMessage({
@@ -719,21 +719,53 @@
             return summary.slice(0, 4);
         }
         
-        // Show 1-minute warning with summary
+        // Show 1-minute warning with AI-generated summary
         async function showOneMinuteWarning() {
-            const summary = generateConversationSummary();
-            const warningMessage = `We're almost out of time — about one minute left.
-
-${summary}
-
-Is there anything important you'd like to add before we finish?`;
+            // Send a special message to the AI asking for a summary
+            const summaryRequest = "We have about one minute left. Could you please summarize the key themes from our conversation so far?";
             
-            // Add system message
-            addMessage({
-                role: 'system',
-                content: warningMessage,
-                timestamp: new Date().toISOString()
-            });
+            try {
+                // Send summary request to AI
+                const response = await fetch('/chat/reply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        conversationId,
+                        message: summaryRequest,
+                        userId: participantId,
+                        isSummaryRequest: true // Flag to indicate this is a summary request
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Add the AI's summary response
+                    const aiSummaryMessage = {
+                        role: 'assistant',
+                        content: data.reply,
+                        timestamp: new Date().toISOString()
+                    };
+                    addMessage(aiSummaryMessage);
+                } else {
+                    // Fallback to simple warning if AI request fails
+                    addMessage({
+                        role: 'system',
+                        content: "We're almost out of time — about one minute left. Is there anything important you'd like to add before we finish?",
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            } catch (error) {
+                console.error('Error requesting AI summary:', error);
+                // Fallback to simple warning
+                addMessage({
+                    role: 'system',
+                    content: "We're almost out of time — about one minute left. Is there anything important you'd like to add before we finish?",
+                    timestamp: new Date().toISOString()
+                });
+            }
         }
         
         function escapeHtml(text) {
