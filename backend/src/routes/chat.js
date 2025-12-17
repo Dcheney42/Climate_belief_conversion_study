@@ -229,23 +229,26 @@ function isExhaustionSignal(userText) {
 
 function shouldAdvanceToElaboration(state) {
   // Advance to elaboration after sufficient exploration or if user is showing fatigue
-  return (state.substantiveResponseCount >= 3 && state.turnCount >= 5) ||
-         (state.minimalResponseCount >= 2 && state.turnCount >= 4);
+  // Increased thresholds to allow more natural conversation development
+  return (state.substantiveResponseCount >= 3 && state.turnCount >= 8) ||
+         (state.minimalResponseCount >= 5 && state.turnCount >= 8);
 }
 
 function shouldAdvanceToRecap(state) {
   // Advance to recap stage if user shows completion signals or after sufficient conversation
-  return state.exhaustionSignals >= 2 ||
-         state.minimalResponseCount >= 3 ||
-         (state.turnCount >= 8 && state.substantiveResponseCount >= 2);
+  // Increased thresholds to allow more natural conversation development
+  return state.exhaustionSignals >= 4 ||
+         state.minimalResponseCount >= 6 ||
+         (state.turnCount >= 15 && state.substantiveResponseCount >= 3);
 }
 
 function shouldTriggerSummary(state) {
   // Trigger summary if in recap stage and user is indicating completion
+  // Increased thresholds to allow more natural conversation development
   return state.stage === 'recap' ||
-         state.exhaustionSignals >= 3 ||
-         state.minimalResponseCount >= 4 ||
-         (state.topicTurnCount >= 4 && state.stage !== 'exploration');
+         state.exhaustionSignals >= 5 ||
+         state.minimalResponseCount >= 8 ||
+         (state.topicTurnCount >= 8 && state.stage !== 'exploration');
 }
 
 // Enhanced termination detection

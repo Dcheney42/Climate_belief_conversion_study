@@ -300,21 +300,24 @@ class ConversationStateManager {
 
   // Stage progression logic
   shouldAdvanceToElaboration(state) {
-    return (state.substantiveResponseCount >= 3 && state.turnCount >= 5) ||
-           (state.minimalResponseCount >= 2 && state.turnCount >= 4);
+    // Increased thresholds to allow more natural conversation development
+    return (state.substantiveResponseCount >= 3 && state.turnCount >= 8) ||
+           (state.minimalResponseCount >= 5 && state.turnCount >= 8);
   }
 
   shouldAdvanceToRecap(state) {
-    return state.exhaustionSignals >= 2 ||
-           state.minimalResponseCount >= 3 ||
-           (state.turnCount >= 8 && state.substantiveResponseCount >= 2);
+    // Increased thresholds to allow more natural conversation development
+    return state.exhaustionSignals >= 4 ||
+           state.minimalResponseCount >= 6 ||
+           (state.turnCount >= 15 && state.substantiveResponseCount >= 3);
   }
 
   shouldTriggerSummary(state) {
+    // Increased thresholds to allow more natural conversation development
     return state.stage === 'recap' ||
-           state.exhaustionSignals >= 3 ||
-           state.minimalResponseCount >= 4 ||
-           (state.topicTurnCount >= 4 && state.stage !== 'exploration');
+           state.exhaustionSignals >= 5 ||
+           state.minimalResponseCount >= 8 ||
+           (state.topicTurnCount >= 8 && state.stage !== 'exploration');
   }
 
   // Delete conversation state
