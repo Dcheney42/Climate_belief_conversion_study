@@ -1,4 +1,13 @@
 // backend/src/utils/onTopic.js
+
+// State management for repetition detection and question gating
+let conversationState = {
+  userAnswers: [], // Track last 5 user messages
+  lastQuestionIntent: null, // Track the type of last question asked
+  eventConfirmed: false, // Flag when user has identified an event 2+ times
+  identifiedEvents: {}, // Track events mentioned and their count
+};
+
 const OFF_TOPIC_PATTERNS = [
   /talk about something else/i,
   /another topic/i,
@@ -81,4 +90,132 @@ export function redirectLine(driftType = 'general') {
     default:
       return "I can see that's important to you. For this interview, I'd like to stay focused on understanding how and why your beliefs about climate change changed. How did that experience influence your thinking about climate change specifically?";
   }
+}
+
+// Normalize text for comparison
+function normalizeText(text) {
+  if (!text) return '';
+  return text.toLowerCase()
+    .replace(/[^\w\s]/g, '') // Remove punctuation
+    .replace(/\s+/g, ' ')    // Collapse whitespace
+    .trim();
+}
+
+// Event patterns to detect specific events mentioned
+const EVENT_PATTERNS = [
+  /bushfire/i, /wildfire/i, /fire/i,
+  /hurricane/i, /cyclone/i, /typhoon/i,
+  /flood/i, /flooding/i,
+  /drought/i, /heatwave/i,
+  /coral.*bleach/i, /bleach.*coral/i,
+  /storm/i, /tornado/i,
+  /melting.*ice/i, /ice.*melting/i,
+  /sea.*level.*ris/i,
+  /extinction/i,
+];
+
+// Track user responses and detect repetition
+export function trackUserResponse(userMessage) {
+  if (!userMessage) return;
+  
+  const normalized = normalizeText(userMessage);
+  
+  // Add to user answers history (keep last 5)
+  conversationState.userAnswers.push(normalized);
+  if (conversationState.userAnswers.length > 5) {
+    conversationState.userAnswers.shift();
+  }
+  
+  // Check for event mentions and track them
+  EVENT_PATTERNS.forEach(pattern => {
+    if (pattern.test(userMessage)) {
+      const eventKey = pattern.source.replace(/[^a-z]/gi, ''); // Simple key from pattern
+      conversationState.identifiedEvents[eventKey] = (conversationState.identifiedEvents[eventKey] || 0) + 1;
+      
+      // If any event mentioned 2+ times, mark as confirmed
+      if (conversationState.identifiedEvents[eventKey] >= 2) {
+        conversationState.eventConfirmed = true;
+      }
+    }
+  });
+}
+
+// Detect if user is repeating the same answer
+export function detectRepetition(currentMessage) {
+  if (!currentMessage || conversationState.userAnswers.length < 2) return false;
+  
+  const currentNormalized = normalizeText(currentMessage);
+  const recent = conversationState.userAnswers.slice(-2); // Last 2 messages
+  
+  // Check if current message is very similar to recent ones
+  return recent.some(prev => {
+    if (!prev || prev.length === 0) return false;
+    
+    // Simple similarity check - if 70% of words match
+    const currentWords = currentNormalized.split(' ');
+    const prevWords = prev.split(' ');
+    
+    if (currentWords.length === 0 || prevWords.length === 0) return false;
+    
+    const matches = currentWords.filter(word =>
+      word.length > 2 && prevWords.includes(word)
+    ).length;
+    
+    return matches / Math.max(currentWords.length, prevWords.length) > 0.7;
+  });
+}
+
+// Question intent types
+const QUESTION_INTENTS = {
+  ASK_EVENT: 'ask_event',
+  ASK_IMPACT: 'ask_impact',
+  ASK_TIMELINE: 'ask_timeline_next',
+  ASK_ACTION: 'ask_action_change',
+  ASK_SOCIAL: 'ask_social_context',
+  ASK_EMOTION: 'ask_emotion'
+};
+
+// Track the last question intent
+export function setQuestionIntent(intent) {
+  conversationState.lastQuestionIntent = intent;
+}
+
+// Check if a question type should be blocked
+export function isQuestionBlocked(intent) {
+  // Block event questions if event is confirmed or if last question was also event-seeking
+  if (intent === QUESTION_INTENTS.ASK_EVENT) {
+    return conversationState.eventConfirmed ||
+           conversationState.lastQuestionIntent === QUESTION_INTENTS.ASK_EVENT ||
+           Object.keys(conversationState.identifiedEvents).length > 0;
+  }
+  
+  return false;
+}
+
+// Get alternative question when blocked
+export function getAlternativeQuestion() {
+  const alternatives = [
+    "What about that made it convincing for you?",
+    "How did it change what you believed humans were doing?",
+    "What happened next after you saw that?",
+    "Did anyone influence you around that time?",
+    "What did you do differently afterward?"
+  ];
+  
+  return alternatives[Math.floor(Math.random() * alternatives.length)];
+}
+
+// Reset state for new conversation
+export function resetConversationState() {
+  conversationState = {
+    userAnswers: [],
+    lastQuestionIntent: null,
+    eventConfirmed: false,
+    identifiedEvents: {},
+  };
+}
+
+// Get current state (for debugging/monitoring)
+export function getConversationState() {
+  return { ...conversationState };
 }

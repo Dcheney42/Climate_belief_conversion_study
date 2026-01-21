@@ -5,7 +5,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { renderSystemPrompt } from "../utils/systemPrompt.js";
 import { openingLineFrom } from "../utils/openingLine.js";
-import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, detectActionRoleDrift } from "../utils/onTopic.js";
+import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, detectActionRoleDrift, trackUserResponse, detectRepetition, setQuestionIntent, isQuestionBlocked, getAlternativeQuestion, resetConversationState, getConversationState } from "../utils/onTopic.js";
 
 // Conversation flow tracking
 const conversationStates = new Map(); // In-memory tracking for conversation states
@@ -676,6 +676,9 @@ router.post("/start", async (req, res) => {
     // Initialize conversation state
     const conversationState = initializeConversationState(conversationId);
     
+    // Initialize anti-loop state in onTopic module
+    resetConversationState();
+    
     // Get participant profile
     const profile = await getParticipantProfile(userId);
     if (!profile) {
@@ -721,6 +724,18 @@ router.post("/reply", async (req, res) => {
     // Initialize conversation state tracking
     const conversationState = updateConversationState(conversationId, userText);
     console.log("🔍 Conversation state:", conversationState);
+    
+    // Track user response for repetition detection
+    trackUserResponse(userText);
+    
+    // Check for repetition and potential looping
+    const isRepeating = detectRepetition(userText);
+    const antiLoopState = getConversationState();
+    console.log("🔍 Anti-loop state:", {
+      isRepeating,
+      eventConfirmed: antiLoopState.eventConfirmed,
+      identifiedEvents: antiLoopState.identifiedEvents
+    });
 
     // Enhanced termination detection
     if (isTerminationRequest(userText) || isRepeatedNegative(userText, conversationState)) {
@@ -835,12 +850,59 @@ CRITICAL: This is likely one of the final exchanges, so provide a comprehensive 
 
     // Call model with fresh system prompt + conversation history + new user message
     const next = await callModel(messagesForModel);
-    const modelReply = next?.content || "";
+    let modelReply = next?.content || "";
 
     // 🔍 DEBUG: Log raw model response
     console.log("🔍 DEBUG: Raw LLM response:");
     console.log("🔍 Response length:", modelReply.length);
     console.log("🔍 Response preview:", modelReply.substring(0, 200) + (modelReply.length > 200 ? "..." : ""));
+    
+    // ANTI-LOOP INTERVENTION: Check for circular event questioning
+    let interventionApplied = false;
+    const eventQuestionPatterns = [
+      /what.*event/i,
+      /what.*moment/i,
+      /what.*specific.*experience/i,
+      /which.*event/i,
+      /what.*happened/i,
+      /what.*led.*to/i
+    ];
+    
+    const isEventQuestion = eventQuestionPatterns.some(pattern => pattern.test(modelReply));
+    const currentAntiLoopState = getConversationState();
+    
+    if (isEventQuestion && (currentAntiLoopState.eventConfirmed || Object.keys(currentAntiLoopState.identifiedEvents).length > 0)) {
+      console.log("🚫 ANTI-LOOP: Blocking event question, user has already identified events");
+      console.log("🚫 Event status:", {
+        eventConfirmed: currentAntiLoopState.eventConfirmed,
+        identifiedEvents: currentAntiLoopState.identifiedEvents
+      });
+      
+      // Replace with alternative question
+      const alternativeReply = getAlternativeQuestion();
+      console.log("🔄 ANTI-LOOP: Using alternative question:", alternativeReply);
+      modelReply = alternativeReply;
+      interventionApplied = true;
+      
+      // Set question intent to non-event type
+      setQuestionIntent('ask_impact');
+    } else if (isEventQuestion) {
+      // Mark that we're asking an event question
+      setQuestionIntent('ask_event');
+    } else {
+      // Determine and set appropriate question intent based on content
+      if (modelReply.toLowerCase().includes('feel') || modelReply.toLowerCase().includes('emotion')) {
+        setQuestionIntent('ask_emotion');
+      } else if (modelReply.toLowerCase().includes('next') || modelReply.toLowerCase().includes('after')) {
+        setQuestionIntent('ask_timeline');
+      } else if (modelReply.toLowerCase().includes('do') || modelReply.toLowerCase().includes('action')) {
+        setQuestionIntent('ask_action');
+      } else {
+        setQuestionIntent('ask_impact');
+      }
+    }
+    
+    console.log("🔍 ANTI-LOOP: Intervention applied:", interventionApplied);
 
     // Check for interview completion marker
     if (modelReply.includes("##INTERVIEW_COMPLETE##")) {
@@ -868,41 +930,66 @@ CRITICAL: This is likely one of the final exchanges, so provide a comprehensive 
     let driftType = 'general';
     let driftDetected = false;
     
-    // 🔍 DEBUG: Check for various types of drift
-    const isOffTopic = !enforceOnTopic(modelReply);
-    const isPoliticalDrift = detectPoliticalDrift(modelReply);
-    const isActionRoleDrift = detectActionRoleDrift(modelReply);
-    const isBeliefDrift = detectBeliefDrift(userText);
+    // 🔧 SUMMARY FIX: Skip drift detection for summary requests and summary responses
+    const shouldSkipDriftDetection = () => {
+      // Skip if this is an explicit summary request
+      if (isSummaryRequest) {
+        console.log('✅ Skipping drift detection - explicit summary request');
+        return true;
+      }
+      
+      // Also skip if the response appears to be a summary (auto-detection)
+      const hasBulletPoints = modelReply.includes('•') || modelReply.includes('*') || modelReply.includes('-');
+      const hasSummaryKeywords = /(?:summarize|summary|key themes|main points|to summarize|based on our conversation)/i.test(modelReply);
+      
+      if (hasBulletPoints && hasSummaryKeywords) {
+        console.log('✅ Skipping drift detection - auto-detected summary response');
+        return true;
+      }
+      
+      return false;
+    };
     
-    console.log("🔍 DEBUG: Drift detection results:");
-    console.log("🔍 Off-topic:", isOffTopic);
-    console.log("🔍 Political drift:", isPoliticalDrift);
-    console.log("🔍 Action/role drift:", isActionRoleDrift);
-    console.log("🔍 Belief drift (user):", isBeliefDrift);
-    
-    if (isOffTopic) {
-      console.log("🔍 DRIFT: Using general redirect - off-topic detected");
-      safeReply = redirectLine();
-      driftDetected = true;
-    } else if (isPoliticalDrift) {
-      console.log("🔍 DRIFT: Using political redirect");
-      driftType = 'political';
-      safeReply = redirectLine(driftType);
-      driftDetected = true;
-    } else if (isActionRoleDrift) {
-      console.log("🔍 DRIFT: Using action/role redirect");
-      // Chatbot is discussing roles/actions rather than belief change narrative
-      driftType = 'action';
-      safeReply = redirectLine(driftType);
-      driftDetected = true;
-    } else if (isBeliefDrift) {
-      console.log("🔍 DRIFT: Using belief redirect (user indicated off-topic)");
-      // User indicated we're off topic from belief change
-      driftType = 'belief';
-      safeReply = redirectLine(driftType);
-      driftDetected = true;
+    if (shouldSkipDriftDetection()) {
+      console.log("✅ SUMMARY PRESERVED: Using original model response without drift detection");
+      driftDetected = false;
     } else {
-      console.log("🔍 No drift detected - using original model response");
+      // 🔍 DEBUG: Check for various types of drift
+      const isOffTopic = !enforceOnTopic(modelReply);
+      const isPoliticalDrift = detectPoliticalDrift(modelReply);
+      const isActionRoleDrift = detectActionRoleDrift(modelReply);
+      const isBeliefDrift = detectBeliefDrift(userText);
+      
+      console.log("🔍 DEBUG: Drift detection results:");
+      console.log("🔍 Off-topic:", isOffTopic);
+      console.log("🔍 Political drift:", isPoliticalDrift);
+      console.log("🔍 Action/role drift:", isActionRoleDrift);
+      console.log("🔍 Belief drift (user):", isBeliefDrift);
+      
+      if (isOffTopic) {
+        console.log("🔍 DRIFT: Using general redirect - off-topic detected");
+        safeReply = redirectLine();
+        driftDetected = true;
+      } else if (isPoliticalDrift) {
+        console.log("🔍 DRIFT: Using political redirect");
+        driftType = 'political';
+        safeReply = redirectLine(driftType);
+        driftDetected = true;
+      } else if (isActionRoleDrift) {
+        console.log("🔍 DRIFT: Using action/role redirect");
+        // Chatbot is discussing roles/actions rather than belief change narrative
+        driftType = 'action';
+        safeReply = redirectLine(driftType);
+        driftDetected = true;
+      } else if (isBeliefDrift) {
+        console.log("🔍 DRIFT: Using belief redirect (user indicated off-topic)");
+        // User indicated we're off topic from belief change
+        driftType = 'belief';
+        safeReply = redirectLine(driftType);
+        driftDetected = true;
+      } else {
+        console.log("🔍 No drift detected - using original model response");
+      }
     }
     
     // 🔍 DEBUG: Log final response selection
