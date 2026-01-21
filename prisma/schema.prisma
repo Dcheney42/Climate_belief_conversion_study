@@ -58,6 +58,33 @@ model IndividualDifferences {
   education         String?
   viewsChanged      String? // "Yes", "No"
   
+  // NEW: Core belief change fields
+  mindChangeDirection String? // Radio button selection for belief change direction
+  mindChangeNoChange Boolean @default(false) // "My views have not changed" option
+  mindChangeOtherText String? // Free text when "Other" is selected
+  
+  // NEW: Climate change skepticism scale key scores
+  ccsMeanScored     Float?  // Overall CCS mean score
+  ccsOccurrenceMean Float?  // CCS occurrence subscale mean
+  ccsCausationMean  Float?  // CCS causation subscale mean
+  ccsSeriousnessMean Float? // CCS seriousness subscale mean
+  ccsEfficacyMean   Float?  // CCS efficacy subscale mean
+  ccsTrustMean      Float?  // CCS trust subscale mean
+  
+  // NEW: Political views
+  economicIssues    Int?    // Economic political orientation (1-7 scale)
+  socialIssues      Int?    // Social political orientation (1-7 scale)
+  
+  // NEW: AI Summary fields
+  aiSummary         String? // AI-generated summary of participant views
+  aiSummaryAccuracy String? // Participant's rating of AI summary accuracy
+  aiConfidenceSlider Int?   // Participant's confidence in AI summary (0-100)
+  
+  // NEW: Survey completion tracking
+  surveyCompleted   Boolean @default(false)
+  completedAt       DateTime?
+  prolificId        String? // Prolific participant ID
+  
   // Relations
   session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   
