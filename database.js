@@ -337,23 +337,70 @@ async function saveParticipant(data) {
             create: sessionData
         });
         
+        // Enhanced data mapping with proper type conversion and error handling
+        const mappedData = {
+            raw: data,
+            
+            // Basic demographics with proper type conversion
+            age: data.demographics?.age ? parseInt(data.demographics.age) : null,
+            gender: data.demographics?.gender || null,
+            education: data.demographics?.education || null,
+            
+            // Belief change data with proper type conversion
+            viewsChanged: data.belief_change?.has_changed_mind ? 'Yes' : 'No',
+            mindChangeDirection: data.belief_change?.mind_change_direction || null,
+            mindChangeNoChange: Boolean(data.belief_change?.mind_change_no_change),
+            mindChangeOtherText: data.belief_change?.mind_change_other_text || null,
+            
+            // CCS scale means with proper type conversion
+            ccsMeanScored: data.views_matrix?.climate_change_views?.ccs_mean_scored ?
+                parseFloat(data.views_matrix.climate_change_views.ccs_mean_scored) : null,
+            ccsOccurrenceMean: data.views_matrix?.climate_change_views?.ccs_occurrence_mean ?
+                parseFloat(data.views_matrix.climate_change_views.ccs_occurrence_mean) : null,
+            ccsCausationMean: data.views_matrix?.climate_change_views?.ccs_causation_mean ?
+                parseFloat(data.views_matrix.climate_change_views.ccs_causation_mean) : null,
+            ccsSeriousnessMean: data.views_matrix?.climate_change_views?.ccs_seriousness_mean ?
+                parseFloat(data.views_matrix.climate_change_views.ccs_seriousness_mean) : null,
+            ccsEfficacyMean: data.views_matrix?.climate_change_views?.ccs_efficacy_mean ?
+                parseFloat(data.views_matrix.climate_change_views.ccs_efficacy_mean) : null,
+            ccsTrustMean: data.views_matrix?.climate_change_views?.ccs_trust_mean ?
+                parseFloat(data.views_matrix.climate_change_views.ccs_trust_mean) : null,
+            
+            // Political views with proper type conversion
+            economicIssues: data.views_matrix?.political_views?.economic_issues ?
+                parseInt(data.views_matrix.political_views.economic_issues) : null,
+            socialIssues: data.views_matrix?.political_views?.social_issues ?
+                parseInt(data.views_matrix.political_views.social_issues) : null,
+            
+            // AI Summary data
+            aiSummary: data.belief_change?.ai_summary || null,
+            aiSummaryAccuracy: data.belief_change?.ai_summary_accuracy ||
+                data.post_chat?.chatbot_summary_accuracy || null,
+            aiConfidenceSlider: data.belief_change?.ai_confidence_slider ?
+                parseInt(data.belief_change.ai_confidence_slider) : null,
+            
+            // Survey completion tracking
+            surveyCompleted: Boolean(data.timestamps?.completed),
+            completedAt: data.timestamps?.completed ? new Date(data.timestamps.completed) : null,
+            prolificId: data.prolific_id || null
+        };
+
+        console.log('💾 Database mapping for participant:', data.participant_id, {
+            hasAge: !!mappedData.age,
+            hasGender: !!mappedData.gender,
+            hasEconomicIssues: !!mappedData.economicIssues,
+            hasCcsMean: !!mappedData.ccsMeanScored,
+            hasAiSummary: !!mappedData.aiSummary,
+            hasProlificId: !!mappedData.prolificId
+        });
+
         // Upsert individual differences
         const individualDiff = await prisma.individualDifferences.upsert({
             where: { sessionId: session.id },
-            update: {
-                raw: data,
-                age: data.demographics?.age,
-                gender: data.demographics?.gender,
-                education: data.demographics?.education,
-                viewsChanged: data.belief_change?.has_changed_mind ? 'Yes' : 'No'
-            },
+            update: mappedData,
             create: {
                 sessionId: session.id,
-                raw: data,
-                age: data.demographics?.age,
-                gender: data.demographics?.gender,
-                education: data.demographics?.education,
-                viewsChanged: data.belief_change?.has_changed_mind ? 'Yes' : 'No'
+                ...mappedData
             }
         });
         

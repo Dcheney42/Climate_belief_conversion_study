@@ -543,7 +543,7 @@ app.get('/debug/data', (req, res) => {
 });
 
 // Survey submission endpoint
-app.post('/survey/submit', (req, res) => {
+app.post('/survey/submit', async (req, res) => {
     try {
         const {
             prolific_id,
@@ -760,19 +760,94 @@ app.post('/survey/submit', (req, res) => {
         
         console.log('DEBUG: Participant data object created');
         
-        // Save participant data (always save regardless of eligibility)
-        console.log('DEBUG: About to save participant data...');
+        // Save participant data to file system (always save regardless of eligibility)
+        console.log('DEBUG: About to save participant data to files...');
         const filename = path.join(participantsDir, `${participantId}.json`);
         console.log('DEBUG: Filename:', filename);
         console.log('DEBUG: participantsDir exists:', fs.existsSync(participantsDir));
         
         if (!writeJson(filename, participantData)) {
             console.log('DEBUG: writeJson failed');
-            throw new Error('Failed to save participant data');
+            throw new Error('Failed to save participant data to file');
         }
         
         console.log('DEBUG: writeJson succeeded');
-        console.log('Participant saved successfully:', participantId);
+        
+        // Enhanced database save with better error handling and validation
+        console.log('DEBUG: About to save participant data to database...');
+        let databaseSaveResult = { success: false, error: null };
+        
+        try {
+            const database = require('./database');
+            const dbAvailable = await database.isDatabaseAvailable();
+            
+            if (dbAvailable) {
+                console.log('💾 Database available - saving participant to PostgreSQL...');
+                
+                // Pre-save validation
+                const validationErrors = [];
+                if (!participantData.participant_id) {
+                    validationErrors.push('Missing participant_id');
+                }
+                if (!participantData.prolific_id) {
+                    validationErrors.push('Missing prolific_id');
+                }
+                if (!participantData.demographics) {
+                    validationErrors.push('Missing demographics data');
+                }
+                if (!participantData.views_matrix?.climate_change_views) {
+                    validationErrors.push('Missing climate change views data');
+                }
+                
+                if (validationErrors.length > 0) {
+                    console.warn('⚠️ Validation warnings for participant:', participantId, validationErrors);
+                    // Don't fail - these are warnings only
+                }
+                
+                // Log data structure for debugging
+                console.log('📊 Survey data structure:', {
+                    participant_id: participantData.participant_id,
+                    has_demographics: !!participantData.demographics,
+                    has_belief_change: !!participantData.belief_change,
+                    has_views_matrix: !!participantData.views_matrix,
+                    has_ccs_data: !!participantData.views_matrix?.climate_change_views,
+                    has_political_data: !!participantData.views_matrix?.political_views,
+                    ccs_mean_scored: participantData.views_matrix?.climate_change_views?.ccs_mean_scored,
+                    economic_issues: participantData.views_matrix?.political_views?.economic_issues,
+                    ai_summary: participantData.belief_change?.ai_summary?.substring(0, 50) + '...'
+                });
+                
+                // Attempt database save with detailed error reporting
+                const saveResult = await database.saveParticipant(participantData);
+                if (saveResult) {
+                    console.log('✅ Participant saved to database successfully:', participantId);
+                    databaseSaveResult.success = true;
+                } else {
+                    throw new Error('Database save returned null - save failed');
+                }
+                
+            } else {
+                console.log('⚠️ Database unavailable - using file fallback only');
+                databaseSaveResult.error = 'Database connection not available';
+            }
+        } catch (dbError) {
+            console.error('❌ Database save failed for participant:', participantId, {
+                error: dbError.message,
+                stack: process.env.NODE_ENV === 'development' ? dbError.stack : undefined,
+                participantData: {
+                    participant_id: participantData.participant_id,
+                    prolific_id: participantData.prolific_id,
+                    has_demographics: !!participantData.demographics,
+                    has_belief_change: !!participantData.belief_change,
+                    has_views_matrix: !!participantData.views_matrix
+                },
+                timestamp: new Date().toISOString()
+            });
+            databaseSaveResult.error = dbError.message;
+            // Continue - file save succeeded, don't fail the request
+        }
+        
+        console.log('Participant saved successfully:', participantId, 'Database:', databaseSaveResult.success ? 'YES' : 'NO');
         console.log('DEBUG: Sending response with participantId:', participantId);
         
         res.json({
@@ -1393,7 +1468,7 @@ app.post('/api/honeypot-submission', (req, res) => {
 });
 
 // End survey submission endpoint
-app.post('/api/end-survey', (req, res) => {
+app.post('/api/end-survey', async (req, res) => {
     try {
         const {
             participant_id,
@@ -1428,9 +1503,26 @@ app.post('/api/end-survey', (req, res) => {
         participantData.timestamps.completed = now;
         participantData.updatedAt = now;
         
-        // Save updated participant data
+        // Save updated participant data to file
         if (!writeJson(participantFile, participantData)) {
             throw new Error('Failed to update participant data');
+        }
+        
+        // Save updated participant data to database
+        try {
+            const database = require('./database');
+            const dbAvailable = await database.isDatabaseAvailable();
+            
+            if (dbAvailable) {
+                console.log('💾 Updating participant in database for end survey:', participant_id);
+                await database.saveParticipant(participantData);
+                console.log('✅ End survey data saved to database successfully');
+            } else {
+                console.log('⚠️ Database unavailable for end survey update - file saved only');
+            }
+        } catch (dbError) {
+            console.error('❌ Database update failed for end survey:', participant_id, dbError.message);
+            // Continue - file save succeeded, don't fail the request
         }
         
         console.log('End survey data integrated successfully for participant:', participant_id);
@@ -1446,7 +1538,7 @@ app.post('/api/end-survey', (req, res) => {
 });
 
 // Chatbot summary validation endpoint
-app.post('/api/chatbot-summary-validation', (req, res) => {
+app.post('/api/chatbot-summary-validation', async (req, res) => {
     try {
         const {
             participant_id,
@@ -1498,9 +1590,26 @@ app.post('/api/chatbot-summary-validation', (req, res) => {
         // Update timestamp
         participantData.updatedAt = now;
         
-        // Save updated participant data
+        // Save updated participant data to file
         if (!writeJson(participantFile, participantData)) {
             throw new Error('Failed to update participant data');
+        }
+        
+        // Save updated participant data to database
+        try {
+            const database = require('./database');
+            const dbAvailable = await database.isDatabaseAvailable();
+            
+            if (dbAvailable) {
+                console.log('💾 Updating participant in database for chatbot summary validation:', participant_id);
+                await database.saveParticipant(participantData);
+                console.log('✅ Chatbot summary validation data saved to database successfully');
+            } else {
+                console.log('⚠️ Database unavailable for chatbot summary validation update - file saved only');
+            }
+        } catch (dbError) {
+            console.error('❌ Database update failed for chatbot summary validation:', participant_id, dbError.message);
+            // Continue - file save succeeded, don't fail the request
         }
         
         console.log('Chatbot summary validation saved successfully for participant:', participant_id);
