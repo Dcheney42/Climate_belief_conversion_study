@@ -8,6 +8,62 @@ const { dataAccess } = require('./lib/dataAccess');
 const database = require('./database');
 require('dotenv').config();
 
+/**
+ * Filter messages to exclude system/developer content from persistence and export.
+ * Only actual chat turns (user + assistant) should be saved to files and database.
+ *
+ * @param {Array} messages - Array of message objects with role and content
+ * @param {Object} options - Filtering options
+ * @param {boolean} options.excludeSystem - Exclude system prompts (default: true)
+ * @param {boolean} options.excludeOpeningLine - Exclude first assistant message before any user message (default: true)
+ * @param {boolean} options.excludeGenerated - Exclude auto-generated summary messages (default: false)
+ * @returns {Array} Filtered messages containing only user/assistant chat turns
+ */
+function filterChatMessages(messages, options = {}) {
+  const {
+    excludeSystem = true,
+    excludeOpeningLine = true,
+    excludeGenerated = false
+  } = options;
+  
+  if (!messages || !Array.isArray(messages)) {
+    return [];
+  }
+  
+  let filtered = [...messages]; // Create a copy to avoid mutation
+  
+  // Filter out system messages (developer/research prompts)
+  if (excludeSystem) {
+    filtered = filtered.filter(msg => msg.role !== 'system');
+  }
+  
+  // Filter out opening line (first assistant message before any user interaction)
+  if (excludeOpeningLine) {
+    let foundUserMessage = false;
+    const firstAssistantIndex = filtered.findIndex(msg => {
+      if (msg.role === 'user') {
+        foundUserMessage = true;
+        return false;
+      }
+      return msg.role === 'assistant' && !foundUserMessage;
+    });
+    
+    if (firstAssistantIndex !== -1) {
+      filtered = [
+        ...filtered.slice(0, firstAssistantIndex),
+        ...filtered.slice(firstAssistantIndex + 1)
+      ];
+    }
+  }
+  
+  // Optionally filter out auto-generated summaries
+  if (excludeGenerated) {
+    filtered = filtered.filter(msg => !msg.generated_summary);
+  }
+  
+  return filtered;
+}
+
 // Enhanced chat router will be imported and mounted below
 
 // Chat duration constant - 5 minutes
@@ -1151,8 +1207,17 @@ app.post('/api/conversations/:id/message', async (req, res) => {
                 const participantData = readJson(participantFile);
                 
                 if (participantData) {
+                    // Filter out system messages and opening line - only save actual chat turns
+                    const filteredMessages = filterChatMessages(conversationData.messages, {
+                        excludeSystem: true,
+                        excludeOpeningLine: true,
+                        excludeGenerated: false  // Keep summaries - they're part of the conversation
+                    });
+                    
+                    console.log(`📊 Filtered messages (early-end): ${conversationData.messages.length} total -> ${filteredMessages.length} chat turns (excluded ${conversationData.messages.length - filteredMessages.length} system/opening messages)`);
+                    
                     // Transform conversation messages to match desired structure
-                    const transformedMessages = conversationData.messages.map(msg => ({
+                    const transformedMessages = filteredMessages.map(msg => ({
                         sender: msg.role === 'user' ? 'participant' : 'chatbot',
                         text: msg.content,
                         timestamp: msg.timestamp || now.toISOString()
@@ -1321,8 +1386,17 @@ app.post('/api/conversations/:id/end', async (req, res) => {
             const participantData = readJson(participantFile);
             
             if (participantData) {
+                // Filter out system messages and opening line - only save actual chat turns
+                const filteredMessages = filterChatMessages(conversationData.messages, {
+                    excludeSystem: true,
+                    excludeOpeningLine: true,
+                    excludeGenerated: false  // Keep summaries - they're part of the conversation
+                });
+                
+                console.log(`📊 Filtered messages (end): ${conversationData.messages.length} total -> ${filteredMessages.length} chat turns (excluded ${conversationData.messages.length - filteredMessages.length} system/opening messages)`);
+                
                 // Transform conversation messages to match desired structure
-                const transformedMessages = conversationData.messages.map(msg => ({
+                const transformedMessages = filteredMessages.map(msg => ({
                     sender: msg.role === 'user' ? 'participant' : 'chatbot',
                     text: msg.content,
                     timestamp: msg.timestamp || now.toISOString()
@@ -1851,10 +1925,16 @@ app.get('/api/admin/export.json', requireAdmin, (req, res) => {
                         
                         // Count messages from participant chatbot interactions
                         if (completeParticipant.chatbot_interaction && completeParticipant.chatbot_interaction.messages) {
-                            totalMessages += completeParticipant.chatbot_interaction.messages.length;
+                            // Note: Messages should already be filtered when saved to participant files,
+                            // but we add an extra safety filter here to ensure no system messages in exports
+                            const exportMessages = completeParticipant.chatbot_interaction.messages.filter(msg =>
+                                msg.sender === 'participant' || msg.sender === 'chatbot'
+                            );
+                            
+                            totalMessages += exportMessages.length;
                             
                             // Add messages to messages array with additional metadata
-                            completeParticipant.chatbot_interaction.messages.forEach(msg => {
+                            exportMessages.forEach(msg => {
                                 messages.push({
                                     participant_id: completeParticipant.participant_id,
                                     sender: msg.sender,

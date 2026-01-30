@@ -7,6 +7,62 @@ import { renderSystemPrompt } from "../utils/systemPrompt.js";
 import { openingLineFrom } from "../utils/openingLine.js";
 import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, detectActionRoleDrift, trackUserResponse, detectRepetition, setQuestionIntent, isQuestionBlocked, getAlternativeQuestion, resetConversationState, getConversationState } from "../utils/onTopic.js";
 
+/**
+ * Filter messages to exclude system/developer content from persistence and export.
+ * Only actual chat turns (user + assistant) should be saved to files and database.
+ *
+ * @param {Array} messages - Array of message objects with role and content
+ * @param {Object} options - Filtering options
+ * @param {boolean} options.excludeSystem - Exclude system prompts (default: true)
+ * @param {boolean} options.excludeOpeningLine - Exclude first assistant message before any user message (default: true)
+ * @param {boolean} options.excludeGenerated - Exclude auto-generated summary messages (default: false)
+ * @returns {Array} Filtered messages containing only user/assistant chat turns
+ */
+function filterChatMessages(messages, options = {}) {
+  const {
+    excludeSystem = true,
+    excludeOpeningLine = true,
+    excludeGenerated = false
+  } = options;
+  
+  if (!messages || !Array.isArray(messages)) {
+    return [];
+  }
+  
+  let filtered = [...messages]; // Create a copy to avoid mutation
+  
+  // Filter out system messages (developer/research prompts)
+  if (excludeSystem) {
+    filtered = filtered.filter(msg => msg.role !== 'system');
+  }
+  
+  // Filter out opening line (first assistant message before any user interaction)
+  if (excludeOpeningLine) {
+    let foundUserMessage = false;
+    const firstAssistantIndex = filtered.findIndex(msg => {
+      if (msg.role === 'user') {
+        foundUserMessage = true;
+        return false;
+      }
+      return msg.role === 'assistant' && !foundUserMessage;
+    });
+    
+    if (firstAssistantIndex !== -1) {
+      filtered = [
+        ...filtered.slice(0, firstAssistantIndex),
+        ...filtered.slice(firstAssistantIndex + 1)
+      ];
+    }
+  }
+  
+  // Optionally filter out auto-generated summaries
+  if (excludeGenerated) {
+    filtered = filtered.filter(msg => !msg.generated_summary);
+  }
+  
+  return filtered;
+}
+
 // Conversation flow tracking
 const conversationStates = new Map(); // In-memory tracking for conversation states
 
@@ -693,17 +749,17 @@ router.post("/start", async (req, res) => {
     const openingLine = openingLineFrom(profile);
     console.log("✅ Generated opening line:", openingLine);
 
+    // Note: System prompt is NOT saved - it's only used for LLM context
+    // Only the opening line is saved (will be filtered out later when saving to participant files)
     const messages = [
-      { role: "system", content: systemPrompt, userId }, // Store userId with system message
       { role: "assistant", content: openingLine }
     ];
 
-    // Save conversation with userId metadata
+    // Save conversation WITHOUT system message (only actual chat turns)
     await saveConversation(userId, conversationId, messages);
     
-    // Return without system message (client doesn't need to see it)
-    const clientMessages = messages.filter(msg => msg.role !== 'system');
-    res.json({ conversationId, messages: clientMessages });
+    // Return messages to client (opening line only)
+    res.json({ conversationId, messages: messages });
   } catch (err) {
     console.error("❌ chat/start error:", err);
     res.status(500).json({ error: "Failed to start chat" });

@@ -2,6 +2,22 @@ const { PrismaClient } = require('@prisma/client');
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * Filter messages to exclude system/developer content from persistence and export.
+ * Only actual chat turns (user + assistant) should be saved to database and exported.
+ *
+ * @param {Array} messages - Array of message objects with role and content
+ * @returns {Array} Filtered messages containing only user/assistant chat turns
+ */
+function filterChatMessages(messages) {
+  if (!messages || !Array.isArray(messages)) {
+    return [];
+  }
+  
+  // Filter out system messages - we only want actual chat turns
+  return messages.filter(msg => msg.role !== 'system');
+}
+
 // Initialize Prisma client
 let prisma = null;
 let isInitialized = false;
@@ -207,7 +223,10 @@ function getMessagesFromFiles() {
         for (const file of files) {
             const session = readJson(path.join(conversationsDir, file));
             if (session && session.messages) {
-                session.messages.forEach((msg, index) => {
+                // Filter out system messages - only export actual chat turns
+                const chatMessages = filterChatMessages(session.messages);
+                
+                chatMessages.forEach((msg, index) => {
                     messages.push({
                         message_id: `${session.id}-msg-${index}`,
                         session_id: session.id,
@@ -222,7 +241,7 @@ function getMessagesFromFiles() {
             }
         }
         
-        console.log(`✅ Extracted ${messages.length} messages from session files`);
+        console.log(`✅ Extracted ${messages.length} chat messages from session files (system messages excluded)`);
         return messages;
     } catch (error) {
         console.error('❌ File fallback failed for messages:', error);
@@ -292,14 +311,20 @@ async function getAllMessages() {
     }
     
     try {
+        // Filter out system messages at database query level
         const messages = await prisma.message.findMany({
+            where: {
+                role: {
+                    not: 'system'
+                }
+            },
             orderBy: [
                 { sessionId: 'asc' },
                 { turn: 'asc' }
             ]
         });
         
-        console.log(`✅ Retrieved ${messages.length} messages from Prisma`);
+        console.log(`✅ Retrieved ${messages.length} chat messages from Prisma (system messages excluded)`);
         return messages.map(transformPrismaToMessage);
         
     } catch (error) {
@@ -485,13 +510,18 @@ async function saveMessages(sessionId, messages) {
     }
     
     try {
+        // Filter out system messages before saving - only save actual chat turns
+        const chatMessages = filterChatMessages(messages);
+        
+        console.log(`💾 Database: Filtering messages for session ${sessionId}: ${messages.length} total -> ${chatMessages.length} chat turns (${messages.length - chatMessages.length} system messages excluded)`);
+        
         // Delete existing messages for this session first
         await prisma.message.deleteMany({
             where: { sessionId: sessionId }
         });
         
-        // Insert all messages
-        const messagePromises = messages.map((msg, index) => {
+        // Insert only actual chat messages (user + assistant, no system)
+        const messagePromises = chatMessages.map((msg, index) => {
             return prisma.message.create({
                 data: {
                     id: `${sessionId}-msg-${index}`,
@@ -505,8 +535,8 @@ async function saveMessages(sessionId, messages) {
         });
         
         await Promise.all(messagePromises);
-        console.log(`✅ ${messages.length} messages saved to Prisma for session ${sessionId}`);
-        return messages;
+        console.log(`✅ ${chatMessages.length} chat messages saved to Prisma for session ${sessionId}`);
+        return chatMessages;
         
     } catch (error) {
         console.error('❌ Prisma messages save failed:', error.message);
