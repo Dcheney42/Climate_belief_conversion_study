@@ -8,6 +8,79 @@ import { openingLineFrom } from "../utils/openingLine.js";
 import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, detectActionRoleDrift, trackUserResponse, detectRepetition, setQuestionIntent, isQuestionBlocked, getAlternativeQuestion, resetConversationState, getConversationState } from "../utils/onTopic.js";
 
 /**
+ * Incrementally update participant file with conversation messages.
+ * This ensures messages are persisted after each turn, preventing data loss on disconnect/refresh.
+ *
+ * @param {string} conversationId - The conversation ID
+ * @param {string} participantId - The participant ID
+ * @returns {Promise<boolean>} - Success status
+ */
+async function updateParticipantMessagesIncremental(conversationId, participantId) {
+    try {
+        // Load conversation data
+        const conversationFile = path.join(process.cwd(), 'data', 'conversations', `${conversationId}.json`);
+        
+        if (!fs.existsSync(conversationFile)) {
+            console.warn(`⚠️ No conversation file found for incremental update: ${conversationId}`);
+            return false;
+        }
+        
+        const conversationData = JSON.parse(fs.readFileSync(conversationFile, 'utf8'));
+        
+        if (!conversationData || !conversationData.messages) {
+            console.warn(`⚠️ No conversation data found for incremental update: ${conversationId}`);
+            return false;
+        }
+        
+        // Load participant data
+        const participantFile = path.join(process.cwd(), 'data', 'participants', `${participantId}.json`);
+        
+        if (!fs.existsSync(participantFile)) {
+            console.warn(`⚠️ No participant file found for incremental update: ${participantId}`);
+            return false;
+        }
+        
+        const participantData = JSON.parse(fs.readFileSync(participantFile, 'utf8'));
+        
+        // Filter messages: exclude system prompts and opening line
+        const filteredMessages = filterChatMessages(conversationData.messages, {
+            excludeSystem: true,
+            excludeOpeningLine: true,
+            excludeGenerated: false  // Keep summaries
+        });
+        
+        // Transform to participant format with full metadata
+        const transformedMessages = filteredMessages.map((msg, index) => ({
+            conversationId: conversationId,
+            messageId: `${conversationId}-msg-${index}`,
+            turn: index,
+            sender: msg.role === 'user' ? 'participant' : 'chatbot',
+            role: msg.role === 'user' ? 'participant' : 'bot',
+            text: msg.content,
+            timestamp: msg.timestamp || new Date().toISOString(),
+            metadata: {
+                generated_summary: msg.generated_summary || false
+            }
+        }));
+        
+        // Update participant's chatbot_interaction section
+        participantData.chatbot_interaction = participantData.chatbot_interaction || {};
+        participantData.chatbot_interaction.messages = transformedMessages;
+        participantData.updatedAt = new Date().toISOString();
+        
+        // Save updated participant data
+        fs.writeFileSync(participantFile, JSON.stringify(participantData, null, 2));
+        console.log(`💾 Incremental update: Saved ${transformedMessages.length} messages to participant ${participantId}`);
+        
+        return true;
+        
+    } catch (error) {
+        console.error(`❌ Error in incremental participant update for ${participantId}:`, error);
+        return false;
+    }
+}
+
+/**
  * Filter messages to exclude system/developer content from persistence and export.
  * Only actual chat turns (user + assistant) should be saved to files and database.
  *
@@ -1059,6 +1132,15 @@ CRITICAL: This is likely one of the final exchanges, so provide a comprehensive 
     
     await appendMessage(conversationId, { role: "user", content: userText });
     await appendMessage(conversationId, { role: "assistant", content: safeReply });
+
+    // **INCREMENTAL FIX**: Update participant file after each turn to prevent data loss
+    console.log(`🔍 Enhanced router: Calling incremental update for conversation ${conversationId}, user ${userId}`);
+    try {
+      await updateParticipantMessagesIncremental(conversationId, userId);
+      console.log(`✅ Enhanced router: Incremental update succeeded`);
+    } catch (err) {
+      console.error(`❌ Enhanced router: Incremental update failed:`, err);
+    }
 
     res.json({ reply: safeReply });
   } catch (err) {
