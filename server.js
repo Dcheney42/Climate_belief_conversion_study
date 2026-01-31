@@ -301,6 +301,77 @@ function readJson(filePath) {
     }
 }
 
+/**
+ * Incrementally update participant file with conversation messages.
+ * This ensures messages are persisted after each turn, preventing data loss on disconnect/refresh.
+ *
+ * @param {string} conversationId - The conversation ID
+ * @param {string} participantId - The participant ID
+ * @returns {Promise<boolean>} - Success status
+ */
+async function updateParticipantMessagesIncremental(conversationId, participantId) {
+    try {
+        // Load conversation data
+        const conversationFile = path.join(conversationsDir, `${conversationId}.json`);
+        const conversationData = readJson(conversationFile);
+        
+        if (!conversationData || !conversationData.messages) {
+            console.warn(`⚠️ No conversation data found for incremental update: ${conversationId}`);
+            return false;
+        }
+        
+        // Load participant data
+        const participantFile = path.join(participantsDir, `${participantId}.json`);
+        const participantData = readJson(participantFile);
+        
+        if (!participantData) {
+            console.warn(`⚠️ No participant data found for incremental update: ${participantId}`);
+            return false;
+        }
+        
+        // Filter messages: exclude system prompts and opening line
+        const filteredMessages = filterChatMessages(conversationData.messages, {
+            excludeSystem: true,
+            excludeOpeningLine: true,
+            excludeGenerated: false  // Keep summaries
+        });
+        
+        // Transform to participant format with full metadata
+        const transformedMessages = filteredMessages.map((msg, index) => ({
+            conversationId: conversationId,
+            messageId: `${conversationId}-msg-${index}`,
+            turn: index,
+            sender: msg.role === 'user' ? 'participant' : 'chatbot',
+            role: msg.role === 'user' ? 'participant' : 'bot',
+            text: msg.content,
+            timestamp: msg.timestamp || new Date().toISOString(),
+            metadata: {
+                generated_summary: msg.generated_summary || false
+            }
+        }));
+        
+        // Update participant's chatbot_interaction section
+        participantData.chatbot_interaction = participantData.chatbot_interaction || {};
+        participantData.chatbot_interaction.messages = transformedMessages;
+        participantData.updatedAt = new Date().toISOString();
+        
+        // Save updated participant data
+        const saveSuccess = writeJson(participantFile, participantData);
+        
+        if (saveSuccess) {
+            console.log(`💾 Incremental update: Saved ${transformedMessages.length} messages to participant ${participantId}`);
+        } else {
+            console.error(`❌ Failed to save incremental update for participant ${participantId}`);
+        }
+        
+        return saveSuccess;
+        
+    } catch (error) {
+        console.error(`❌ Error in incremental participant update for ${participantId}:`, error);
+        return false;
+    }
+}
+
 // Routes
 // Enhanced chat router mounting with better error handling
 (async () => {
@@ -418,6 +489,9 @@ function readJson(filePath) {
         const aiReply = await generateAIResponse(conv.messages, enhancedSystemPrompt);
         conv.messages.push({ role: "assistant", content: aiReply });
         await dataAccess.saveSession(conv);
+        
+        // **INCREMENTAL FIX**: Update participant file after each turn (fallback endpoint)
+        await updateParticipantMessagesIncremental(conversationId, conv.participantId);
 
         res.json({ reply: aiReply });
       } catch (err) {
@@ -1297,6 +1371,9 @@ app.post('/api/conversations/:id/message', async (req, res) => {
         
         // Save updated conversation using data access layer
         await dataAccess.saveSession(conversationData);
+        
+        // **INCREMENTAL FIX**: Update participant file after each turn to prevent data loss
+        await updateParticipantMessagesIncremental(conversationId, conversationData.participantId);
         
         const requestDuration = Date.now() - requestStart;
         console.log(`Chat message processed in ${requestDuration}ms`);
