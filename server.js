@@ -488,10 +488,18 @@ async function updateParticipantMessagesIncremental(conversationId, participantI
 
         const aiReply = await generateAIResponse(conv.messages, enhancedSystemPrompt);
         conv.messages.push({ role: "assistant", content: aiReply });
+        
+        console.log(`🔍 Fallback /chat/reply: Saving conversation ${conversationId} for participant ${conv.participantId}`);
         await dataAccess.saveSession(conv);
         
         // **INCREMENTAL FIX**: Update participant file after each turn (fallback endpoint)
-        await updateParticipantMessagesIncremental(conversationId, conv.participantId);
+        console.log(`🔍 Fallback /chat/reply: Calling incremental update for ${conv.participantId}`);
+        try {
+          await updateParticipantMessagesIncremental(conversationId, conv.participantId);
+          console.log(`✅ Fallback /chat/reply: Incremental update succeeded`);
+        } catch (err) {
+          console.error(`❌ Fallback /chat/reply: Incremental update failed:`, err);
+        }
 
         res.json({ reply: aiReply });
       } catch (err) {
