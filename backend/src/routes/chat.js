@@ -10,6 +10,7 @@ import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, 
 /**
  * Incrementally update participant file with conversation messages.
  * This ensures messages are persisted after each turn, preventing data loss on disconnect/refresh.
+ * Uses global.db methods which work with both database and files.
  *
  * @param {string} conversationId - The conversation ID
  * @param {string} participantId - The participant ID
@@ -17,22 +18,23 @@ import { enforceOnTopic, redirectLine, detectPoliticalDrift, detectBeliefDrift, 
  */
 async function updateParticipantMessagesIncremental(conversationId, participantId) {
     try {
-        // Load conversation data
-        const conversationFile = path.join(process.cwd(), 'data', 'conversations', `${conversationId}.json`);
+        console.log(`💾 Incremental update starting for conversation ${conversationId}, participant ${participantId}`);
         
-        if (!fs.existsSync(conversationFile)) {
-            console.warn(`⚠️ No conversation file found for incremental update: ${conversationId}`);
+        // Load conversation messages from database via global.db (works in production)
+        let conversationMessages = [];
+        try {
+            conversationMessages = await loadMessages(conversationId);
+            console.log(`💾 Loaded ${conversationMessages.length} messages from conversation`);
+        } catch (loadError) {
+            console.warn(`⚠️ Could not load conversation messages: ${loadError.message}`);
+        }
+        
+        if (!conversationMessages || conversationMessages.length === 0) {
+            console.warn(`⚠️ No conversation messages found for incremental update: ${conversationId}`);
             return false;
         }
         
-        const conversationData = JSON.parse(fs.readFileSync(conversationFile, 'utf8'));
-        
-        if (!conversationData || !conversationData.messages) {
-            console.warn(`⚠️ No conversation data found for incremental update: ${conversationId}`);
-            return false;
-        }
-        
-        // Load participant data
+        // Load participant data from file (participant files ARE written in production)
         const participantFile = path.join(process.cwd(), 'data', 'participants', `${participantId}.json`);
         
         if (!fs.existsSync(participantFile)) {
@@ -43,11 +45,13 @@ async function updateParticipantMessagesIncremental(conversationId, participantI
         const participantData = JSON.parse(fs.readFileSync(participantFile, 'utf8'));
         
         // Filter messages: exclude system prompts and opening line
-        const filteredMessages = filterChatMessages(conversationData.messages, {
+        const filteredMessages = filterChatMessages(conversationMessages, {
             excludeSystem: true,
             excludeOpeningLine: true,
             excludeGenerated: false  // Keep summaries
         });
+        
+        console.log(`💾 Filtered to ${filteredMessages.length} chat messages (excluding system/opening)`);
         
         // Transform to participant format with full metadata
         const transformedMessages = filteredMessages.map((msg, index) => ({
@@ -66,6 +70,7 @@ async function updateParticipantMessagesIncremental(conversationId, participantI
         // Update participant's chatbot_interaction section
         participantData.chatbot_interaction = participantData.chatbot_interaction || {};
         participantData.chatbot_interaction.messages = transformedMessages;
+        participantData.chatbot_interaction.conversationId = conversationId;
         participantData.updatedAt = new Date().toISOString();
         
         // Save updated participant data
