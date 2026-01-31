@@ -2188,7 +2188,8 @@ app.get('/api/admin/export.csv', requireAdmin, (req, res) => {
 
 // Clear all data endpoint (DANGEROUS - NO SECURITY - DEVELOPMENT ONLY)
 // WARNING: This endpoint has NO authentication. Anyone can delete all data.
-app.delete('/api/admin/clear-all-data', async (req, res) => {
+// Can be called simply by visiting the URL in a browser
+app.get('/api/admin/clear-all-data', async (req, res) => {
     try {
         // Additional safety check - require confirmation parameter
         const { confirm } = req.query;
